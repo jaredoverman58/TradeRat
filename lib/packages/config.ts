@@ -37,12 +37,12 @@ export const PACKAGE_CONFIG: Record<PackageType, PackageConfig> = {
     description: '3 trade reviews based on expert availability',
     display_name: 'Bronze Package'
   },
-  bronze_premium: {
+  gold: {
     credits: 3,
     price: 14.99,
     expert_tier: 'rat_guaranteed',
     description: '3 trade reviews guaranteed by The Trade Rat',
-    display_name: 'Bronze Package (Premium)'
+    display_name: 'Gold Package'
   },
   silver: {
     credits: 7,
@@ -51,27 +51,55 @@ export const PACKAGE_CONFIG: Record<PackageType, PackageConfig> = {
     description: '7 trade reviews based on expert availability',
     display_name: 'Silver Package'
   },
-  silver_premium: {
+  platinum: {
     credits: 7,
     price: 29.99,
     expert_tier: 'rat_guaranteed',
     description: '7 trade reviews guaranteed by The Trade Rat',
-    display_name: 'Silver Package (Premium)'
-  },
-  // Placeholder for future package types
-  gold: {
-    credits: 0,
-    price: 0,
-    expert_tier: 'any',
-    description: 'Coming soon',
-    display_name: 'Gold Package'
-  },
-  platinum: {
-    credits: 0,
-    price: 0,
-    expert_tier: 'any',
-    description: 'Coming soon',
     display_name: 'Platinum Package'
+  },
+  // Trade Finder packages - placeholder for future implementation
+  finder_single: {
+    credits: 1,
+    price: 8.99,
+    expert_tier: 'any',
+    description: 'Single trade finder review',
+    display_name: 'Finder Single'
+  },
+  finder_single_premium: {
+    credits: 1,
+    price: 13.99,
+    expert_tier: 'rat_guaranteed',
+    description: 'Single trade finder review by The Trade Rat',
+    display_name: 'Finder Single (Premium)'
+  },
+  finder_bronze: {
+    credits: 3,
+    price: 17.99,
+    expert_tier: 'any',
+    description: '3 trade finder reviews',
+    display_name: 'Finder Bronze'
+  },
+  finder_silver: {
+    credits: 7,
+    price: 44.99,
+    expert_tier: 'any',
+    description: '7 trade finder reviews',
+    display_name: 'Finder Silver'
+  },
+  finder_gold: {
+    credits: 3,
+    price: 26.99,
+    expert_tier: 'rat_guaranteed',
+    description: '3 trade finder reviews by The Trade Rat',
+    display_name: 'Finder Gold'
+  },
+  finder_platinum: {
+    credits: 7,
+    price: 52.99,
+    expert_tier: 'rat_guaranteed',
+    description: '7 trade finder reviews by The Trade Rat',
+    display_name: 'Finder Platinum'
   }
 }
 
