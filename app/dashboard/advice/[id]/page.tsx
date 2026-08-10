@@ -93,7 +93,7 @@ export default async function AdvicePage({ params }: { params: { id: string } })
               fontFamily: 'var(--font-dm-sans)',
               color: '#6b6457',
             }}>
-              Your trade request is being reviewed. You'll be notified when the analysis is complete.
+              Your trade request is being reviewed. You&apos;ll be notified when the analysis is complete.
             </p>
           </div>
         ) : (
