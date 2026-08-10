@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 
-export default async function AdvicePage({ params }: { params: { id: string } }) {
+export default async function AdvicePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
 
   const {
@@ -13,6 +13,8 @@ export default async function AdvicePage({ params }: { params: { id: string } })
     redirect('/login')
   }
 
+  const { id } = await params
+
   // Fetch trade request with advice
   const { data: request } = await supabase
     .from('trade_requests')
@@ -20,7 +22,7 @@ export default async function AdvicePage({ params }: { params: { id: string } })
       *,
       trade_advice (*)
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
