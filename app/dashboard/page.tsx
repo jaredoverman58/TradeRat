@@ -143,9 +143,9 @@ export default async function DashboardPage() {
               {user.email}
             </p>
           </div>
-          <form action="/api/auth/signout" method="post">
-            <button
-              type="submit"
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <Link
+              href="/admin"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '12px 24px',
@@ -153,14 +153,32 @@ export default async function DashboardPage() {
                 color: '#6b6457',
                 border: '1px solid #2a261e',
                 fontSize: '0.875rem',
-                cursor: 'pointer',
+                textDecoration: 'none',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
               }}
             >
-              Sign Out
-            </button>
-          </form>
+              Admin
+            </Link>
+            <form action="/api/auth/signout" method="post">
+              <button
+                type="submit"
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  padding: '12px 24px',
+                  backgroundColor: 'transparent',
+                  color: '#6b6457',
+                  border: '1px solid #2a261e',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                Sign Out
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Credits Summary */}
