@@ -221,15 +221,13 @@ export default function SubmitPage() {
           throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`)
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('trade-screenshots')
-          .getPublicUrl(fileName)
-
+        // Store the file path (not URL) in the database
+        // Signed URLs will be generated when viewing the file
         const { error: fileRecordError } = await supabase
           .from('submission_files')
           .insert({
             submission_id: submission.id,
-            file_url: publicUrl,
+            file_url: fileName, // Store path instead of URL
             file_type: file.type,
             label: label || null,
             is_own_roster: isOwnRoster

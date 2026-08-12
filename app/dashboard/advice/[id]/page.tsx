@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RatingPrompt from './RatingPrompt'
+import SafeHtmlRenderer from './SafeHtmlRenderer'
 
 export default async function AdvicePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
@@ -132,15 +133,15 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
               }}>
                 Expert Analysis
               </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '1rem',
-                lineHeight: 1.7,
-                color: '#F2EDE4',
-                whiteSpace: 'pre-wrap',
-              }}>
-                {response.written_content}
-              </div>
+              <SafeHtmlRenderer
+                html={response.written_content}
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  lineHeight: 1.7,
+                  color: '#F2EDE4',
+                }}
+              />
             </div>
 
             {/* Audio Commentary */}

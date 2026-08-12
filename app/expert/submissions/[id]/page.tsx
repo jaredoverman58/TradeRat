@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RespondForm from './RespondForm'
+import SignedImage from '@/components/SignedImage'
 
 export default async function SubmissionDetailPage({
   params,
@@ -552,48 +553,12 @@ export default async function SubmissionDetailPage({
                     padding: '16px',
                   }}
                 >
-                  {file.label && (
-                    <div style={{
-                      fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '0.875rem',
-                      color: '#C9A84C',
-                      marginBottom: '8px',
-                    }}>
-                      {file.label}
-                      {file.is_own_roster && ' (User\'s Roster)'}
-                    </div>
-                  )}
-                  <a
-                    href={file.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'block',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    <img
-                      src={file.file_url}
-                      alt={file.label || 'Screenshot'}
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        border: '1px solid #2a261e',
-                      }}
-                    />
-                  </a>
-                  <a
-                    href={file.file_url}
-                    download
-                    style={{
-                      fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '0.875rem',
-                      color: '#C9A84C',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Download Full Size
-                  </a>
+                  <SignedImage
+                    filePath={file.file_url}
+                    alt={file.label || 'Screenshot'}
+                    label={file.label}
+                    isOwnRoster={file.is_own_roster}
+                  />
                 </div>
               ))}
             </div>

@@ -1,7 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+// Dynamically import TipTap to avoid SSR issues
+const TipTapEditor = dynamic(() => import('./TipTapEditor'), { ssr: false })
 
 export default function RespondForm({
   submissionId,
@@ -15,11 +19,58 @@ export default function RespondForm({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const draftKey = `draft_${submissionId}_${expertId}`
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(draftKey)
+    if (savedDraft) {
+      setResponse(savedDraft)
+      setLastSaved(new Date(localStorage.getItem(`${draftKey}_timestamp`) || ''))
+    }
+  }, [draftKey])
+
+  // Auto-save draft every 30 seconds
+  const saveDraft = useCallback(() => {
+    if (response && response.trim()) {
+      localStorage.setItem(draftKey, response)
+      localStorage.setItem(`${draftKey}_timestamp`, new Date().toISOString())
+      setLastSaved(new Date())
+    }
+  }, [response, draftKey])
+
+  useEffect(() => {
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current)
+    }
+
+    // Set up auto-save every 30 seconds
+    if (response) {
+      autoSaveTimerRef.current = setInterval(() => {
+        saveDraft()
+      }, 30000) // 30 seconds
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current)
+      }
+    }
+  }, [response, saveDraft])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!response.trim()) {
+    // Strip HTML tags for validation
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = response
+    const textContent = tempDiv.textContent || tempDiv.innerText || ''
+
+    if (!textContent.trim()) {
       setError('Response cannot be empty')
       return
     }
@@ -36,7 +87,7 @@ export default function RespondForm({
         body: JSON.stringify({
           submission_id: submissionId,
           expert_id: expertId,
-          written_content: response,
+          written_content: response, // Send HTML content
         }),
       })
 
@@ -45,6 +96,10 @@ export default function RespondForm({
       if (!res.ok) {
         throw new Error(data.error || 'Failed to send response')
       }
+
+      // Clear draft from localStorage on successful submission
+      localStorage.removeItem(draftKey)
+      localStorage.removeItem(`${draftKey}_timestamp`)
 
       setSuccess(true)
       // Refresh the page to show the sent response
@@ -119,42 +174,48 @@ export default function RespondForm({
 
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '24px' }}>
-          <label style={{
-            fontFamily: 'var(--font-dm-sans)',
-            fontSize: '0.875rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: '#F2EDE4',
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             marginBottom: '16px',
-            display: 'block',
           }}>
-            Your Expert Analysis *
-          </label>
-          <textarea
-            value={response}
-            onChange={(e) => setResponse(e.target.value)}
-            required
-            rows={15}
-            placeholder="Write your detailed analysis here. Include your recommendation (accept/decline/counter) and explain your reasoning..."
-            style={{
-              width: '100%',
-              padding: '16px',
-              backgroundColor: '#0C0A07',
-              border: '1px solid #2a261e',
-              color: '#F2EDE4',
+            <label style={{
               fontFamily: 'var(--font-dm-sans)',
-              fontSize: '1rem',
-              resize: 'vertical',
-              lineHeight: '1.6',
-            }}
-          />
+              fontSize: '0.875rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#F2EDE4',
+              display: 'block',
+            }}>
+              Your Expert Analysis *
+            </label>
+            {lastSaved && (
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.75rem',
+                color: '#6b6457',
+              }}>
+                Draft saved at {lastSaved.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <TipTapEditor
+              content={response}
+              onChange={setResponse}
+              placeholder="Write your detailed analysis here. Use the toolbar to format your text with bold, italics, and lists. Include your recommendation (accept/decline/counter) and explain your reasoning..."
+            />
+          </div>
+
           <div style={{
             fontFamily: 'var(--font-dm-sans)',
             fontSize: '0.75rem',
             color: '#6b6457',
             marginTop: '8px',
           }}>
-            Character count: {response.length}
+            Auto-saves every 30 seconds
           </div>
         </div>
 

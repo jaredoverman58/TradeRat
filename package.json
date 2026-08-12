@@ -11,6 +11,9 @@
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
+    "@tiptap/react": "^3.30.0",
+    "@tiptap/starter-kit": "^3.30.0",
+    "dompurify": "^3.4.13",
     "next": "^15.1.6",
     "pg": "^8.23.0",
     "react": "^19.0.0",
@@ -20,6 +23,7 @@
     "twilio": "^6.1.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.6",
     "@types/react-dom": "^19.0.2",

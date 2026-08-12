@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import SignedImage from '@/components/SignedImage'
 
 type Submission = {
   id: string
@@ -336,42 +337,44 @@ export default function SubmissionRow({
                         padding: '8px',
                       }}>
                         {file.file_type.startsWith('image/') ? (
-                          <img
-                            src={file.file_url}
+                          <SignedImage
+                            filePath={file.file_url}
                             alt={file.label || 'Uploaded file'}
+                            label={file.label}
                             style={{
                               width: '100%',
                               height: 'auto',
-                              marginBottom: '8px',
                             }}
                           />
                         ) : (
-                          <div style={{
-                            padding: '32px',
-                            textAlign: 'center',
-                            backgroundColor: '#2a261e',
-                            marginBottom: '8px',
-                            fontFamily: 'var(--font-dm-sans)',
-                            fontSize: '0.75rem',
-                            color: '#6b6457',
-                          }}>
-                            {file.file_type}
+                          <div>
+                            <div style={{
+                              padding: '32px',
+                              textAlign: 'center',
+                              backgroundColor: '#2a261e',
+                              marginBottom: '8px',
+                              fontFamily: 'var(--font-dm-sans)',
+                              fontSize: '0.75rem',
+                              color: '#6b6457',
+                            }}>
+                              {file.file_type}
+                            </div>
+                            <a
+                              href={file.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                fontFamily: 'var(--font-dm-sans)',
+                                fontSize: '0.75rem',
+                                color: '#C9A84C',
+                                textDecoration: 'none',
+                                display: 'block',
+                              }}
+                            >
+                              {file.label || 'View file'} →
+                            </a>
                           </div>
                         )}
-                        <a
-                          href={file.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            fontFamily: 'var(--font-dm-sans)',
-                            fontSize: '0.75rem',
-                            color: '#C9A84C',
-                            textDecoration: 'none',
-                            display: 'block',
-                          }}
-                        >
-                          {file.label || 'View file'} →
-                        </a>
                       </div>
                     ))}
                   </div>
