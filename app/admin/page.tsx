@@ -4,6 +4,7 @@ import Link from 'next/link'
 import OverviewTab from './OverviewTab'
 import SubmissionsTab from './SubmissionsTab'
 import LandingPageTab from './LandingPageTab'
+import TestimonialsTab from './TestimonialsTab'
 import UsersTab from './UsersTab'
 import PaymentsTab from './PaymentsTab'
 import SupportTab from './SupportTab'
@@ -261,6 +262,23 @@ export default async function AdminDashboard({
             >
               Landing Page
             </Link>
+            <Link
+              href="/admin?tab=testimonials"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'testimonials' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'testimonials' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Testimonials
+            </Link>
           </div>
         </div>
 
@@ -272,6 +290,7 @@ export default async function AdminDashboard({
         {activeTab === 'support' && <SupportTab />}
         {activeTab === 'analytics' && <AnalyticsTab />}
         {activeTab === 'landing-page' && <LandingPageTab />}
+        {activeTab === 'testimonials' && <TestimonialsTab />}
       </div>
     </div>
   )

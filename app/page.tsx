@@ -20,6 +20,13 @@ export default async function LandingPage() {
     .eq('is_active', true)
     .order('sort_order', { ascending: true })
 
+  // Fetch active testimonials from separate table
+  const { data: testimonials } = await supabase
+    .from('testimonials')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+
   // Create a map of sections by key for easy lookup
   const sectionMap = new Map(
     sections?.map(section => [section.section_key, section.content]) || []
@@ -43,7 +50,20 @@ export default async function LandingPage() {
             case 'services':
               return <ServicesSection key={section.id} content={section.content} />
             case 'testimonials':
-              return <TestimonialsSection key={section.id} content={section.content} />
+              // Use testimonials from the testimonials table
+              return testimonials && testimonials.length > 0 ? (
+                <TestimonialsSection
+                  key="testimonials"
+                  content={{
+                    testimonials: testimonials.map(t => ({
+                      quote: t.quote,
+                      name: t.name,
+                      league_type: t.league_type || '',
+                      service: t.service_used || undefined,
+                    }))
+                  }}
+                />
+              ) : null
             case 'pricing_table':
               return <PricingTableSection key={section.id} content={section.content} />
             case 'final_cta':
