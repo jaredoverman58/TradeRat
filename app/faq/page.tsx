@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 type FAQItem = {
   question: string
-  answer: string | JSX.Element
+  answer: string | ReactNode
 }
 
 export default function FAQPage() {
