@@ -66,7 +66,7 @@ export default function ContactPage() {
             maxWidth: '600px',
             margin: '0 auto',
           }}>
-            Have a question or need support? Send us a message and we'll get back to you soon.
+            Have a question or need support? Send us a message and we&apos;ll get back to you soon.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function ContactPage() {
               fontSize: '0.875rem',
               color: '#F2EDE4',
             }}>
-              We'll respond to your message as soon as possible.
+              We&apos;ll respond to your message as soon as possible.
             </p>
           </div>
         )}

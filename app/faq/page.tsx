@@ -54,7 +54,7 @@ export default function FAQPage() {
             The Full League Trade Finder is our most comprehensive service:
           </p>
           <p style={{ marginBottom: '12px' }}>
-            <strong>What you provide:</strong> Upload screenshots of every team roster in your league (typically 8-12 teams), league settings, your team goals, and any players you won't trade.
+            <strong>What you provide:</strong> Upload screenshots of every team roster in your league (typically 8-12 teams), league settings, your team goals, and any players you won&apos;t trade.
           </p>
           <p style={{ marginBottom: '12px' }}>
             <strong>What our expert does:</strong> Analyzes all rosters to identify which teams have what you need and need what you have, then creates 1-3 specific trade recommendations with target teams and exact players.
@@ -82,7 +82,7 @@ export default function FAQPage() {
       answer: (
         <>
           <p style={{ marginBottom: '12px' }}>
-            If you purchase Rat Rate service and The Rat is unavailable to complete it within 12 hours of submission, we'll contact you with three options:
+            If you purchase Rat Rate service and The Rat is unavailable to complete it within 12 hours of submission, we&apos;ll contact you with three options:
           </p>
           <ul style={{ marginLeft: '20px' }}>
             <li style={{ marginBottom: '8px' }}><strong>Wait with bonus:</strong> Continue waiting for The Rat and receive a bonus service credit</li>
