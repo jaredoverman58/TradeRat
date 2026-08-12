@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import AudioRecorder from './AudioRecorder'
 
 // Dynamically import TipTap to avoid SSR issues
 const TipTapEditor = dynamic(() => import('./TipTapEditor'), { ssr: false })
@@ -20,6 +21,7 @@ export default function RespondForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const draftKey = `draft_${submissionId}_${expertId}`
 
@@ -70,8 +72,9 @@ export default function RespondForm({
     tempDiv.innerHTML = response
     const textContent = tempDiv.textContent || tempDiv.innerText || ''
 
-    if (!textContent.trim()) {
-      setError('Response cannot be empty')
+    // Require either written content OR audio
+    if (!textContent.trim() && !audioBlob) {
+      setError('Please provide either written analysis or audio commentary')
       return
     }
 
@@ -79,17 +82,35 @@ export default function RespondForm({
     setSubmitting(true)
 
     try {
-      const res = await fetch('/api/expert/respond', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          submission_id: submissionId,
-          expert_id: expertId,
-          written_content: response, // Send HTML content
-        }),
-      })
+      // Prepare request with or without audio
+      let res: Response
+
+      if (audioBlob) {
+        // Send as FormData with audio
+        const formData = new FormData()
+        formData.append('submission_id', submissionId)
+        formData.append('expert_id', expertId)
+        formData.append('written_content', response || '') // Empty string if no text
+        formData.append('audio', audioBlob, 'audio.webm')
+
+        res = await fetch('/api/expert/respond', {
+          method: 'POST',
+          body: formData,
+        })
+      } else {
+        // Send as JSON without audio
+        res = await fetch('/api/expert/respond', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            submission_id: submissionId,
+            expert_id: expertId,
+            written_content: response,
+          }),
+        })
+      }
 
       const data = await res.json()
 
@@ -219,21 +240,29 @@ export default function RespondForm({
           </div>
         </div>
 
+        {/* Audio Recording */}
+        <div style={{ marginBottom: '24px' }}>
+          <AudioRecorder
+            onRecordingComplete={setAudioBlob}
+            disabled={submitting}
+          />
+        </div>
+
         <button
           type="submit"
-          disabled={submitting || !response.trim()}
+          disabled={submitting || (!response.trim() && !audioBlob)}
           style={{
             fontFamily: 'var(--font-dm-sans)',
             width: '100%',
             padding: '20px',
-            backgroundColor: submitting || !response.trim() ? '#2a261e' : '#C9A84C',
-            color: submitting || !response.trim() ? '#6b6457' : '#0C0A07',
+            backgroundColor: submitting || (!response.trim() && !audioBlob) ? '#2a261e' : '#C9A84C',
+            color: submitting || (!response.trim() && !audioBlob) ? '#6b6457' : '#0C0A07',
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             fontSize: '1rem',
             border: 'none',
-            cursor: submitting || !response.trim() ? 'not-allowed' : 'pointer',
+            cursor: submitting || (!response.trim() && !audioBlob) ? 'not-allowed' : 'pointer',
           }}
         >
           {submitting ? 'Sending Response...' : 'Send Response'}

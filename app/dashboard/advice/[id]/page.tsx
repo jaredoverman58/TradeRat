@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RatingPrompt from './RatingPrompt'
 import SafeHtmlRenderer from './SafeHtmlRenderer'
+import SignedAudio from '@/components/SignedAudio'
 
 export default async function AdvicePage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
@@ -160,15 +161,7 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
                 }}>
                   Audio Commentary
                 </h2>
-                <audio
-                  controls
-                  src={response.audio_url}
-                  style={{
-                    width: '100%',
-                  }}
-                >
-                  Your browser does not support the audio element.
-                </audio>
+                <SignedAudio filePath={response.audio_url} />
               </div>
             )}
 

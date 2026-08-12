@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sendResponseReadyNotification } from '@/lib/twilio'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -17,13 +22,37 @@ export async function POST(request: Request) {
     )
   }
 
-  // Get request body
-  const body = await request.json()
-  const { submission_id, expert_id, written_content } = body
+  // Get form data (supports both JSON and FormData)
+  const contentType = request.headers.get('content-type')
+  let submission_id: string
+  let expert_id: string
+  let written_content: string
+  let audioFile: File | null = null
 
-  if (!submission_id || !expert_id || !written_content) {
+  if (contentType?.includes('multipart/form-data')) {
+    const formData = await request.formData()
+    submission_id = formData.get('submission_id') as string
+    expert_id = formData.get('expert_id') as string
+    written_content = formData.get('written_content') as string
+    audioFile = formData.get('audio') as File | null
+  } else {
+    const body = await request.json()
+    submission_id = body.submission_id
+    expert_id = body.expert_id
+    written_content = body.written_content
+  }
+
+  // Require submission_id, expert_id, and at least one of written_content or audio
+  if (!submission_id || !expert_id) {
     return NextResponse.json(
-      { error: 'Missing required fields' },
+      { error: 'Missing required fields: submission_id and expert_id' },
+      { status: 400 }
+    )
+  }
+
+  if (!written_content && !audioFile) {
+    return NextResponse.json(
+      { error: 'Please provide either written content or audio commentary' },
       { status: 400 }
     )
   }
@@ -79,13 +108,54 @@ export async function POST(request: Request) {
     )
   }
 
+  // Handle audio upload and transcription if provided
+  let audioUrl: string | null = null
+  let audioTranscript: string | null = null
+
+  if (audioFile) {
+    try {
+      // Upload audio to Supabase Storage
+      const fileExt = audioFile.name.split('.').pop() || 'webm'
+      const fileName = `${expert_id}/${submission_id}/${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('expert-audio')
+        .upload(fileName, audioFile)
+
+      if (uploadError) {
+        console.error('Error uploading audio:', uploadError)
+      } else {
+        audioUrl = fileName // Store path, not URL (will use signed URLs)
+
+        // Transcribe audio with Whisper
+        try {
+          const transcription = await openai.audio.transcriptions.create({
+            file: audioFile,
+            model: 'whisper-1',
+            language: 'en',
+          })
+          audioTranscript = transcription.text
+        } catch (transcribeError) {
+          console.error('Error transcribing audio:', transcribeError)
+          // Continue without transcript - not critical
+        }
+      }
+    } catch (audioError) {
+      console.error('Error processing audio:', audioError)
+      // Continue without audio - not critical
+    }
+  }
+
   // Insert the response
+  // Note: written_content is NOT NULL in DB, so use empty string if not provided
   const { error: responseError } = await supabase
     .from('responses')
     .insert({
       submission_id,
       expert_id,
-      written_content,
+      written_content: written_content || '',
+      audio_url: audioUrl,
+      audio_transcript: audioTranscript,
     })
 
   if (responseError) {
