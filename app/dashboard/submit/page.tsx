@@ -51,29 +51,65 @@ export default function SubmitTradePage() {
         return
       }
 
-      // Check for available credits
-      const { data: packages } = await supabase
-        .from('packages')
+      // Map request type to service_type
+      const serviceType = requestType === 'trade_finder' ? 'trade_finder' : 'accept_decline'
+
+      // Check for available credits matching the service type
+      console.log('Looking for bundles with service_type:', serviceType)
+      const { data: bundles, error: bundlesError } = await supabase
+        .from('bundles')
         .select('*')
         .eq('user_id', user.id)
+        .eq('service_type', serviceType)
         .gt('credits_remaining', 0)
+        .gt('expires_at', new Date().toISOString())
         .order('expires_at', { ascending: true })
 
-      if (!packages || packages.length === 0) {
-        setError('No credits available. Please purchase a package first.')
+      console.log('Bundles query result:', JSON.stringify({ bundles, error: bundlesError }, null, 2))
+
+      if (!bundles || bundles.length === 0) {
+        console.error('No bundles found! User might not have the right service_type bundle')
+        setError(`No credits available for ${requestType === 'trade_finder' ? 'Trade Finder' : 'Trade Evaluation'}. Please purchase a bundle first.`)
         setUploading(false)
         return
       }
 
-      // Use the package with the earliest expiration
-      const packageToUse = packages[0]
+      // Use the bundle with the earliest expiration
+      const bundleToUse = bundles[0]
 
-      // Upload screenshots
-      const screenshotUrls: string[] = []
+      // Debug: log the bundle to see what we're getting
+      console.log('Bundle to use:', JSON.stringify(bundleToUse, null, 2))
+      console.log('bundle_type value:', bundleToUse.bundle_type)
+      console.log('bundle_type length:', bundleToUse.bundle_type?.length)
+
+      // Determine rate tier from bundle type
+      const rateTier = bundleToUse.bundle_type.includes('rat_rate') ? 'rat_rate' : 'standard'
+
+      // Create submission first
+      const { data: submission, error: submissionError } = await supabase
+        .from('submissions')
+        .insert({
+          user_id: user.id,
+          service_type: serviceType,
+          rate_tier: rateTier,
+          status: 'submitted',
+          offer_direction: requestType === 'trade_evaluation' ? 'received' : null,
+          receive_players: requestType === 'trade_evaluation' ? specificTradeOffer : null,
+          additional_context: userNotes,
+        })
+        .select()
+        .single()
+
+      if (submissionError || !submission) {
+        console.error('Full Supabase error:', JSON.stringify(submissionError, null, 2))
+        throw new Error(`Failed to create submission: ${submissionError?.message || 'Unknown error'}`)
+      }
+
+      // Upload screenshots and link to submission
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const fileExt = file.name.split('.').pop()
-        const fileName = `${user.id}/${Date.now()}-${i}.${fileExt}`
+        const fileName = `${user.id}/${submission.id}/${Date.now()}-${i}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
           .from('trade-screenshots')
@@ -87,28 +123,19 @@ export default function SubmitTradePage() {
           .from('trade-screenshots')
           .getPublicUrl(fileName)
 
-        screenshotUrls.push(publicUrl)
-      }
+        // Create submission file record
+        const { error: fileError } = await supabase
+          .from('submission_files')
+          .insert({
+            submission_id: submission.id,
+            file_url: publicUrl,
+            file_type: file.type,
+            is_own_roster: i === 0, // First file is assumed to be user's roster
+          })
 
-      // Create trade request
-      const { error: requestError } = await supabase
-        .from('trade_requests')
-        .insert({
-          user_id: user.id,
-          package_id: packageToUse.id,
-          screenshot_urls: screenshotUrls,
-          league_rules: {
-            platform,
-            scoring_type: scoringType,
-            roster_size: rosterSize,
-          },
-          user_notes: userNotes,
-          request_type: requestType,
-          specific_trade_offer: requestType === 'trade_evaluation' ? specificTradeOffer : null,
-        })
-
-      if (requestError) {
-        throw new Error(`Failed to create request: ${requestError.message}`)
+        if (fileError) {
+          console.error('Error creating submission file record:', fileError)
+        }
       }
 
       // Success - redirect to dashboard

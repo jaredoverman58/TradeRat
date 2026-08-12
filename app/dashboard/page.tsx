@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import BuyThreePackButton from './BuyThreePackButton'
+import PurchaseMessage from './PurchaseMessage'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -13,38 +15,115 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Fetch user's packages
-  const { data: packages } = await supabase
-    .from('packages')
+  // Fetch user's free evaluation status
+  const { data: freeEval } = await supabase
+    .from('free_evaluations')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
+  // Fetch user's bundles
+  const { data: bundles } = await supabase
+    .from('bundles')
     .select('*')
     .eq('user_id', user.id)
     .order('purchased_at', { ascending: false })
 
-  // Calculate total credits
-  const totalCredits = packages?.reduce((sum, pkg) => sum + pkg.credits_remaining, 0) || 0
+  // Group bundles by service type and rate tier
+  const activeBundles = bundles?.filter(b => new Date(b.expires_at) > new Date() && b.credits_remaining > 0) || []
 
-  // Fetch user's trade requests
-  const { data: tradeRequests } = await supabase
-    .from('trade_requests')
+  // Helper to get service display name
+  const getServiceName = (serviceType: string) => {
+    const names: Record<string, string> = {
+      'accept_decline': 'Accept/Decline',
+      'counter_offer': 'Counter Offer',
+      'bundle': 'Decline+Counter Bundle',
+      'trade_finder': 'Trade Finder',
+    }
+    return names[serviceType] || serviceType
+  }
+
+  // Helper to get rate tier display name
+  const getRateTierName = (bundleType: string) => {
+    if (bundleType.includes('rat_rate')) return 'Rat Rate'
+    if (bundleType.includes('standard')) return 'Standard'
+    return bundleType
+  }
+
+  // Group by service type, then by rate tier
+  type ServiceGroup = {
+    serviceType: string
+    serviceName: string
+    tiers: {
+      tierName: string
+      credits: number
+      bundles: typeof activeBundles
+    }[]
+  }
+
+  const groupedServices: ServiceGroup[] = []
+  const serviceTypes = ['accept_decline', 'counter_offer', 'bundle', 'trade_finder']
+
+  serviceTypes.forEach(serviceType => {
+    const serviceBundles = activeBundles.filter(b => b.service_type === serviceType)
+    if (serviceBundles.length === 0) return
+
+    const standardBundles = serviceBundles.filter(b => b.bundle_type.includes('standard'))
+    const ratBundles = serviceBundles.filter(b => b.bundle_type.includes('rat_rate'))
+
+    const tiers = []
+    if (standardBundles.length > 0) {
+      tiers.push({
+        tierName: 'Standard',
+        credits: standardBundles.reduce((sum, b) => sum + b.credits_remaining, 0),
+        bundles: standardBundles
+      })
+    }
+    if (ratBundles.length > 0) {
+      tiers.push({
+        tierName: 'Rat Rate',
+        credits: ratBundles.reduce((sum, b) => sum + b.credits_remaining, 0),
+        bundles: ratBundles
+      })
+    }
+
+    if (tiers.length > 0) {
+      groupedServices.push({
+        serviceType,
+        serviceName: getServiceName(serviceType),
+        tiers
+      })
+    }
+  })
+
+  const hasFreeCredit = freeEval && !freeEval.used && (!freeEval.expires_at || new Date(freeEval.expires_at) > new Date())
+
+  // Fetch user's submissions
+  const { data: submissions } = await supabase
+    .from('submissions')
     .select(`
       *,
-      trade_advice (
+      expert:experts(name),
+      league_profile:league_profiles(league_name),
+      response:responses!submission_id(
         id,
-        expert,
-        recommendation,
-        created_at
+        written_content,
+        sent_at
       )
     `)
     .eq('user_id', user.id)
-    .order('submitted_at', { ascending: false })
+    .order('created_at', { ascending: false })
 
-  const pendingRequests = tradeRequests?.filter(r => r.status === 'pending' || r.status === 'assigned') || []
-  const completedRequests = tradeRequests?.filter(r => r.status === 'completed') || []
+  const pendingSubmissions = submissions?.filter(s =>
+    s.status === 'submitted' || s.status === 'claimed' || s.status === 'in_progress'
+  ) || []
+  const completedSubmissions = submissions?.filter(s => s.status === 'completed') || []
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
       {/* Header */}
       <div style={{ maxWidth: '1200px', margin: '0 auto 60px' }}>
+        <PurchaseMessage />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
           <div>
             <h1 style={{
@@ -96,22 +175,111 @@ export default async function DashboardPage() {
             textTransform: 'uppercase',
             letterSpacing: '0.15em',
             color: '#6b6457',
-            marginBottom: '12px',
-          }}>
-            Available Credits
-          </div>
-          <div style={{
-            fontFamily: 'var(--font-playfair)',
-            fontSize: '4rem',
-            fontWeight: 900,
-            color: '#C9A84C',
             marginBottom: '20px',
           }}>
-            {totalCredits}
+            Your Credits
           </div>
+
+          {/* Free Evaluation Credit */}
+          {hasFreeCredit && (
+            <div style={{
+              marginBottom: '32px',
+              paddingBottom: '32px',
+              borderBottom: '1px solid #2a261e',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                marginBottom: '8px',
+              }}>
+                Free Evaluation
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '3rem',
+                fontWeight: 900,
+                color: '#C9A84C',
+              }}>
+                1
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.75rem',
+                color: '#6b6457',
+              }}>
+                One-time credit • Accept/Decline evaluation
+              </div>
+            </div>
+          )}
+
+          {/* Paid Bundle Credits by Service Type */}
+          {groupedServices.length > 0 && (
+            <div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                color: '#6b6457',
+                marginBottom: '16px',
+              }}>
+                Paid Credits
+              </div>
+              {groupedServices.map((service, idx) => (
+                <div key={service.serviceType} style={{ marginBottom: idx < groupedServices.length - 1 ? '24px' : '0' }}>
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    color: '#F2EDE4',
+                    marginBottom: '12px',
+                  }}>
+                    {service.serviceName}
+                  </div>
+                  {service.tiers.map(tier => (
+                    <div key={tier.tierName} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '8px',
+                      paddingLeft: '16px',
+                    }}>
+                      <div style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#6b6457',
+                      }}>
+                        {tier.tierName}
+                      </div>
+                      <div style={{
+                        fontFamily: 'var(--font-playfair)',
+                        fontSize: '1.5rem',
+                        fontWeight: 700,
+                        color: '#C9A84C',
+                      }}>
+                        {tier.credits}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!hasFreeCredit && groupedServices.length === 0 && (
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#6b6457',
+              textAlign: 'center',
+              padding: '20px 0',
+            }}>
+              No credits available. Purchase a bundle to get started.
+            </div>
+          )}
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Link
-              href="/dashboard/submit"
+              href="/submit"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '16px 40px',
@@ -127,8 +295,9 @@ export default async function DashboardPage() {
             >
               Submit Trade Request
             </Link>
+            <BuyThreePackButton />
             <Link
-              href="/#pricing"
+              href="/pricing"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '16px 40px',
@@ -143,13 +312,13 @@ export default async function DashboardPage() {
                 display: 'inline-block',
               }}
             >
-              Buy More Credits
+              View All Pricing
             </Link>
           </div>
         </div>
 
-        {/* Active Packages */}
-        {packages && packages.length > 0 && (
+        {/* Bundle Details */}
+        {activeBundles.length > 0 && (
           <div style={{ marginBottom: '60px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -158,7 +327,7 @@ export default async function DashboardPage() {
               color: '#F2EDE4',
               marginBottom: '24px',
             }}>
-              Your Packages
+              Active Bundles
             </h2>
             <div style={{
               display: 'grid',
@@ -166,9 +335,9 @@ export default async function DashboardPage() {
               gap: '1px',
               backgroundColor: '#2a261e',
             }}>
-              {packages.map((pkg) => (
+              {activeBundles.map((bundle) => (
                 <div
-                  key={pkg.id}
+                  key={bundle.id}
                   style={{
                     backgroundColor: '#0C0A07',
                     padding: '32px',
@@ -180,9 +349,19 @@ export default async function DashboardPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
                     color: '#C9A84C',
+                    marginBottom: '4px',
+                  }}>
+                    {getServiceName(bundle.service_type)}
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    color: '#6b6457',
                     marginBottom: '12px',
                   }}>
-                    {pkg.package_type.replace('_', ' ')}
+                    {getRateTierName(bundle.bundle_type)} • {bundle.bundle_type.replace(/_/g, ' ')}
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-playfair)',
@@ -191,7 +370,7 @@ export default async function DashboardPage() {
                     color: '#F2EDE4',
                     marginBottom: '8px',
                   }}>
-                    {pkg.credits_remaining}/{pkg.credits_purchased}
+                    {bundle.credits_remaining}
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-dm-sans)',
@@ -199,14 +378,14 @@ export default async function DashboardPage() {
                     color: '#6b6457',
                     marginBottom: '16px',
                   }}>
-                    Credits remaining
+                    {bundle.credits_remaining === 1 ? 'Credit' : 'Credits'} remaining
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-dm-sans)',
                     fontSize: '0.75rem',
                     color: '#6b6457',
                   }}>
-                    Expires: {new Date(pkg.expires_at).toLocaleDateString()}
+                    Expires: {new Date(bundle.expires_at).toLocaleDateString()}
                   </div>
                 </div>
               ))}
@@ -214,8 +393,8 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Pending Requests */}
-        {pendingRequests.length > 0 && (
+        {/* Pending Submissions */}
+        {pendingSubmissions.length > 0 && (
           <div style={{ marginBottom: '60px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -224,12 +403,12 @@ export default async function DashboardPage() {
               color: '#F2EDE4',
               marginBottom: '24px',
             }}>
-              Pending Requests
+              Pending Submissions
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {pendingRequests.map((request) => (
+              {pendingSubmissions.map((submission) => (
                 <div
-                  key={request.id}
+                  key={submission.id}
                   style={{
                     border: '1px solid #2a261e',
                     padding: '32px',
@@ -249,22 +428,29 @@ export default async function DashboardPage() {
                       color: '#C9A84C',
                       marginBottom: '8px',
                     }}>
-                      {request.request_type === 'trade_finder' ? 'Trade Finder' : 'Trade Evaluation'} • {request.status === 'assigned' ? `Assigned to ${request.assigned_expert}` : 'Awaiting assignment'}
+                      {submission.service_type === 'trade_finder' ? 'Trade Finder' : 'Trade Evaluation'} • {
+                        submission.status === 'submitted' ? 'In Queue' :
+                        submission.status === 'claimed' ? `Claimed by ${submission.expert?.name || 'Expert'}` :
+                        submission.status === 'in_progress' ? `${submission.expert?.name || 'Expert'} working on it` :
+                        submission.status
+                      }
                     </div>
                     <div style={{
                       fontFamily: 'var(--font-dm-sans)',
                       color: '#F2EDE4',
                       marginBottom: '4px',
                     }}>
-                      Submitted: {new Date(request.submitted_at).toLocaleString()}
+                      Submitted: {new Date(submission.created_at).toLocaleString()}
                     </div>
-                    <div style={{
-                      fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '0.875rem',
-                      color: '#6b6457',
-                    }}>
-                      {request.screenshot_urls.length} screenshot{request.screenshot_urls.length !== 1 ? 's' : ''}
-                    </div>
+                    {submission.league_profile?.league_name && (
+                      <div style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#6b6457',
+                      }}>
+                        League: {submission.league_profile.league_name}
+                      </div>
+                    )}
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-dm-sans)',
@@ -283,8 +469,8 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Completed Requests */}
-        {completedRequests.length > 0 && (
+        {/* Completed Submissions */}
+        {completedSubmissions.length > 0 && (
           <div style={{ marginBottom: '60px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -296,58 +482,95 @@ export default async function DashboardPage() {
               Completed Reviews
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {completedRequests.map((request) => {
-                const advice = Array.isArray(request.trade_advice) && request.trade_advice.length > 0
-                  ? request.trade_advice[0]
-                  : null;
+              {completedSubmissions.map((submission) => (
+                <div
+                  key={submission.id}
+                  style={{
+                    border: '1px solid #2a261e',
+                    padding: '32px',
+                    display: 'block',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    color: '#C9A84C',
+                    marginBottom: '8px',
+                  }}>
+                    Reviewed by {submission.expert?.name || 'Expert'}
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    color: '#F2EDE4',
+                    marginBottom: '4px',
+                  }}>
+                    Completed: {new Date(submission.delivered_at || submission.updated_at).toLocaleString()}
+                  </div>
+                  {submission.league_profile?.league_name && (
+                    <div style={{
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                      color: '#6b6457',
+                      marginBottom: '16px',
+                    }}>
+                      League: {submission.league_profile.league_name}
+                    </div>
+                  )}
 
-                return (
-                  <Link
-                    key={request.id}
-                    href={`/dashboard/advice/${request.id}`}
-                    style={{
-                      border: '1px solid #2a261e',
-                      padding: '32px',
-                      display: 'block',
-                      textDecoration: 'none',
-                      transition: 'border-color 0.2s',
-                    }}
-                  >
+                  {/* Expert Response */}
+                  {submission.response && Array.isArray(submission.response) && submission.response.length > 0 ? (
                     <div style={{
-                      fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '0.75rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.15em',
-                      color: '#C9A84C',
-                      marginBottom: '8px',
+                      marginTop: '16px',
+                      paddingTop: '16px',
+                      borderTop: '1px solid #2a261e',
                     }}>
-                      Reviewed by {advice?.expert || 'Expert'}
-                    </div>
-                    <div style={{
-                      fontFamily: 'var(--font-dm-sans)',
-                      color: '#F2EDE4',
-                      marginBottom: '4px',
-                    }}>
-                      Completed: {new Date(request.completed_at || '').toLocaleString()}
-                    </div>
-                    {advice && (
+                      <div style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.15em',
+                        color: '#6b6457',
+                        marginBottom: '8px',
+                      }}>
+                        Expert Response
+                      </div>
                       <div style={{
                         fontFamily: 'var(--font-dm-sans)',
                         fontSize: '0.875rem',
-                        color: '#6b6457',
+                        color: '#F2EDE4',
+                        lineHeight: '1.6',
+                        whiteSpace: 'pre-wrap',
+                        backgroundColor: '#1a1710',
+                        padding: '16px',
+                        border: '1px solid #2a261e',
+                        maxHeight: '200px',
+                        overflow: 'auto',
                       }}>
-                        Recommendation: {advice.recommendation}
+                        {submission.response[0].written_content}
                       </div>
-                    )}
-                  </Link>
-                );
-              })}
+                    </div>
+                  ) : (
+                    <div style={{
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                      color: '#6b6457',
+                      marginTop: '16px',
+                      fontStyle: 'italic',
+                    }}>
+                      Response not yet available
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {/* Empty State */}
-        {(!tradeRequests || tradeRequests.length === 0) && (
+        {(!submissions || submissions.length === 0) && (
           <div style={{
             border: '1px solid #2a261e',
             padding: '60px 32px',
@@ -359,17 +582,17 @@ export default async function DashboardPage() {
               color: '#F2EDE4',
               marginBottom: '16px',
             }}>
-              No trade requests yet
+              No submissions yet
             </div>
             <p style={{
               fontFamily: 'var(--font-dm-sans)',
               color: '#6b6457',
               marginBottom: '32px',
             }}>
-              Submit your first trade request to get expert analysis
+              Submit your first trade evaluation to get expert analysis
             </p>
             <Link
-              href="/dashboard/submit"
+              href="/submit"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '16px 40px',
@@ -383,7 +606,7 @@ export default async function DashboardPage() {
                 display: 'inline-block',
               }}
             >
-              Submit Trade Request
+              Submit Trade Evaluation
             </Link>
           </div>
         )}
