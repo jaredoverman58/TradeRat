@@ -4,6 +4,10 @@ import Link from 'next/link'
 import OverviewTab from './OverviewTab'
 import SubmissionsTab from './SubmissionsTab'
 import LandingPageTab from './LandingPageTab'
+import UsersTab from './UsersTab'
+import PaymentsTab from './PaymentsTab'
+import SupportTab from './SupportTab'
+import AnalyticsTab from './AnalyticsTab'
 
 export default async function AdminDashboard({
   searchParams,
@@ -137,7 +141,7 @@ export default async function AdminDashboard({
 
         {/* Tabs */}
         <div style={{ marginBottom: '32px', borderBottom: '1px solid #2a261e' }}>
-          <div style={{ display: 'flex', gap: '32px' }}>
+          <div style={{ display: 'flex', gap: '32px', overflowX: 'auto' }}>
             <Link
               href="/admin?tab=overview"
               style={{
@@ -150,6 +154,7 @@ export default async function AdminDashboard({
                 textDecoration: 'none',
                 color: activeTab === 'overview' ? '#C9A84C' : '#6b6457',
                 borderBottom: activeTab === 'overview' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
               }}
             >
               Overview
@@ -166,9 +171,78 @@ export default async function AdminDashboard({
                 textDecoration: 'none',
                 color: activeTab === 'submissions' ? '#C9A84C' : '#6b6457',
                 borderBottom: activeTab === 'submissions' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
               }}
             >
               Submissions
+            </Link>
+            <Link
+              href="/admin?tab=users"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'users' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'users' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Users
+            </Link>
+            <Link
+              href="/admin?tab=payments"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'payments' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'payments' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Payments
+            </Link>
+            <Link
+              href="/admin?tab=support"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'support' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'support' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Support
+            </Link>
+            <Link
+              href="/admin?tab=analytics"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'analytics' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'analytics' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Analytics
             </Link>
             <Link
               href="/admin?tab=landing-page"
@@ -182,6 +256,7 @@ export default async function AdminDashboard({
                 textDecoration: 'none',
                 color: activeTab === 'landing-page' ? '#C9A84C' : '#6b6457',
                 borderBottom: activeTab === 'landing-page' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
               }}
             >
               Landing Page
@@ -192,6 +267,10 @@ export default async function AdminDashboard({
         {/* Tab Content */}
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'submissions' && <SubmissionsTab />}
+        {activeTab === 'users' && <UsersTab />}
+        {activeTab === 'payments' && <PaymentsTab />}
+        {activeTab === 'support' && <SupportTab />}
+        {activeTab === 'analytics' && <AnalyticsTab />}
         {activeTab === 'landing-page' && <LandingPageTab />}
       </div>
     </div>
