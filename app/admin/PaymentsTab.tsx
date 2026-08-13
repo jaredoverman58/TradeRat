@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import PaymentsExportButton from './PaymentsExportButton'
 
 type Bundle = {
   id: string
@@ -81,6 +82,18 @@ export default async function PaymentsTab() {
     return sum + (BUNDLE_PRICES[bundle.bundle_type] || 0)
   }, 0) || 0
 
+  // Prepare data for CSV export
+  const exportData = bundles?.map(bundle => {
+    const { status } = getBundleStatus(bundle.expires_at, bundle.credits_remaining)
+    return {
+      purchased_at: bundle.purchased_at,
+      user_email: userEmailMap.get(bundle.user_id) || 'Unknown',
+      bundle_type: getBundleDisplayName(bundle.bundle_type),
+      amount: BUNDLE_PRICES[bundle.bundle_type] || 0,
+      status,
+    }
+  }) || []
+
   return (
     <div>
       <div style={{
@@ -88,6 +101,8 @@ export default async function PaymentsTab() {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '16px',
       }}>
         <h2 style={{
           fontFamily: 'var(--font-playfair)',
@@ -99,11 +114,18 @@ export default async function PaymentsTab() {
           Payments & Bundles
         </h2>
         <div style={{
-          fontFamily: 'var(--font-dm-sans)',
-          fontSize: '1rem',
-          color: '#6b6457',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px',
         }}>
-          Total Revenue: <span style={{ color: '#C9A84C', fontWeight: 700 }}>${totalRevenue.toFixed(2)}</span>
+          <div style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1rem',
+            color: '#6b6457',
+          }}>
+            Total Revenue: <span style={{ color: '#C9A84C', fontWeight: 700 }}>${totalRevenue.toFixed(2)}</span>
+          </div>
+          <PaymentsExportButton bundles={exportData} />
         </div>
       </div>
 

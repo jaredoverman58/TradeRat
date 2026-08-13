@@ -6,6 +6,7 @@ import SignedImage from '@/components/SignedImage'
 
 type Submission = {
   id: string
+  user_id: string
   service_type: string
   rate_tier: string
   status: string
@@ -42,6 +43,7 @@ type Response = {
 
 export default function SubmissionRow({
   submission,
+  userEmail,
   isExpanded,
   onToggle,
   formatServiceType,
@@ -50,6 +52,7 @@ export default function SubmissionRow({
   shortenId,
 }: {
   submission: Submission
+  userEmail: string
   isExpanded: boolean
   onToggle: () => void
   formatServiceType: (type: string) => string
@@ -106,7 +109,7 @@ export default function SubmissionRow({
         onClick={onToggle}
         style={{
           display: 'grid',
-          gridTemplateColumns: '100px 150px 120px 120px 150px 160px 160px',
+          gridTemplateColumns: '100px 200px 150px 120px 120px 150px 160px 160px',
           gap: '16px',
           padding: '16px 24px',
           border: '1px solid #2a261e',
@@ -121,6 +124,16 @@ export default function SubmissionRow({
           color: '#F2EDE4',
         }}>
           {shortenId(submission.id)}
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          color: '#C9A84C',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>
+          {userEmail}
         </div>
         <div style={{
           fontFamily: 'var(--font-dm-sans)',

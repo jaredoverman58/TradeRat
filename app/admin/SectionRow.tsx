@@ -41,6 +41,9 @@ export default function SectionRow({
     }
   }
 
+  // Sections with dedicated admin tabs should not be editable here
+  const hasDedicatedTab = section.section_key === 'stats' || section.section_key === 'testimonials'
+
   return (
     <div style={{
       display: 'grid',
@@ -132,21 +135,37 @@ export default function SectionRow({
         >
           ↓
         </button>
-        <button
-          onClick={onEdit}
-          style={{
-            fontFamily: 'var(--font-dm-sans)',
-            fontSize: '0.75rem',
-            padding: '8px 12px',
-            backgroundColor: 'transparent',
-            color: '#C9A84C',
-            border: '1px solid #C9A84C',
-            cursor: 'pointer',
-          }}
-          title="Edit content"
-        >
-          Edit
-        </button>
+        {hasDedicatedTab ? (
+          <div
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.7rem',
+              padding: '8px 12px',
+              color: '#6b6457',
+              fontStyle: 'italic',
+              textAlign: 'center',
+            }}
+            title={`Managed in dedicated ${formatSectionName(section.section_key)} tab`}
+          >
+            See {formatSectionName(section.section_key)} tab
+          </div>
+        ) : (
+          <button
+            onClick={onEdit}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.75rem',
+              padding: '8px 12px',
+              backgroundColor: 'transparent',
+              color: '#C9A84C',
+              border: '1px solid #C9A84C',
+              cursor: 'pointer',
+            }}
+            title="Edit content"
+          >
+            Edit
+          </button>
+        )}
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import AnalyticsExportButton from './AnalyticsExportButton'
 
 export default async function AnalyticsTab() {
   const adminClient = createAdminClient()
@@ -92,17 +93,40 @@ export default async function AnalyticsTab() {
     ? (recentThumbsUp / recentRatings.length) * 100
     : 0
 
+  // Prepare data for CSV export
+  const exportData = {
+    ratings: ratings || [],
+    responseTimes: completedSubmissions.map((sub, idx) => ({
+      service_type: sub.service_type,
+      created_at: sub.created_at,
+      delivered_at: sub.delivered_at,
+      response_time_hours: responseTimes[idx],
+    })),
+    averageResponseTime,
+    thumbsUpPercentage,
+  }
+
   return (
     <div>
-      <h2 style={{
-        fontFamily: 'var(--font-playfair)',
-        fontSize: '1.5rem',
-        fontWeight: 700,
-        color: '#F2EDE4',
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: '32px',
+        flexWrap: 'wrap',
+        gap: '16px',
       }}>
-        Analytics Dashboard
-      </h2>
+        <h2 style={{
+          fontFamily: 'var(--font-playfair)',
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: '#F2EDE4',
+          margin: 0,
+        }}>
+          Analytics Dashboard
+        </h2>
+        <AnalyticsExportButton data={exportData} />
+      </div>
 
       {/* Key Metrics */}
       <div style={{
