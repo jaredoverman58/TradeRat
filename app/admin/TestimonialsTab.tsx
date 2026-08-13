@@ -472,7 +472,7 @@ export default function TestimonialsTab() {
             fontSize: '0.875rem',
             color: '#6b6457',
           }}>
-            Click "Add Testimonial" to create your first one
+            Click &quot;Add Testimonial&quot; to create your first one
           </div>
         </div>
       ) : (
@@ -536,7 +536,7 @@ export default function TestimonialsTab() {
                     marginBottom: '12px',
                     fontStyle: 'italic',
                   }}>
-                    "{testimonial.quote}"
+                    &quot;{testimonial.quote}&quot;
                   </div>
                   <div style={{
                     fontFamily: 'var(--font-dm-sans)',

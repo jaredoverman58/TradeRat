@@ -401,7 +401,7 @@ export default function StatsTab() {
             fontSize: '0.875rem',
             color: '#6b6457',
           }}>
-            Click "Add Stat" to create your first one
+            Click &quot;Add Stat&quot; to create your first one
           </div>
         </div>
       ) : (
