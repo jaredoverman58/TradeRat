@@ -350,7 +350,7 @@ export default function SubmitPage() {
               fontSize: '0.875rem',
               marginBottom: '12px',
             }}>
-              You can view this form to see how it works, but you'll need to{' '}
+              You can view this form to see how it works, but you&apos;ll need to{' '}
               <Link href="/login" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
                 sign in
               </Link>
@@ -1182,7 +1182,7 @@ export default function SubmitPage() {
               marginBottom: '24px',
               lineHeight: '1.6',
             }}>
-              Get text message notifications when your trade analysis is ready. This is completely optional - you'll always receive email notifications.
+              Get text message notifications when your trade analysis is ready. This is completely optional - you&apos;ll always receive email notifications.
             </p>
 
             <div style={{ marginBottom: '24px' }}>
@@ -1262,7 +1262,7 @@ export default function SubmitPage() {
                       <li>SMS notifications are optional and not required to use Trade Rat</li>
                     </ul>
                     <span style={{ marginTop: '12px', display: 'block', fontSize: '0.75rem', color: '#6b6457' }}>
-                      By checking this box, I agree to Trade Rat's{' '}
+                      By checking this box, I agree to Trade Rat&apos;s{' '}
                       <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
                         Privacy Policy
                       </Link>
