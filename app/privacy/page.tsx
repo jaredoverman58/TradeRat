@@ -231,6 +231,9 @@ export default function PrivacyPage() {
               <strong>SMS notifications are completely optional.</strong> You can use Trade Rat with email
               notifications only.
             </p>
+            <p style={{ marginBottom: '16px' }}>
+              Your mobile phone number is never shared, sold, or rented to third parties for marketing or advertising purposes. We only share your phone number with our SMS delivery provider (Twilio) solely to send you the text messages you have opted in to receive.
+            </p>
           </section>
 
           {/* Section 4 */}
