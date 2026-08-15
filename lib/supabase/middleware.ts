@@ -31,12 +31,25 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    request.nextUrl.pathname !== '/'
-  ) {
+  // Public routes that don't require authentication
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/signup',
+    '/privacy',  // Privacy policy must be publicly accessible (required for Twilio A2P approval)
+    '/terms',    // Terms of service should also be public
+    '/submit',   // Submit page visible to show opt-in consent flow (required for Twilio A2P approval)
+    '/faq',      // FAQ should be public
+    '/contact',  // Contact page should be public
+    '/pricing',  // Pricing page should be public
+  ]
+
+  const isPublicRoute = publicRoutes.some(route =>
+    request.nextUrl.pathname === route ||
+    request.nextUrl.pathname.startsWith(route + '/')
+  )
+
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

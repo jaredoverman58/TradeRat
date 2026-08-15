@@ -52,6 +52,10 @@ export default function SubmitPage() {
   const [fabGive, setFabGive] = useState('')
   const [additionalContext, setAdditionalContext] = useState('')
 
+  // SMS notification opt-in state
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [smsOptIn, setSmsOptIn] = useState(false)
+
   // File upload state
   const [submissionFiles, setSubmissionFiles] = useState<SubmissionFile[]>([])
 
@@ -64,8 +68,10 @@ export default function SubmitPage() {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser()
 
+      // Allow viewing the form without login (for Twilio A2P approval - reviewers need to see opt-in consent)
+      // Login will be required when actually submitting
       if (!user) {
-        router.push('/login')
+        setLoading(false)
         return
       }
 
@@ -165,8 +171,22 @@ export default function SubmitPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Require login for actual submission
     if (!userId) {
-      router.push('/login')
+      // Store the form state in sessionStorage so user can resume after login
+      sessionStorage.setItem('pendingSubmission', JSON.stringify({
+        selectedProfileId,
+        offerDirection,
+        rateTier,
+        receivePlayers,
+        givePlayers,
+        receivePicks,
+        givePicks,
+        fabReceive,
+        fabGive,
+        additionalContext,
+      }))
+      router.push('/login?redirect=/submit')
       return
     }
 
@@ -184,6 +204,19 @@ export default function SubmitPage() {
     setSubmitting(true)
 
     try {
+      // Step 0: Update user's phone number if SMS opt-in is enabled
+      if (phoneNumber && smsOptIn) {
+        const { error: phoneUpdateError } = await supabase
+          .from('user_roles')
+          .update({ phone_number: phoneNumber })
+          .eq('user_id', userId)
+
+        if (phoneUpdateError) {
+          console.warn('Failed to update phone number:', phoneUpdateError)
+          // Don't block submission if phone update fails
+        }
+      }
+
       // Step 1: Create submission in draft status
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
@@ -274,7 +307,7 @@ export default function SubmitPage() {
         {/* Header */}
         <div style={{ marginBottom: '40px' }}>
           <Link
-            href="/dashboard"
+            href={userId ? "/dashboard" : "/"}
             style={{
               fontFamily: 'var(--font-dm-sans)',
               fontSize: '0.875rem',
@@ -284,7 +317,7 @@ export default function SubmitPage() {
               display: 'inline-block',
             }}
           >
-            ← Back to Dashboard
+            ← Back to {userId ? 'Dashboard' : 'Home'}
           </Link>
           <h1 style={{
             fontFamily: 'var(--font-playfair)',
@@ -303,6 +336,32 @@ export default function SubmitPage() {
             Get expert analysis on whether to accept or decline your trade offer
           </p>
         </div>
+
+        {!userId && (
+          <div style={{
+            backgroundColor: '#1a1710',
+            border: '2px solid #C9A84C',
+            padding: '20px',
+            marginBottom: '32px',
+            fontFamily: 'var(--font-dm-sans)',
+          }}>
+            <p style={{
+              color: '#F2EDE4',
+              fontSize: '0.875rem',
+              marginBottom: '12px',
+            }}>
+              You can view this form to see how it works, but you'll need to{' '}
+              <Link href="/login" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                sign in
+              </Link>
+              {' '}or{' '}
+              <Link href="/signup" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                create an account
+              </Link>
+              {' '}to submit a trade evaluation request.
+            </p>
+          </div>
+        )}
 
         {error && (
           <div style={{
@@ -1091,7 +1150,7 @@ export default function SubmitPage() {
                       }}>
                         <input
                           type="checkbox"
-                          checked={file.isOwnRoster}
+                          checked={file.isOwnRoster || false}
                           onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
                           style={{ marginRight: '8px' }}
                         />
@@ -1104,7 +1163,122 @@ export default function SubmitPage() {
             )}
           </div>
 
-          {/* Step 4: Additional Context */}
+          {/* Step 4: SMS Notifications (Optional) */}
+          <div style={{ marginBottom: '48px', paddingBottom: '48px', borderBottom: '1px solid #2a261e' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#F2EDE4',
+              marginBottom: '24px',
+            }}>
+              4. SMS Notifications (Optional)
+            </h2>
+
+            <p style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#6b6457',
+              marginBottom: '24px',
+              lineHeight: '1.6',
+            }}>
+              Get text message notifications when your trade analysis is ready. This is completely optional - you'll always receive email notifications.
+            </p>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#F2EDE4',
+                marginBottom: '8px',
+                display: 'block',
+              }}>
+                Phone Number (Optional)
+              </label>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+1234567890 (include country code)"
+                disabled={!userId}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  backgroundColor: '#0C0A07',
+                  border: '1px solid #2a261e',
+                  color: '#F2EDE4',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  opacity: !userId ? 0.5 : 1,
+                }}
+              />
+              <p style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.75rem',
+                color: '#6b6457',
+                marginTop: '8px',
+              }}>
+                Must include country code (e.g., +1 for US/Canada)
+              </p>
+            </div>
+
+            {phoneNumber && (
+              <div style={{
+                backgroundColor: '#1a1710',
+                border: '1px solid #2a261e',
+                padding: '20px',
+              }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  color: '#F2EDE4',
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={smsOptIn || false}
+                    onChange={(e) => setSmsOptIn(e.target.checked)}
+                    disabled={!userId}
+                    style={{
+                      marginRight: '12px',
+                      marginTop: '2px',
+                      width: '18px',
+                      height: '18px',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ lineHeight: '1.6' }}>
+                    <strong style={{ color: '#C9A84C' }}>I consent to receive SMS notifications</strong> from Trade Rat at the phone number provided above.
+                    I understand that:
+                    <ul style={{ marginTop: '12px', marginLeft: '20px', lineHeight: '1.8' }}>
+                      <li>I will receive text messages when my trade analysis is ready</li>
+                      <li>I may receive occasional service updates related to my requests</li>
+                      <li>Message and data rates may apply</li>
+                      <li>I can opt out at any time by replying STOP to any message or updating my account preferences</li>
+                      <li>SMS notifications are optional and not required to use Trade Rat</li>
+                    </ul>
+                    <span style={{ marginTop: '12px', display: 'block', fontSize: '0.75rem', color: '#6b6457' }}>
+                      By checking this box, I agree to Trade Rat's{' '}
+                      <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                        Privacy Policy
+                      </Link>
+                      {' '}and{' '}
+                      <Link href="/terms" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                        Terms of Service
+                      </Link>
+                      .
+                    </span>
+                  </span>
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Step 5: Additional Context */}
           <div style={{ marginBottom: '48px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -1113,7 +1287,7 @@ export default function SubmitPage() {
               color: '#F2EDE4',
               marginBottom: '24px',
             }}>
-              4. Additional Context
+              5. Additional Context
             </h2>
 
             <label style={{
@@ -1148,7 +1322,7 @@ export default function SubmitPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={submitting || submissionFiles.length === 0 || (!selectedProfileId && !showNewProfileForm)}
+            disabled={Boolean(submitting || submissionFiles.length === 0 || (userId && !selectedProfileId && !showNewProfileForm))}
             style={{
               fontFamily: 'var(--font-dm-sans)',
               width: '100%',
@@ -1163,7 +1337,7 @@ export default function SubmitPage() {
               cursor: submitting || submissionFiles.length === 0 ? 'not-allowed' : 'pointer',
             }}
           >
-            {submitting ? 'Submitting...' : 'Submit Trade for Evaluation'}
+            {submitting ? 'Submitting...' : !userId ? 'Sign In to Submit' : 'Submit Trade for Evaluation'}
           </button>
         </form>
       </div>
