@@ -200,6 +200,12 @@ export default function SubmitPage() {
       return
     }
 
+    // Validate SMS opt-in: if checkbox is checked, phone number is required
+    if (smsOptIn && !phoneNumber) {
+      setError('Please enter a phone number to receive SMS notifications, or uncheck the SMS opt-in box')
+      return
+    }
+
     setError(null)
     setSubmitting(true)
 
@@ -1195,23 +1201,22 @@ export default function SubmitPage() {
                 marginBottom: '8px',
                 display: 'block',
               }}>
-                Phone Number (Optional)
+                Phone Number {smsOptIn ? '*' : '(Optional)'}
               </label>
               <input
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="+1234567890 (include country code)"
-                disabled={!userId}
+                required={smsOptIn}
                 style={{
                   width: '100%',
                   padding: '16px',
                   backgroundColor: '#0C0A07',
-                  border: '1px solid #2a261e',
+                  border: smsOptIn && !phoneNumber ? '1px solid #C9A84C' : '1px solid #2a261e',
                   color: '#F2EDE4',
                   fontFamily: 'var(--font-dm-sans)',
                   fontSize: '1rem',
-                  opacity: !userId ? 0.5 : 1,
                 }}
               />
               <p style={{
@@ -1224,58 +1229,46 @@ export default function SubmitPage() {
               </p>
             </div>
 
-            {phoneNumber && (
-              <div style={{
-                backgroundColor: '#1a1710',
-                border: '1px solid #2a261e',
-                padding: '20px',
+            <div style={{
+              backgroundColor: '#1a1710',
+              border: '1px solid #2a261e',
+              padding: '20px',
+              marginBottom: '24px',
+            }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
               }}>
-                <label style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  color: '#F2EDE4',
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={smsOptIn || false}
-                    onChange={(e) => setSmsOptIn(e.target.checked)}
-                    disabled={!userId}
-                    style={{
-                      marginRight: '12px',
-                      marginTop: '2px',
-                      width: '18px',
-                      height: '18px',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ lineHeight: '1.6' }}>
-                    <strong style={{ color: '#C9A84C' }}>I consent to receive SMS notifications</strong> from Trade Rat at the phone number provided above.
-                    I understand that:
-                    <ul style={{ marginTop: '12px', marginLeft: '20px', lineHeight: '1.8' }}>
-                      <li>I will receive text messages when my trade analysis is ready</li>
-                      <li>I may receive occasional service updates related to my requests</li>
-                      <li>Message and data rates may apply</li>
-                      <li>I can opt out at any time by replying STOP to any message or updating my account preferences</li>
-                      <li>SMS notifications are optional and not required to use Trade Rat</li>
-                    </ul>
-                    <span style={{ marginTop: '12px', display: 'block', fontSize: '0.75rem', color: '#6b6457' }}>
-                      By checking this box, I agree to Trade Rat&apos;s{' '}
-                      <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
-                        Privacy Policy
-                      </Link>
-                      {' '}and{' '}
-                      <Link href="/terms" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
-                        Terms of Service
-                      </Link>
-                      .
-                    </span>
-                  </span>
-                </label>
-              </div>
-            )}
+                <input
+                  type="checkbox"
+                  checked={smsOptIn || false}
+                  onChange={(e) => setSmsOptIn(e.target.checked)}
+                  style={{
+                    marginRight: '12px',
+                    marginTop: '2px',
+                    width: '18px',
+                    height: '18px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                  }}
+                />
+                <span style={{ lineHeight: '1.6' }}>
+                  I agree to receive SMS notifications from Trade Rat about my trade analysis status. Message frequency varies. Message and data rates may apply. Reply STOP to opt out. See our{' '}
+                  <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                    Privacy Policy
+                  </Link>
+                  {' '}and{' '}
+                  <Link href="/terms" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                    Terms of Service
+                  </Link>
+                  .
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Step 5: Additional Context */}
