@@ -6,15 +6,25 @@
 ## PART 1: CURRENT STATUS (as of this session)
 
 ### Completed phases (all tested and verified working end-to-end)
-1. Database schema (migrations 003–009 applied to Supabase)
+1. Database schema (migrations 003–019 applied to Supabase)
 2. Core submission flow — user creates a trade evaluation, uploads files, submits, credit auto-consumed (/submit or /dashboard)
 3. Expert queue, claim & respond (/expert) — expert claims open submission, writes response, status becomes completed
-4. Admin dashboard — Overview + Submissions tabs (/admin)
+4. Admin dashboard — Overview, Submissions, and Dev Tools tabs (/admin)
 5. Landing page + modular block toggle system (/) — all 8 sections stored in landing_page_sections table, admin can toggle/edit via admin dashboard
 6. Stripe (3-pack bundle purchase) + Twilio (response-ready SMS) — IN PROGRESS, not yet fully tested
+7. **NEW - Audio Whisper transcription** — Expert audio responses automatically transcribed via OpenAI Whisper API, stored in audio_transcript field, includes success logging
+8. **NEW - 3-step onboarding flow** — New users see welcome → league setup → free evaluation CTA, tracked via onboarding_completed field
+9. **NEW - Admin Dev Tools** — Test submission creator (one-click with expert assignment) + onboarding reset button for testing
+10. **NEW - Expert confirmation rendering** — Expert's "Response Sent ✓" screen now properly renders HTML formatting using SafeHtmlRenderer
 
-### Where Phase 6 was left off
-Migration 009 added phone_number, but Claude Code's original migration mistakenly targeted an old dead table called users (leftover prototype scaffolding, not connected to real accounts). Corrected to add phone_number to user_roles instead (the real per-user table, one row per account). Just asked Claude Code to update its frontend/backend code to read/write phone_number from user_roles, not users. Need to confirm that fix landed before testing.
+### Recent completions (session 2026-08-17)
+- **Whisper audio transcription:** Fixed and verified working. Expert audio responses automatically transcribed via OpenAI Whisper, stored in responses.audio_transcript field. Added success logging to terminal output (line 138 in app/api/expert/respond/route.ts).
+- **Admin Dev Tools tab:** Created /admin?tab=dev-tools with two features: (1) Test submission creator - one-click creates dummy submission assigned to selected expert, returns direct expert URL. (2) Reset onboarding button - instantly resets admin's onboarding status for flow testing without new signups.
+- **3-step onboarding flow:** New users redirected to /onboarding after signup. Step 1: Welcome with video placeholder infrastructure. Step 2: League profile setup with Add League button (links to /submit) and Skip option. Step 3: Free evaluation CTA. Database field onboarding_completed tracks completion (migration 019). Existing users auto-marked complete. Dashboard redirects incomplete users to onboarding.
+- **Expert confirmation HTML rendering:** Fixed expert's "Response Sent ✓" confirmation screen (app/expert/submissions/[id]/page.tsx) to render HTML formatting properly using SafeHtmlRenderer component (same approach as user-facing advice page).
+- **Landing page pricing accuracy:** Changed "The Rat reviews every submission personally" to "Rat Rate submissions are reviewed personally by The Rat" in migration 008_landing_page_sections.sql for tier accuracy.
+- **.gitignore cleanup:** Removed debug script check-transcript.js from repo, added patterns (check-*.js, debug-*.js, test-*.js) to prevent future debug files from being committed.
+- **Production build fix:** Escaped double quotes in DevToolsTab.tsx line 273 (&quot;claimed&quot;) to resolve build error.
 
 ### Still to do for Phase 6
 - Confirm Claude Code's code fix for user_roles.phone_number actually landed
