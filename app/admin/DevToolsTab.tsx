@@ -270,7 +270,7 @@ export default function DevToolsTab() {
           paddingLeft: '20px',
         }}>
           <li>A complete submission with dummy trade data</li>
-          <li>Status set to "claimed" and assigned to selected expert</li>
+          <li>Status set to &quot;claimed&quot; and assigned to selected expert</li>
           <li>Fake league profile with realistic settings</li>
           <li>No actual files uploaded (screenshot upload optional)</li>
           <li>Direct link to expert submission view for immediate testing</li>

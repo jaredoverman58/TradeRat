@@ -24,6 +24,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+check-*.js
+debug-*.js
+test-*.js
 
 # local env files
 .env*.local
