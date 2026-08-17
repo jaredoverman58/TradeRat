@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RespondForm from './RespondForm'
 import SignedImage from '@/components/SignedImage'
+import SafeHtmlRenderer from '@/app/dashboard/advice/[id]/SafeHtmlRenderer'
 
 export default async function SubmissionDetailPage({
   params,
@@ -590,16 +591,19 @@ export default async function SubmissionDetailPage({
               Sent at: {new Date(existingResponse.sent_at).toLocaleString()}
             </div>
             <div style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '1rem',
-              color: '#F2EDE4',
-              whiteSpace: 'pre-wrap',
-              lineHeight: '1.6',
               padding: '24px',
               backgroundColor: '#0C0A07',
               border: '1px solid #2a261e',
             }}>
-              {existingResponse.written_content}
+              <SafeHtmlRenderer
+                html={existingResponse.written_content}
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  color: '#F2EDE4',
+                  lineHeight: '1.6',
+                }}
+              />
             </div>
           </div>
         ) : (

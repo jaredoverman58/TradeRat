@@ -15,6 +15,17 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  // Check if user has completed onboarding
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('onboarding_completed')
+    .eq('user_id', user.id)
+    .single()
+
+  if (userRole && !userRole.onboarding_completed) {
+    redirect('/onboarding')
+  }
+
   // Fetch user's free evaluation status
   const { data: freeEval } = await supabase
     .from('free_evaluations')

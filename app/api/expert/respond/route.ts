@@ -135,6 +135,7 @@ export async function POST(request: Request) {
             language: 'en',
           })
           audioTranscript = transcription.text
+          console.log('✓ Audio transcribed successfully:', audioTranscript.substring(0, 100) + (audioTranscript.length > 100 ? '...' : ''))
         } catch (transcribeError) {
           console.error('Error transcribing audio:', transcribeError)
           // Continue without transcript - not critical

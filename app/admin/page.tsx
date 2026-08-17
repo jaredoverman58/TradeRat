@@ -10,6 +10,7 @@ import UsersTab from './UsersTab'
 import PaymentsTab from './PaymentsTab'
 import SupportTab from './SupportTab'
 import AnalyticsTab from './AnalyticsTab'
+import DevToolsTab from './DevToolsTab'
 
 export default async function AdminDashboard({
   searchParams,
@@ -297,6 +298,23 @@ export default async function AdminDashboard({
             >
               Stats
             </Link>
+            <Link
+              href="/admin?tab=dev-tools"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                paddingBottom: '16px',
+                textDecoration: 'none',
+                color: activeTab === 'dev-tools' ? '#C9A84C' : '#6b6457',
+                borderBottom: activeTab === 'dev-tools' ? '2px solid #C9A84C' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Dev Tools
+            </Link>
           </div>
         </div>
 
@@ -310,6 +328,7 @@ export default async function AdminDashboard({
         {activeTab === 'landing-page' && <LandingPageTab />}
         {activeTab === 'testimonials' && <TestimonialsTab />}
         {activeTab === 'stats' && <StatsTab />}
+        {activeTab === 'dev-tools' && <DevToolsTab />}
       </div>
     </div>
   )

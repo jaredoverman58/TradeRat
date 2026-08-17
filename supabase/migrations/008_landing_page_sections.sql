@@ -193,7 +193,7 @@ INSERT INTO landing_page_sections (section_key, is_active, sort_order, content) 
         "rat_rate_price": "$19.99"
       }
     ],
-    "note": "The Rat reviews every submission personally.",
+    "note": "Rat Rate submissions are reviewed personally by The Rat.",
     "disclaimer": "The Trade Rat is not affiliated with or endorsed by ESPN, Yahoo, Sleeper, Fantrax, or any fantasy sports platform."
   }'::jsonb
 ),
