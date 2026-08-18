@@ -85,7 +85,7 @@ export async function sendResponseReadyNotification(
   phoneNumber: string,
   submissionId: string
 ): Promise<SendSmsResult> {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const message = `Your Trade Rat analysis is ready. Log in to view it: ${appUrl}/dashboard`
 
   return sendSms({ to: phoneNumber, message })
