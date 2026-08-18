@@ -63,6 +63,57 @@ export default async function ExpertQueuePage() {
     )
   }
 
+  // Fetch expert stats
+  // 1. Total completions (sent responses, not recalled)
+  const { count: totalCompletions } = await supabase
+    .from('responses')
+    .select('*', { count: 'exact', head: true })
+    .eq('expert_id', expert.id)
+    .is('recalled_at', null)
+
+  // 2. Average response time (sent_at - submission.created_at in hours)
+  const { data: responseTimes } = await supabase
+    .from('responses')
+    .select(`
+      sent_at,
+      submissions!inner(created_at)
+    `)
+    .eq('expert_id', expert.id)
+    .is('recalled_at', null)
+
+  let avgResponseTimeHours = 0
+  if (responseTimes && responseTimes.length > 0) {
+    const times = responseTimes.map((r: any) => {
+      const sent = new Date(r.sent_at).getTime()
+      const created = new Date(r.submissions.created_at).getTime()
+      return (sent - created) / (1000 * 60 * 60) // convert ms to hours
+    })
+    avgResponseTimeHours = times.reduce((sum, t) => sum + t, 0) / times.length
+  }
+
+  // 3. Thumbs up percentage
+  // First get submission IDs for this expert's responses
+  const { data: expertResponses } = await supabase
+    .from('responses')
+    .select('submission_id')
+    .eq('expert_id', expert.id)
+    .is('recalled_at', null)
+
+  const submissionIds = expertResponses?.map(r => r.submission_id) || []
+
+  let thumbsUpPercentage = 0
+  if (submissionIds.length > 0) {
+    const { data: ratingsData } = await supabase
+      .from('ratings')
+      .select('thumbs_up')
+      .in('submission_id', submissionIds)
+
+    if (ratingsData && ratingsData.length > 0) {
+      const thumbsUpCount = ratingsData.filter(r => r.thumbs_up).length
+      thumbsUpPercentage = (thumbsUpCount / ratingsData.length) * 100
+    }
+  }
+
   // Fetch open queue submissions (status = 'submitted' AND expert_id IS NULL)
   const { data: openSubmissions } = await supabase
     .from('submissions')
@@ -109,6 +160,33 @@ export default async function ExpertQueuePage() {
     if (diffHours > 0) return `${diffHours}h ago`
     if (diffMins > 0) return `${diffMins}m ago`
     return 'just now'
+  }
+
+  const getUrgencyStyle = (dateString: string) => {
+    const now = new Date()
+    const past = new Date(dateString)
+    const diffMs = now.getTime() - past.getTime()
+    const diffHours = diffMs / (1000 * 60 * 60)
+
+    if (diffHours >= 12) {
+      // Red for 12+ hours
+      return {
+        backgroundColor: '#3d1a1a',
+        borderColor: '#8b2d2d',
+      }
+    } else if (diffHours >= 6) {
+      // Yellow for 6-12 hours
+      return {
+        backgroundColor: '#3d3520',
+        borderColor: '#8b7b3d',
+      }
+    } else {
+      // Green for under 6 hours
+      return {
+        backgroundColor: '#1a3d2e',
+        borderColor: '#2d8b5f',
+      }
+    }
   }
 
   const formatServiceType = (serviceType: string) => {
@@ -179,6 +257,101 @@ export default async function ExpertQueuePage() {
                 Sign Out
               </button>
             </form>
+          </div>
+        </div>
+
+        {/* Expert Stats */}
+        <div style={{ marginBottom: '48px' }}>
+          <h2 style={{
+            fontFamily: 'var(--font-playfair)',
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#F2EDE4',
+            marginBottom: '24px',
+          }}>
+            Your Performance
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            {/* Total Completions */}
+            <div style={{
+              border: '1px solid #2a261e',
+              padding: '32px 24px',
+              backgroundColor: 'transparent',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '3rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '8px',
+              }}>
+                {totalCompletions || 0}
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#6b6457',
+              }}>
+                Total Completions
+              </div>
+            </div>
+
+            {/* Average Response Time */}
+            <div style={{
+              border: '1px solid #2a261e',
+              padding: '32px 24px',
+              backgroundColor: 'transparent',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '3rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '8px',
+              }}>
+                {avgResponseTimeHours > 0 ? avgResponseTimeHours.toFixed(1) : '—'}
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#6b6457',
+              }}>
+                Avg Response Time (hrs)
+              </div>
+            </div>
+
+            {/* Rating Percentage */}
+            <div style={{
+              border: '1px solid #2a261e',
+              padding: '32px 24px',
+              backgroundColor: 'transparent',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '3rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '8px',
+              }}>
+                {thumbsUpPercentage > 0 ? `${thumbsUpPercentage.toFixed(0)}%` : '—'}
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#6b6457',
+              }}>
+                Thumbs Up Rating
+              </div>
+            </div>
           </div>
         </div>
 
@@ -331,13 +504,15 @@ export default async function ExpertQueuePage() {
 
           {openSubmissions && openSubmissions.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {openSubmissions.map((submission) => (
+              {openSubmissions.map((submission) => {
+                const urgencyStyle = getUrgencyStyle(submission.created_at)
+                return (
                 <div
                   key={submission.id}
                   style={{
-                    border: '1px solid #2a261e',
+                    border: `2px solid ${urgencyStyle.borderColor}`,
                     padding: '24px',
-                    backgroundColor: 'transparent',
+                    backgroundColor: urgencyStyle.backgroundColor,
                   }}
                 >
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '24px', alignItems: 'center' }}>
@@ -454,7 +629,8 @@ export default async function ExpertQueuePage() {
                     </form>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div style={{
