@@ -24,11 +24,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { expertId } = await request.json()
+    const { expertId, serviceType } = await request.json()
 
     if (!expertId) {
       return NextResponse.json({ error: 'Expert ID is required' }, { status: 400 })
     }
+
+    // Default to accept_decline if not specified
+    const selectedServiceType = serviceType || 'accept_decline'
 
     // Verify expert exists
     const { data: expert, error: expertError } = await supabase
@@ -65,7 +68,7 @@ export async function POST(request: Request) {
       .insert({
         user_id: user.id,
         league_profile_id: leagueProfile.id,
-        service_type: 'accept_decline',
+        service_type: selectedServiceType,
         offer_direction: 'received',
         rate_tier: 'standard',
         status: 'claimed',
@@ -73,12 +76,12 @@ export async function POST(request: Request) {
         claimed_at: new Date().toISOString(),
         deadline_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 hours from now
         receive_players: 'Justin Jefferson, WR\nAlvin Kamara, RB',
-        give_players: 'Ja\'Marr Chase, WR\nJosh Jacobs, RB',
+        give_players: 'Ja&apos;Marr Chase, WR\nJosh Jacobs, RB',
         receive_picks: '2026 2nd Round',
         give_picks: null,
         fab_receive: null,
         fab_give: null,
-        additional_context: 'TEST SUBMISSION - Created via admin dev tools for testing purposes. I\'m currently 5-3 and looking to make a playoff push. My WR depth is strong but RB is thin. Should I make this trade?',
+        additional_context: `TEST SUBMISSION (${selectedServiceType.toUpperCase()}) - Created via admin dev tools for testing purposes. I&apos;m currently 5-3 and looking to make a playoff push. My WR depth is strong but RB is thin. Should I make this trade?`,
       })
       .select()
       .single()

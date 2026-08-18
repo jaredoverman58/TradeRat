@@ -118,7 +118,68 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
           </div>
         ) : (
           <>
-            {/* Expert Response */}
+            {/* Our Recommendation (Bundle Service Only) */}
+            {response.verdict && (
+              <div style={{
+                border: '2px solid #C9A84C',
+                padding: '40px',
+                marginBottom: '32px',
+                backgroundColor: '#1a1710',
+              }}>
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  color: '#C9A84C',
+                  marginBottom: '16px',
+                }}>
+                  Our Recommendation
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-playfair)',
+                  fontSize: '2rem',
+                  fontWeight: 700,
+                  color: response.verdict === 'accept' ? '#4ade80' : '#ff6b6b',
+                  textTransform: 'uppercase',
+                }}>
+                  {response.verdict === 'accept' ? 'Accept' : 'Decline'}
+                </div>
+              </div>
+            )}
+
+            {/* Bonus Content (Bundle Service Only) */}
+            {response.bonus_content && (
+              <div style={{
+                border: '2px solid #C9A84C',
+                padding: '40px',
+                marginBottom: '32px',
+              }}>
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  color: '#C9A84C',
+                  marginBottom: '16px',
+                }}>
+                  {response.verdict === 'decline'
+                    ? 'Counter Offer'
+                    : 'Bonus: Your Next Move'}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  lineHeight: 1.7,
+                  color: '#F2EDE4',
+                  whiteSpace: 'pre-wrap',
+                }}>
+                  {response.bonus_content}
+                </div>
+              </div>
+            )}
+
+            {/* Expert Analysis */}
             <div style={{
               border: '2px solid #C9A84C',
               padding: '40px',

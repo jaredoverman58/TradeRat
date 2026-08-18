@@ -13,6 +13,7 @@ export default function DevToolsTab() {
   const router = useRouter()
   const [experts, setExperts] = useState<Expert[]>([])
   const [selectedExpertId, setSelectedExpertId] = useState<string>('')
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('accept_decline')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ submissionId: string; expertUrl: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -68,7 +69,10 @@ export default function DevToolsTab() {
       const res = await fetch('/api/admin/create-test-submission', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expertId: selectedExpertId }),
+        body: JSON.stringify({
+          expertId: selectedExpertId,
+          serviceType: selectedServiceType,
+        }),
       })
 
       const data = await res.json()
@@ -223,6 +227,39 @@ export default function DevToolsTab() {
                 </option>
               ))
             )}
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#F2EDE4',
+            display: 'block',
+            marginBottom: '8px',
+          }}>
+            Service Type
+          </label>
+          <select
+            value={selectedServiceType}
+            onChange={(e) => setSelectedServiceType(e.target.value)}
+            disabled={loading}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#0C0A07',
+              border: '1px solid #2a261e',
+              color: '#F2EDE4',
+              fontSize: '1rem',
+            }}
+          >
+            <option value="accept_decline">Accept/Decline</option>
+            <option value="counter_offer">Counter Offer</option>
+            <option value="bundle">Accept/Decline + Bonus (Bundle)</option>
+            <option value="trade_finder">Trade Finder</option>
           </select>
         </div>
 

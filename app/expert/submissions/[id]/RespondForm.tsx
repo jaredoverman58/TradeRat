@@ -11,9 +11,11 @@ const TipTapEditor = dynamic(() => import('./TipTapEditor'), { ssr: false })
 export default function RespondForm({
   submissionId,
   expertId,
+  serviceType,
 }: {
   submissionId: string
   expertId: string
+  serviceType: string
 }) {
   const router = useRouter()
   const [response, setResponse] = useState('')
@@ -22,6 +24,12 @@ export default function RespondForm({
   const [success, setSuccess] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+
+  // Bundle service fields
+  const [verdict, setVerdict] = useState<'accept' | 'decline' | ''>('')
+  const [bonusContent, setBonusContent] = useState('')
+  const isBundleService = serviceType === 'bundle'
+
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const draftKey = `draft_${submissionId}_${expertId}`
 
@@ -64,17 +72,29 @@ export default function RespondForm({
     }
   }, [response, saveDraft])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
+  const canSubmit = () => {
     // Strip HTML tags for validation
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = response
     const textContent = tempDiv.textContent || tempDiv.innerText || ''
 
-    // Require either written content OR audio
-    if (!textContent.trim() && !audioBlob) {
-      setError('Please provide either written analysis or audio commentary')
+    // Must have written content OR audio
+    const hasContent = textContent.trim() || audioBlob
+
+    // If bundle service, must also have verdict and valid bonus content
+    if (isBundleService) {
+      return hasContent && verdict && bonusContent.trim().length >= 30
+    }
+
+    // For non-bundle services, just needs content
+    return hasContent
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    if (!canSubmit()) {
+      setError('Please complete all required fields')
       return
     }
 
@@ -93,22 +113,36 @@ export default function RespondForm({
         formData.append('written_content', response || '') // Empty string if no text
         formData.append('audio', audioBlob, 'audio.webm')
 
+        // Add bundle fields if applicable
+        if (isBundleService) {
+          formData.append('verdict', verdict)
+          formData.append('bonus_content', bonusContent)
+        }
+
         res = await fetch('/api/expert/respond', {
           method: 'POST',
           body: formData,
         })
       } else {
         // Send as JSON without audio
+        const payload: any = {
+          submission_id: submissionId,
+          expert_id: expertId,
+          written_content: response,
+        }
+
+        // Add bundle fields if applicable
+        if (isBundleService) {
+          payload.verdict = verdict
+          payload.bonus_content = bonusContent
+        }
+
         res = await fetch('/api/expert/respond', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            submission_id: submissionId,
-            expert_id: expertId,
-            written_content: response,
-          }),
+          body: JSON.stringify(payload),
         })
       }
 
@@ -194,6 +228,90 @@ export default function RespondForm({
       )}
 
       <form onSubmit={handleSubmit}>
+        {/* Bundle Service: Verdict and Bonus Content */}
+        {isBundleService && (
+          <>
+            {/* Verdict Dropdown */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#F2EDE4',
+                display: 'block',
+                marginBottom: '12px',
+              }}>
+                Recommendation *
+              </label>
+              <select
+                value={verdict}
+                onChange={(e) => setVerdict(e.target.value as 'accept' | 'decline' | '')}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#1a1710',
+                  border: '1px solid #2a261e',
+                  color: '#F2EDE4',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                }}
+              >
+                <option value="">Select recommendation...</option>
+                <option value="accept">Accept</option>
+                <option value="decline">Decline</option>
+              </select>
+            </div>
+
+            {/* Conditional Bonus Field */}
+            {verdict && (
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#F2EDE4',
+                  display: 'block',
+                  marginBottom: '12px',
+                }}>
+                  {verdict === 'decline'
+                    ? 'Counter Offer *'
+                    : 'Bonus: Negotiation Tips or Next Move *'}
+                </label>
+                <textarea
+                  value={bonusContent}
+                  onChange={(e) => setBonusContent(e.target.value)}
+                  placeholder={verdict === 'decline'
+                    ? 'Provide a specific counter offer that improves the trade for the user...'
+                    : 'Provide negotiation tips or next move advice to maximize value...'}
+                  style={{
+                    width: '100%',
+                    minHeight: '120px',
+                    padding: '12px',
+                    backgroundColor: '#1a1710',
+                    border: '1px solid #2a261e',
+                    color: '#F2EDE4',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '1rem',
+                    lineHeight: '1.6',
+                    resize: 'vertical',
+                  }}
+                />
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  color: bonusContent.trim().length >= 30 ? '#4ade80' : '#6b6457',
+                  marginTop: '8px',
+                }}>
+                  {bonusContent.trim().length}/30 characters minimum
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Main Analysis */}
         <div style={{ marginBottom: '24px' }}>
           <div style={{
             display: 'flex',
@@ -250,19 +368,19 @@ export default function RespondForm({
 
         <button
           type="submit"
-          disabled={submitting || (!response.trim() && !audioBlob)}
+          disabled={submitting || !canSubmit()}
           style={{
             fontFamily: 'var(--font-dm-sans)',
             width: '100%',
             padding: '20px',
-            backgroundColor: submitting || (!response.trim() && !audioBlob) ? '#2a261e' : '#C9A84C',
-            color: submitting || (!response.trim() && !audioBlob) ? '#6b6457' : '#0C0A07',
+            backgroundColor: submitting || !canSubmit() ? '#2a261e' : '#C9A84C',
+            color: submitting || !canSubmit() ? '#6b6457' : '#0C0A07',
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             fontSize: '1rem',
             border: 'none',
-            cursor: submitting || (!response.trim() && !audioBlob) ? 'not-allowed' : 'pointer',
+            cursor: submitting || !canSubmit() ? 'not-allowed' : 'pointer',
           }}
         >
           {submitting ? 'Sending Response...' : 'Send Response'}

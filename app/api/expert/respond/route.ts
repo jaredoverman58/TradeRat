@@ -28,6 +28,8 @@ export async function POST(request: Request) {
   let expert_id: string
   let written_content: string
   let audioFile: File | null = null
+  let verdict: string | null = null
+  let bonus_content: string | null = null
 
   if (contentType?.includes('multipart/form-data')) {
     const formData = await request.formData()
@@ -35,11 +37,15 @@ export async function POST(request: Request) {
     expert_id = formData.get('expert_id') as string
     written_content = formData.get('written_content') as string
     audioFile = formData.get('audio') as File | null
+    verdict = formData.get('verdict') as string | null
+    bonus_content = formData.get('bonus_content') as string | null
   } else {
     const body = await request.json()
     submission_id = body.submission_id
     expert_id = body.expert_id
     written_content = body.written_content
+    verdict = body.verdict || null
+    bonus_content = body.bonus_content || null
   }
 
   // Require submission_id, expert_id, and at least one of written_content or audio
@@ -157,6 +163,8 @@ export async function POST(request: Request) {
       written_content: written_content || '',
       audio_url: audioUrl,
       audio_transcript: audioTranscript,
+      verdict: verdict,
+      bonus_content: bonus_content,
     })
 
   if (responseError) {

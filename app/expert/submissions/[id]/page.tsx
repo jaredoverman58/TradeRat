@@ -614,7 +614,11 @@ export default async function SubmissionDetailPage({
             </div>
           </div>
         ) : (
-          <RespondForm submissionId={submissionId} expertId={expert.id} />
+          <RespondForm
+            submissionId={submissionId}
+            expertId={expert.id}
+            serviceType={submission.service_type}
+          />
         )}
       </div>
     </div>
