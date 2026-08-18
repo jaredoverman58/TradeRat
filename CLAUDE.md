@@ -10,6 +10,8 @@ Fantasy football trade advice web app connecting users with expert analysts for 
 
 2. **Pre-Commit Build Test:** Before every git commit, run `npm run build` locally first and confirm it completes successfully before pushing. Never push code that hasn't been build-tested locally — Vercel's build catching errors after push wastes a deploy cycle.
 
+3. **Show Complete Code:** When asked to show code or file contents, always paste the complete, literal text directly in the response — never summarize, describe, or reference line numbers instead of showing the actual code. This applies to all files: migrations, components, API routes, utilities, and any other code files.
+
 ## Overview
 
 Trade Rat provides fantasy football managers with expert trade analysis from three tiers of analysts: The Trade Rat (premium), The Badger (intermediate), and The Monkey (entry-level). Users submit screenshots of league rosters and rules, then receive structured trade advice within 24-48 hours.

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sendResponseReadyNotification } from '@/lib/twilio'
+import { notifyNextInQueue } from '@/lib/waitlist-notify'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
   // Verify the submission is assigned to this expert
   const { data: submission, error: submissionError } = await supabase
     .from('submissions')
-    .select('expert_id, status, claimed_at')
+    .select('expert_id, status, claimed_at, rate_tier')
     .eq('id', submission_id)
     .single()
 
@@ -189,6 +190,21 @@ export async function POST(request: Request) {
     console.error('Error updating submission status:', updateError)
     // Response was created but status update failed
     // This is not critical, so we don't fail the whole request
+  } else {
+    // Submission completed successfully - notify next person in waitlist
+    try {
+      const tier = submission.rate_tier as 'rat_rate' | 'standard'
+      const waitlistResult = await notifyNextInQueue(tier)
+
+      if (waitlistResult.success) {
+        console.log(`✓ Waitlist notification sent for ${tier} tier`)
+      } else {
+        console.log(`No waitlist notification needed for ${tier}:`, waitlistResult.reason)
+      }
+    } catch (waitlistError) {
+      // Waitlist notification is non-critical, log but don't fail the request
+      console.error('Error notifying waitlist:', waitlistError)
+    }
   }
 
   // Send SMS notification if user has a phone number
