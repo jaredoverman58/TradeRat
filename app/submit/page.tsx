@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
+import WaitlistScreen from './WaitlistScreen'
 
 type LeagueProfile = {
   id: string
@@ -62,6 +63,13 @@ export default function SubmitPage() {
   // Form state
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Capacity and waitlist state
+  const [showWaitlist, setShowWaitlist] = useState(false)
+  const [capacityStatus, setCapacityStatus] = useState<{
+    ratRateAvailable: boolean
+    standardAvailable: boolean
+  } | null>(null)
 
   // Load user and league profiles
   useEffect(() => {
@@ -168,6 +176,80 @@ export default function SubmitPage() {
     }
   }
 
+  // Check capacity before submission
+  const checkCapacityBeforeSubmit = async () => {
+    try {
+      const response = await fetch('/api/capacity/check')
+      if (!response.ok) throw new Error('Failed to check capacity')
+
+      const capacity = await response.json()
+      setCapacityStatus(capacity)
+
+      // Check if selected tier is at capacity
+      if (rateTier === 'rat_rate' && !capacity.ratRateAvailable) {
+        setShowWaitlist(true)
+        setSubmitting(false)
+        return false
+      }
+
+      if (rateTier === 'standard' && !capacity.standardAvailable) {
+        setShowWaitlist(true)
+        setSubmitting(false)
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.error('Error checking capacity:', error)
+      // If capacity check fails, allow submission to proceed
+      return true
+    }
+  }
+
+  const handleJoinWaitlist = async () => {
+    try {
+      const response = await fetch('/api/waitlist/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tier: rateTier,
+          service_type: 'accept_decline',
+          draft_data: {
+            selectedProfileId,
+            offerDirection,
+            receivePlayers,
+            givePlayers,
+            receivePicks,
+            givePicks,
+            fabReceive,
+            fabGive,
+            additionalContext,
+          }
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to join waitlist')
+      }
+
+      // Redirect to success page
+      router.push('/submit/success?waitlist=true')
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const handleSwitchToStandard = () => {
+    setRateTier('standard')
+    setShowWaitlist(false)
+  }
+
+  const handleCancelWaitlist = () => {
+    setShowWaitlist(false)
+    setSubmitting(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -208,6 +290,12 @@ export default function SubmitPage() {
 
     setError(null)
     setSubmitting(true)
+
+    // Check capacity before proceeding
+    const capacityOk = await checkCapacityBeforeSubmit()
+    if (!capacityOk) {
+      return
+    }
 
     try {
       // Step 0: Update user's phone number if SMS opt-in is enabled
@@ -304,6 +392,21 @@ export default function SubmitPage() {
       <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: 'var(--font-dm-sans)', color: '#C9A84C' }}>Loading...</div>
       </div>
+    )
+  }
+
+  // Show waitlist screen if at capacity
+  if (showWaitlist && capacityStatus) {
+    return (
+      <WaitlistScreen
+        tier={rateTier}
+        serviceType="accept_decline"
+        standardAvailable={capacityStatus.standardAvailable}
+        onJoinWaitlist={handleJoinWaitlist}
+        onSubmitWithStandard={rateTier === 'rat_rate' && capacityStatus.standardAvailable ? handleSwitchToStandard : undefined}
+        onCancel={handleCancelWaitlist}
+        standardPrice="$3.99"
+      />
     )
   }
 
