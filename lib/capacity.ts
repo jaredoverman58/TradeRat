@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { processExpiredSpots } from './waitlist-notify'
 
 export type CapacityStatus = {
   ratRateAvailable: boolean
@@ -16,6 +17,14 @@ export type CapacityStatus = {
  *   - All standard experts have toggled themselves unavailable
  */
 export async function checkCapacity(): Promise<CapacityStatus> {
+  // Process expired waitlist spots first
+  try {
+    await processExpiredSpots()
+  } catch (error) {
+    console.error('Error processing expired spots:', error)
+    // Continue with capacity check even if this fails
+  }
+
   // Use service role client to bypass RLS (capacity check needs to count all submissions)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
