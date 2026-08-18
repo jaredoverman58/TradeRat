@@ -60,8 +60,8 @@ export async function checkCapacity(): Promise<CapacityStatus> {
     console.log('No Rat expert found')
   }
 
-  // Rat Rate is available if count < 1 (TESTING ONLY - change back to 8)
-  const ratRateAvailable = ratRateCount < 1
+  // Rat Rate is available if count < 8
+  const ratRateAvailable = ratRateCount < 8
 
   // Get all standard tier experts
   const { data: standardExperts } = await supabase
@@ -87,8 +87,8 @@ export async function checkCapacity(): Promise<CapacityStatus> {
     standardCount = count || 0
   }
 
-  // Standard is available if count < 1 AND not all experts unavailable (TESTING ONLY - change back to 8)
-  const standardAvailable = standardCount < 1 && !allStandardUnavailable
+  // Standard is available if count < 8 AND not all experts unavailable
+  const standardAvailable = standardCount < 8 && !allStandardUnavailable
 
   return {
     ratRateAvailable,
