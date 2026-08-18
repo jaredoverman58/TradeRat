@@ -319,7 +319,7 @@ export default async function ExpertQueuePage() {
             color: '#F2EDE4',
             marginBottom: '8px',
           }}>
-            Welcome back, {expert.name}
+            {expert.name}
           </div>
           <div style={{
             fontFamily: 'var(--font-dm-sans)',
