@@ -13,7 +13,7 @@ type Submission = {
   expert_id: string | null
   created_at: string
   claimed_at: string | null
-  expert: { name: string } | null
+  expert: { id: string; name: string } | null
   league_profile: {
     league_name: string
     platform: string
@@ -26,6 +26,11 @@ type Submission = {
   fab_receive: number | null
   fab_give: number | null
   additional_context: string | null
+}
+
+type Expert = {
+  id: string
+  name: string
 }
 
 type SubmissionFile = {
@@ -50,6 +55,8 @@ export default function SubmissionRow({
   formatStatus,
   formatDate,
   shortenId,
+  experts,
+  onReassign,
 }: {
   submission: Submission
   userEmail: string
@@ -59,11 +66,15 @@ export default function SubmissionRow({
   formatStatus: (status: string) => string
   formatDate: (date: string) => string
   shortenId: (id: string) => string
+  experts: Expert[]
+  onReassign: () => void
 }) {
   const [files, setFiles] = useState<SubmissionFile[]>([])
   const [response, setResponse] = useState<Response | null>(null)
   const [loading, setLoading] = useState(false)
   const [detailsLoaded, setDetailsLoaded] = useState(false)
+  const [showReassignDropdown, setShowReassignDropdown] = useState(false)
+  const [reassigning, setReassigning] = useState(false)
 
   const loadDetails = useCallback(async () => {
     setLoading(true)
@@ -101,6 +112,41 @@ export default function SubmissionRow({
       loadDetails()
     }
   }, [isExpanded, detailsLoaded, loadDetails])
+
+  const handleReassign = async (newExpertId: string) => {
+    setReassigning(true)
+    try {
+      const response = await fetch('/api/admin/reassign-expert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId: submission.id,
+          newExpertId,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(`Failed to reassign: ${errorData.error || 'Unknown error'}`)
+        return
+      }
+
+      const result = await response.json()
+      alert(`Successfully reassigned from ${result.oldExpert} to ${result.newExpert}`)
+      setShowReassignDropdown(false)
+      onReassign() // Refresh the parent list
+    } catch (error) {
+      console.error('Error reassigning expert:', error)
+      alert('An unexpected error occurred')
+    } finally {
+      setReassigning(false)
+    }
+  }
+
+  // Get available experts (exclude currently assigned expert)
+  const availableExperts = experts.filter(
+    expert => expert.id !== submission.expert_id
+  )
 
   return (
     <div>
@@ -199,6 +245,119 @@ export default function SubmissionRow({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {/* Reassign Expert Section - Only show if expert is assigned */}
+              {submission.expert_id && (
+                <div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#6b6457',
+                    marginBottom: '12px',
+                  }}>
+                    Expert Management
+                  </h3>
+                  <div style={{ position: 'relative' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowReassignDropdown(!showReassignDropdown)
+                      }}
+                      disabled={reassigning}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        padding: '12px 20px',
+                        backgroundColor: reassigning ? '#2a261e' : 'transparent',
+                        color: reassigning ? '#6b6457' : '#C9A84C',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        fontSize: '0.875rem',
+                        border: '1px solid #C9A84C',
+                        cursor: reassigning ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {reassigning ? 'Reassigning...' : 'Reassign Expert'}
+                    </button>
+
+                    {showReassignDropdown && !reassigning && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          marginTop: '8px',
+                          backgroundColor: '#1a1710',
+                          border: '1px solid #C9A84C',
+                          minWidth: '250px',
+                          zIndex: 10,
+                        }}
+                      >
+                        <div style={{
+                          padding: '12px',
+                          borderBottom: '1px solid #2a261e',
+                          fontFamily: 'var(--font-dm-sans)',
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          color: '#6b6457',
+                        }}>
+                          Select New Expert
+                        </div>
+                        {availableExperts.length > 0 ? (
+                          availableExperts.map(expert => (
+                            <button
+                              key={expert.id}
+                              onClick={() => handleReassign(expert.id)}
+                              style={{
+                                width: '100%',
+                                padding: '16px',
+                                backgroundColor: 'transparent',
+                                color: '#F2EDE4',
+                                fontFamily: 'var(--font-dm-sans)',
+                                fontSize: '0.875rem',
+                                textAlign: 'left',
+                                border: 'none',
+                                borderBottom: '1px solid #2a261e',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#2a261e'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent'
+                              }}
+                            >
+                              {expert.name}
+                            </button>
+                          ))
+                        ) : (
+                          <div style={{
+                            padding: '16px',
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.875rem',
+                            color: '#6b6457',
+                          }}>
+                            No other experts available
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <p style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.75rem',
+                    color: '#6b6457',
+                    marginTop: '8px',
+                  }}>
+                    Currently assigned to: <span style={{ color: '#C9A84C' }}>{submission.expert?.name}</span>
+                  </p>
+                </div>
+              )}
+
               {/* League Info */}
               {submission.league_profile && (
                 <div>

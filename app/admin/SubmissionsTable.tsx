@@ -13,7 +13,7 @@ type Submission = {
   expert_id: string | null
   created_at: string
   claimed_at: string | null
-  expert: { name: string } | null
+  expert: { id: string; name: string } | null
   league_profile: {
     league_name: string
     platform: string
@@ -38,10 +38,12 @@ export default function SubmissionsTable({
   submissions,
   experts,
   userEmailMap,
+  onRefresh,
 }: {
   submissions: Submission[]
   experts: Expert[]
   userEmailMap: Record<string, string>
+  onRefresh: () => void
 }) {
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -502,6 +504,8 @@ export default function SubmissionsTable({
               formatStatus={formatStatus}
               formatDate={formatDate}
               shortenId={shortenId}
+              experts={experts}
+              onReassign={onRefresh}
             />
           ))}
         </div>
