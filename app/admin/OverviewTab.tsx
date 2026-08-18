@@ -41,6 +41,32 @@ export default async function OverviewTab() {
     s => s.status === 'submitted' && s.rate_tier === 'rat_rate'
   ).length || 0
 
+  // Get active queue counts (claimed + in_progress)
+  const activeRatRate = allSubmissions?.filter(
+    s => (s.status === 'claimed' || s.status === 'in_progress') && s.rate_tier === 'rat_rate'
+  ).length || 0
+
+  const activeStandard = allSubmissions?.filter(
+    s => (s.status === 'claimed' || s.status === 'in_progress') && s.rate_tier === 'standard'
+  ).length || 0
+
+  // Get waitlist counts (active waitlist entries)
+  const { count: waitlistRatRate } = await supabase
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('tier', 'rat_rate')
+    .is('notified_at', null)
+    .is('converted_at', null)
+    .is('cancelled_at', null)
+
+  const { count: waitlistStandard } = await supabase
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('tier', 'standard')
+    .is('notified_at', null)
+    .is('converted_at', null)
+    .is('cancelled_at', null)
+
   return (
     <div>
       {/* Main Stats */}
@@ -74,6 +100,56 @@ export default async function OverviewTab() {
           subtitle="Cancelled submissions"
           color="#6b6457"
         />
+      </div>
+
+      {/* Waitlist & Queue Status */}
+      <div style={{ marginBottom: '48px' }}>
+        <h2 style={{
+          fontFamily: 'var(--font-playfair)',
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: '#F2EDE4',
+          marginBottom: '24px',
+        }}>
+          Waitlist &amp; Queue Status
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px',
+          marginBottom: '24px',
+        }}>
+          <StatCard
+            title="Rat Rate Queue"
+            value={activeRatRate}
+            subtitle={`${activeRatRate}/8 active submissions`}
+            color="#C9A84C"
+          />
+          <StatCard
+            title="Rat Rate Waitlist"
+            value={waitlistRatRate || 0}
+            subtitle="People waiting for Rat Rate"
+            color="#F2EDE4"
+          />
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px'
+        }}>
+          <StatCard
+            title="Standard Queue"
+            value={activeStandard}
+            subtitle={`${activeStandard}/8 active submissions`}
+            color="#C9A84C"
+          />
+          <StatCard
+            title="Standard Waitlist"
+            value={waitlistStandard || 0}
+            subtitle="People waiting for Standard"
+            color="#F2EDE4"
+          />
+        </div>
       </div>
 
       {/* Submitted Breakdown by Rate Tier */}
