@@ -15,6 +15,17 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  // Check if user is an expert - experts skip onboarding and go to /expert
+  const { data: expert } = await supabase
+    .from('experts')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (expert) {
+    redirect('/expert')
+  }
+
   // Check if user has completed onboarding
   const { data: userRole } = await supabase
     .from('user_roles')
