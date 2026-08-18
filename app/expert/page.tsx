@@ -199,6 +199,51 @@ export default async function ExpertQueuePage() {
     }
   }
 
+  // Expert-specific descriptors and quotes
+  const getExpertContent = () => {
+    const expertName = expert.name.toLowerCase()
+
+    if (expertName.includes('rat')) {
+      const quotes = [
+        'You&apos;re the one in a billion. Act like it.',
+        'Pretty, pretty, pretty bad trade. You know what to do.',
+        'And you want to be my Rat salesman.'
+      ]
+      return {
+        descriptor: 'Born for this.',
+        quote: quotes[Math.floor(Math.random() * quotes.length)]
+      }
+    } else if (expertName.includes('monkey')) {
+      const quotes = [
+        'Monkeys who work get bananas. Simple math.',
+        'Someday maybe you&apos;ll be The Rat. Today you&apos;re The Monkey.',
+        'The Rat thinks he&apos;s better than you. He might be right. Might.'
+      ]
+      return {
+        descriptor: 'Scrappy by nature. Sharp by choice.',
+        quote: quotes[Math.floor(Math.random() * quotes.length)]
+      }
+    } else if (expertName.includes('badger')) {
+      const quotes = [
+        'Badgers don&apos;t quit. Neither do you.',
+        'Dig in. That&apos;s what Badgers do.',
+        'They underestimate the Badger. Every time. Use it.'
+      ]
+      return {
+        descriptor: 'The Badger.',
+        quote: quotes[Math.floor(Math.random() * quotes.length)]
+      }
+    }
+
+    // Fallback
+    return {
+      descriptor: 'Expert analyst.',
+      quote: 'Time to analyze some trades.'
+    }
+  }
+
+  const { descriptor, quote } = getExpertContent()
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -258,6 +303,42 @@ export default async function ExpertQueuePage() {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Welcome Section */}
+        <div style={{
+          marginBottom: '48px',
+          border: '2px solid #C9A84C',
+          padding: '40px 32px',
+          backgroundColor: '#1a1710',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-playfair)',
+            fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+            fontWeight: 700,
+            color: '#F2EDE4',
+            marginBottom: '8px',
+          }}>
+            Welcome back, {expert.name}
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1rem',
+            color: '#C9A84C',
+            marginBottom: '24px',
+            fontStyle: 'italic',
+          }}>
+            {descriptor}
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1.125rem',
+            color: '#F2EDE4',
+            lineHeight: '1.6',
+            maxWidth: '800px',
+          }}
+          dangerouslySetInnerHTML={{ __html: `&quot;${quote}&quot;` }}
+          />
         </div>
 
         {/* Expert Stats */}
