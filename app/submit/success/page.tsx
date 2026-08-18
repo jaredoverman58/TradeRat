@@ -9,6 +9,7 @@ function SuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const submissionId = searchParams.get('id')
+  const isWaitlist = searchParams.get('waitlist') === 'true'
   const supabase = createClient()
 
   const [loading, setLoading] = useState(true)
@@ -16,6 +17,12 @@ function SuccessContent() {
 
   useEffect(() => {
     async function loadSubmission() {
+      // If this is a waitlist confirmation, skip loading submission
+      if (isWaitlist) {
+        setLoading(false)
+        return
+      }
+
       if (!submissionId) {
         router.push('/dashboard')
         return
@@ -45,12 +52,142 @@ function SuccessContent() {
     }
 
     loadSubmission()
-  }, [submissionId, supabase, router])
+  }, [submissionId, isWaitlist, supabase, router])
 
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: 'var(--font-dm-sans)', color: '#C9A84C' }}>Loading...</div>
+      </div>
+    )
+  }
+
+  // Show waitlist confirmation if user joined the waitlist
+  if (isWaitlist) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+          {/* Success Icon */}
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            border: '3px solid #C9A84C',
+            margin: '0 auto 32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <div style={{
+              fontSize: '2.5rem',
+              color: '#C9A84C',
+            }}>
+              ✓
+            </div>
+          </div>
+
+          {/* Title */}
+          <h1 style={{
+            fontFamily: 'var(--font-playfair)',
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
+            color: '#F2EDE4',
+            marginBottom: '24px',
+          }}>
+            You&apos;re on the Waitlist!
+          </h1>
+
+          {/* Description */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1.125rem',
+            color: '#F2EDE4',
+            marginBottom: '16px',
+            lineHeight: '1.6',
+            maxWidth: '600px',
+            margin: '0 auto 16px',
+          }}>
+            We&apos;ll notify you by SMS when your spot opens.
+          </p>
+
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1rem',
+            color: '#6b6457',
+            marginBottom: '48px',
+            lineHeight: '1.6',
+            maxWidth: '600px',
+            margin: '0 auto 48px',
+          }}>
+            Your spot will be held for 2 hours once notified. Joining the waitlist is free — you will only be charged after you submit your request when your spot opens.
+          </p>
+
+          {/* Info Box */}
+          <div style={{
+            backgroundColor: '#1a1710',
+            border: '1px solid #2a261e',
+            padding: '32px',
+            marginBottom: '48px',
+            textAlign: 'left',
+          }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#F2EDE4',
+              marginBottom: '24px',
+            }}>
+              What Happens Next?
+            </h2>
+
+            <ol style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '1rem',
+              color: '#6b6457',
+              lineHeight: '1.8',
+              paddingLeft: '24px',
+            }}>
+              <li style={{ marginBottom: '12px', color: '#F2EDE4' }}>
+                You&apos;ll receive an SMS notification when a spot becomes available
+              </li>
+              <li style={{ marginBottom: '12px', color: '#F2EDE4' }}>
+                Your spot will be held for 2 hours after notification
+              </li>
+              <li style={{ marginBottom: '12px', color: '#F2EDE4' }}>
+                Complete your submission within that window to claim your spot
+              </li>
+              <li style={{ color: '#F2EDE4' }}>
+                You&apos;ll only be charged once you submit your request after your spot opens
+              </li>
+            </ol>
+          </div>
+
+          {/* Actions */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            alignItems: 'center',
+          }}>
+            <Link
+              href="/dashboard"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                padding: '16px 40px',
+                backgroundColor: '#C9A84C',
+                color: '#0C0A07',
+                fontWeight: 600,
+                textDecoration: 'none',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.875rem',
+                display: 'inline-block',
+              }}
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

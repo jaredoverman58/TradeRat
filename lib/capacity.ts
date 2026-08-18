@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export type CapacityStatus = {
   ratRateAvailable: boolean
@@ -16,30 +16,52 @@ export type CapacityStatus = {
  *   - All standard experts have toggled themselves unavailable
  */
 export async function checkCapacity(): Promise<CapacityStatus> {
-  const supabase = await createClient()
+  // Use service role client to bypass RLS (capacity check needs to count all submissions)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
 
   // Get The Rat expert (premium tier)
-  const { data: ratExpert } = await supabase
+  const { data: ratExpert, error: ratExpertError } = await supabase
     .from('experts')
     .select('id, is_available')
     .eq('tier', 'premium')
     .single()
 
+  if (ratExpertError) {
+    console.error('Error fetching Rat expert:', ratExpertError)
+  }
+
   // Count active Rat Rate submissions
   let ratRateCount = 0
   if (ratExpert) {
-    const { count } = await supabase
+    console.log('Counting Rat Rate submissions for expert ID:', ratExpert.id)
+    const { count, error: countError } = await supabase
       .from('submissions')
       .select('*', { count: 'exact', head: true })
       .eq('expert_id', ratExpert.id)
       .eq('rate_tier', 'rat_rate')
       .in('status', ['claimed', 'in_progress'])
 
+    if (countError) {
+      console.error('Error counting Rat Rate submissions:', countError)
+    }
+
     ratRateCount = count || 0
+    console.log('Rat Rate count:', ratRateCount)
+  } else {
+    console.log('No Rat expert found')
   }
 
-  // Rat Rate is available if count < 8
-  const ratRateAvailable = ratRateCount < 8
+  // Rat Rate is available if count < 1 (TESTING ONLY - change back to 8)
+  const ratRateAvailable = ratRateCount < 1
 
   // Get all standard tier experts
   const { data: standardExperts } = await supabase
@@ -65,8 +87,8 @@ export async function checkCapacity(): Promise<CapacityStatus> {
     standardCount = count || 0
   }
 
-  // Standard is available if count < 8 AND not all experts unavailable
-  const standardAvailable = standardCount < 8 && !allStandardUnavailable
+  // Standard is available if count < 1 AND not all experts unavailable (TESTING ONLY - change back to 8)
+  const standardAvailable = standardCount < 1 && !allStandardUnavailable
 
   return {
     ratRateAvailable,

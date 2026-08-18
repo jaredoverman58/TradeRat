@@ -403,7 +403,7 @@ export default function SubmitPage() {
         serviceType="accept_decline"
         standardAvailable={capacityStatus.standardAvailable}
         onJoinWaitlist={handleJoinWaitlist}
-        onSubmitWithStandard={rateTier === 'rat_rate' && capacityStatus.standardAvailable ? handleSwitchToStandard : undefined}
+        onSubmitWithStandard={rateTier === 'rat_rate' ? handleSwitchToStandard : undefined}
         onCancel={handleCancelWaitlist}
         standardPrice="$3.99"
       />

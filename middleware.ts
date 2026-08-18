@@ -14,7 +14,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - images (svg, png, jpg, jpeg, gif, webp)
      * - /api/stripe/webhook (Stripe webhook endpoint - uses signature auth, not sessions)
+     * - /api/capacity/check (public endpoint for checking expert availability)
+     * - /api/waitlist/* (waitlist endpoints handle their own auth)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/stripe/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/stripe/webhook|api/capacity/check|api/waitlist|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

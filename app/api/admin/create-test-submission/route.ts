@@ -33,16 +33,19 @@ export async function POST(request: Request) {
     // Default to accept_decline if not specified
     const selectedServiceType = serviceType || 'accept_decline'
 
-    // Verify expert exists
+    // Verify expert exists and get their tier
     const { data: expert, error: expertError } = await supabase
       .from('experts')
-      .select('id, name')
+      .select('id, name, tier')
       .eq('id', expertId)
       .single()
 
     if (expertError || !expert) {
       return NextResponse.json({ error: 'Expert not found' }, { status: 404 })
     }
+
+    // Set rate_tier based on expert tier
+    const rateTier = expert.tier === 'premium' ? 'rat_rate' : 'standard'
 
     // Create a test league profile first
     const { data: leagueProfile, error: leagueError } = await supabase
@@ -70,7 +73,7 @@ export async function POST(request: Request) {
         league_profile_id: leagueProfile.id,
         service_type: selectedServiceType,
         offer_direction: 'received',
-        rate_tier: 'standard',
+        rate_tier: rateTier,
         status: 'claimed',
         expert_id: expertId,
         claimed_at: new Date().toISOString(),

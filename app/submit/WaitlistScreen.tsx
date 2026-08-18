@@ -136,7 +136,7 @@ export default function WaitlistScreen({
               {joining ? 'Joining...' : 'Join Rat Rate Waitlist'}
             </button>
 
-            {standardAvailable && onSubmitWithStandard && (
+            {onSubmitWithStandard && (
               <button
                 onClick={onSubmitWithStandard}
                 disabled={joining}
