@@ -161,7 +161,7 @@ export default function PricingPage() {
                 marginBottom: '16px',
                 lineHeight: 1.6,
               }}>
-                Get a clear accept or decline recommendation, backed by real analysis of the trade — why it works or doesn't for your specific team and league. Not just a yes or no.
+                Get a clear accept or decline recommendation, backed by real analysis of the trade — why it works or doesn&apos;t for your specific team and league. Not just a yes or no.
               </p>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -260,7 +260,7 @@ export default function PricingPage() {
                 marginBottom: '16px',
                 lineHeight: 1.6,
               }}>
-                Get your accept or decline recommendation, plus a bonus every time: if we say decline, you'll get a ready-to-send counter offer; if we say accept, you'll get expert tips on negotiating even more value and/or additional insight into making your next move. You always get the full package, no matter what we recommend.
+                Get your accept or decline recommendation, plus a bonus every time: if we say decline, you&apos;ll get a ready-to-send counter offer; if we say accept, you&apos;ll get expert tips on negotiating even more value and/or additional insight into making your next move. You always get the full package, no matter what we recommend.
               </p>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',

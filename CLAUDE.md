@@ -2,6 +2,14 @@
 
 Fantasy football trade advice web app connecting users with expert analysts for personalized trade recommendations.
 
+## Coding Standards & Git Workflow
+
+**CRITICAL: Follow these rules in every session:**
+
+1. **JSX Text Escaping:** Always escape apostrophes and double quotes in JSX text content as `&apos;` and `&quot;` respectively — never use raw `'` or `"` characters in visible text within JSX. This project uses Next.js 15 with strict ESLint `react/no-unescaped-entities` rules enabled.
+
+2. **Pre-Commit Build Test:** Before every git commit, run `npm run build` locally first and confirm it completes successfully before pushing. Never push code that hasn't been build-tested locally — Vercel's build catching errors after push wastes a deploy cycle.
+
 ## Overview
 
 Trade Rat provides fantasy football managers with expert trade analysis from three tiers of analysts: The Trade Rat (premium), The Badger (intermediate), and The Monkey (entry-level). Users submit screenshots of league rosters and rules, then receive structured trade advice within 24-48 hours.
