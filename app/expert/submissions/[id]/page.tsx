@@ -4,6 +4,7 @@ import Link from 'next/link'
 import RespondForm from './RespondForm'
 import SignedImage from '@/components/SignedImage'
 import SafeHtmlRenderer from '@/app/dashboard/advice/[id]/SafeHtmlRenderer'
+import DeadlineCountdown from './DeadlineCountdown'
 
 export default async function SubmissionDetailPage({
   params,
@@ -93,6 +94,12 @@ export default async function SubmissionDetailPage({
             Submission Details
           </h1>
         </div>
+
+        {/* Deadline Countdown */}
+        <DeadlineCountdown
+          submittedAt={submission.created_at}
+          serviceType={submission.service_type}
+        />
 
         {/* Submission Info Card */}
         <div style={{
