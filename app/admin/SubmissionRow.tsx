@@ -75,6 +75,14 @@ export default function SubmissionRow({
   const [detailsLoaded, setDetailsLoaded] = useState(false)
   const [showReassignDropdown, setShowReassignDropdown] = useState(false)
   const [reassigning, setReassigning] = useState(false)
+  const [reassignMessage, setReassignMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [reassignmentLogs, setReassignmentLogs] = useState<Array<{
+    created_at: string
+    details: {
+      old_expert_name: string
+      new_expert_name: string
+    }
+  }>>([])
 
   const loadDetails = useCallback(async () => {
     setLoading(true)
@@ -103,6 +111,18 @@ export default function SubmissionRow({
       }
     }
 
+    // Load reassignment logs from audit_log
+    const { data: auditData } = await supabase
+      .from('audit_log')
+      .select('created_at, details')
+      .eq('submission_id', submission.id)
+      .eq('action', 'expert_reassigned')
+      .order('created_at', { ascending: false })
+
+    if (auditData) {
+      setReassignmentLogs(auditData)
+    }
+
     setLoading(false)
     setDetailsLoaded(true)
   }, [submission.id, submission.status])
@@ -115,6 +135,7 @@ export default function SubmissionRow({
 
   const handleReassign = async (newExpertId: string) => {
     setReassigning(true)
+    setReassignMessage(null)
     try {
       const response = await fetch('/api/admin/reassign-expert', {
         method: 'POST',
@@ -127,17 +148,31 @@ export default function SubmissionRow({
 
       if (!response.ok) {
         const errorData = await response.json()
-        alert(`Failed to reassign: ${errorData.error || 'Unknown error'}`)
+        setReassignMessage({
+          type: 'error',
+          text: `Failed to reassign: ${errorData.error || 'Unknown error'}`
+        })
         return
       }
 
       const result = await response.json()
-      alert(`Successfully reassigned from ${result.oldExpert} to ${result.newExpert}`)
+      setReassignMessage({
+        type: 'success',
+        text: `Successfully reassigned from ${result.oldExpert} to ${result.newExpert}`
+      })
       setShowReassignDropdown(false)
-      onReassign() // Refresh the parent list
+
+      // Reload details to fetch updated reassignment logs
+      await loadDetails()
+
+      // Refresh the parent list
+      onReassign()
     } catch (error) {
       console.error('Error reassigning expert:', error)
-      alert('An unexpected error occurred')
+      setReassignMessage({
+        type: 'error',
+        text: 'An unexpected error occurred'
+      })
     } finally {
       setReassigning(false)
     }
@@ -355,6 +390,50 @@ export default function SubmissionRow({
                   }}>
                     Currently assigned to: <span style={{ color: '#C9A84C' }}>{submission.expert?.name}</span>
                   </p>
+
+                  {/* Inline success/error message */}
+                  {reassignMessage && (
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '12px 16px',
+                      backgroundColor: reassignMessage.type === 'success' ? '#1a2e1a' : '#2a0a0a',
+                      border: `1px solid ${reassignMessage.type === 'success' ? '#4a7c59' : '#ff4444'}`,
+                      color: reassignMessage.type === 'success' ? '#88cc88' : '#ff6666',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                    }}>
+                      {reassignMessage.text}
+                    </div>
+                  )}
+
+                  {/* Reassignment history */}
+                  {reassignmentLogs.length > 0 && (
+                    <div style={{ marginTop: '16px' }}>
+                      <h4 style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        color: '#6b6457',
+                        marginBottom: '8px',
+                      }}>
+                        Reassignment History
+                      </h4>
+                      {reassignmentLogs.map((log, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.75rem',
+                            color: '#6b6457',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          Reassigned from <span style={{ color: '#F2EDE4' }}>{log.details.old_expert_name}</span> to <span style={{ color: '#C9A84C' }}>{log.details.new_expert_name}</span> on {formatDate(log.created_at)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
