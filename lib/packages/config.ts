@@ -18,14 +18,14 @@ export const PACKAGE_CONFIG: Record<PackageType, PackageConfig> = {
   },
   single: {
     credits: 1,
-    price: 4.99,
+    price: 3.99,
     expert_tier: 'any',
     description: 'Single trade review based on expert availability',
     display_name: 'Single Review'
   },
   single_premium: {
     credits: 1,
-    price: 7.99,
+    price: 4.99,
     expert_tier: 'rat_guaranteed',
     description: 'Single trade review guaranteed by The Trade Rat',
     display_name: 'Single Review (Premium)'

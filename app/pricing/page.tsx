@@ -161,7 +161,7 @@ export default function PricingPage() {
                 marginBottom: '16px',
                 lineHeight: 1.6,
               }}>
-                Should you accept or decline a specific trade offer? Get expert recommendation with detailed analysis.
+                Get a clear accept or decline recommendation, backed by real analysis of the trade — why it works or doesn't for your specific team and league. Not just a yes or no.
               </p>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -169,14 +169,14 @@ export default function PricingPage() {
                 color: '#F2EDE4',
                 marginBottom: '8px',
               }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$4.99</strong>
+                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$3.99</strong>
               </div>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#F2EDE4',
               }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$5.99</strong>
+                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$4.99</strong>
               </div>
             </div>
 
@@ -221,7 +221,7 @@ export default function PricingPage() {
               </div>
             </div>
 
-            {/* Decline+Counter Bundle (Most Popular) */}
+            {/* Accept/Decline + Bonus (Most Popular) */}
             <div style={{
               border: '2px solid #C9A84C',
               padding: '32px',
@@ -251,7 +251,7 @@ export default function PricingPage() {
                 color: '#C9A84C',
                 marginBottom: '12px',
               }}>
-                Decline + Counter Bundle
+                Accept/Decline + Bonus
               </h3>
               <p style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -260,7 +260,7 @@ export default function PricingPage() {
                 marginBottom: '16px',
                 lineHeight: 1.6,
               }}>
-                Get both: should you accept/decline the offer, PLUS a custom counter-offer if declined. Best value for trade negotiations.
+                Get your accept or decline recommendation, plus a bonus every time: if we say decline, you'll get a ready-to-send counter offer; if we say accept, you'll get expert tips on negotiating even more value and/or additional insight into making your next move. You always get the full package, no matter what we recommend.
               </p>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',

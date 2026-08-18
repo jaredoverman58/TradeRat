@@ -48,7 +48,7 @@ export default async function DashboardPage() {
     const names: Record<string, string> = {
       'accept_decline': 'Accept/Decline',
       'counter_offer': 'Counter Offer',
-      'bundle': 'Decline+Counter Bundle',
+      'bundle': 'Accept/Decline + Bonus',
       'trade_finder': 'Trade Finder',
     }
     return names[serviceType] || serviceType
