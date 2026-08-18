@@ -85,8 +85,19 @@ export async function sendResponseReadyNotification(
   phoneNumber: string,
   submissionId: string
 ): Promise<SendSmsResult> {
+  // Debug: Log environment variable values
+  console.log('=== SMS URL DEBUG ===')
+  console.log('process.env.APP_URL:', process.env.APP_URL)
+  console.log('process.env.NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
+
   const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+  console.log('Resolved appUrl:', appUrl)
+
   const message = `Your Trade Rat analysis is ready. Log in to view it: ${appUrl}/dashboard`
+
+  console.log('Complete SMS message:', message)
+  console.log('===================')
 
   return sendSms({ to: phoneNumber, message })
 }
