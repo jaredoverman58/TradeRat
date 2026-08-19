@@ -48,8 +48,9 @@ export async function POST(request: Request) {
     // Extract metadata
     const userId = session.metadata?.supabase_user_id
     const bundleType = session.metadata?.bundle_type
+    const serviceType = session.metadata?.service_type
 
-    if (!userId || !bundleType) {
+    if (!userId || !bundleType || !serviceType) {
       console.error('Missing metadata in checkout session:', session.id)
       return NextResponse.json(
         { error: 'Missing metadata' },
@@ -57,14 +58,55 @@ export async function POST(request: Request) {
       )
     }
 
-    // Determine credits based on bundle type
+    // Determine credits based on bundle_type + service_type combination
     let creditsRemaining = 0
-    if (bundleType === 'standard_3_pack') {
-      creditsRemaining = 3
-    } else {
-      console.error('Unknown bundle type:', bundleType)
+
+    // Accept/Decline bundles (multi-credit)
+    if (serviceType === 'accept_decline') {
+      if (bundleType === 'standard_3_pack') {
+        creditsRemaining = 3
+      } else if (bundleType === 'standard_5_pack') {
+        creditsRemaining = 5
+      } else if (bundleType === 'rat_rate_3_pack') {
+        creditsRemaining = 3
+      } else if (bundleType === 'rat_rate_5_pack') {
+        creditsRemaining = 5
+      } else {
+        console.error('Unknown bundle_type for accept_decline:', bundleType)
+        return NextResponse.json(
+          { error: 'Unknown bundle configuration' },
+          { status: 400 }
+        )
+      }
+    }
+    // Accept/Decline + Bonus bundles (single-credit)
+    else if (serviceType === 'bundle') {
+      if (bundleType === 'standard_3_pack' || bundleType === 'rat_rate_3_pack') {
+        creditsRemaining = 1
+      } else {
+        console.error('Unknown bundle_type for bundle service:', bundleType)
+        return NextResponse.json(
+          { error: 'Unknown bundle configuration' },
+          { status: 400 }
+        )
+      }
+    }
+    // Counter Offer standalone (single-credit)
+    else if (serviceType === 'counter_offer') {
+      if (bundleType === 'standard_3_pack' || bundleType === 'rat_rate_3_pack') {
+        creditsRemaining = 1
+      } else {
+        console.error('Unknown bundle_type for counter_offer:', bundleType)
+        return NextResponse.json(
+          { error: 'Unknown bundle configuration' },
+          { status: 400 }
+        )
+      }
+    }
+    else {
+      console.error('Unknown service_type:', serviceType)
       return NextResponse.json(
-        { error: 'Unknown bundle type' },
+        { error: 'Unknown service type' },
         { status: 400 }
       )
     }
@@ -75,13 +117,12 @@ export async function POST(request: Request) {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
     // Create bundle record
-    // standard_3_pack is for trade evaluations (accept_decline service type)
     const { error: bundleError } = await supabase
       .from('bundles')
       .insert({
         user_id: userId,
         bundle_type: bundleType,
-        service_type: 'accept_decline', // Trade evaluation bundle
+        service_type: serviceType,
         credits_remaining: creditsRemaining,
         purchased_at: purchasedAt.toISOString(),
         expires_at: expiresAt.toISOString(),
@@ -95,7 +136,7 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('Bundle created successfully for user:', userId)
+    console.log(`Bundle created successfully for user ${userId}: ${bundleType} (${serviceType}) - ${creditsRemaining} credits`)
   }
 
   return NextResponse.json({ received: true })

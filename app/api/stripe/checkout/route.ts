@@ -22,6 +22,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Parse request body for bundle configuration
+    const body = await request.json()
+    const { bundle_type, service_type, price, name, description } = body
+
+    // Validate required fields
+    if (!bundle_type || !service_type || !price || !name || !description) {
+      return NextResponse.json(
+        { error: 'Missing required bundle configuration' },
+        { status: 400 }
+      )
+    }
+
     // Get or create Stripe customer
     let customerId: string | null = null
 
@@ -58,10 +70,10 @@ export async function POST(request: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: '3-Pack Standard Evaluations',
-              description: '3 expert trade evaluations by any available analyst',
+              name,
+              description,
             },
-            unit_amount: 1299, // $12.99 in cents
+            unit_amount: price, // Price in cents
           },
           quantity: 1,
         },
@@ -71,7 +83,8 @@ export async function POST(request: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?purchase=cancelled`,
       metadata: {
         supabase_user_id: user.id,
-        bundle_type: 'standard_3_pack',
+        bundle_type,
+        service_type,
       },
     }
 
