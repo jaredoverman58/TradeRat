@@ -12,6 +12,27 @@ export interface BundleConfig {
 }
 
 export const BUNDLES = {
+  // Single-credit standalone Accept/Decline
+  ACCEPT_DECLINE_STANDARD: {
+    bundleType: 'standard_3_pack',
+    serviceType: 'accept_decline',
+    credits: 1,
+    price: 3.99,
+    name: 'Accept/Decline Standard',
+    description: 'Single accept or decline recommendation by standard analyst',
+    buttonText: 'Buy Standard — $3.99',
+  } as BundleConfig,
+
+  ACCEPT_DECLINE_RAT_RATE: {
+    bundleType: 'rat_rate_3_pack',
+    serviceType: 'accept_decline',
+    credits: 1,
+    price: 4.99,
+    name: 'Accept/Decline Rat Rate',
+    description: 'Single accept or decline recommendation personally reviewed by The Rat',
+    buttonText: 'Buy Rat Rate — $4.99',
+  } as BundleConfig,
+
   // Multi-credit Accept/Decline bundles
   STANDARD_3_PACK: {
     bundleType: 'standard_3_pack',

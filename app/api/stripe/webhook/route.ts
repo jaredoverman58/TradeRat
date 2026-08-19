@@ -49,64 +49,28 @@ export async function POST(request: Request) {
     const userId = session.metadata?.supabase_user_id
     const bundleType = session.metadata?.bundle_type
     const serviceType = session.metadata?.service_type
+    const creditsString = session.metadata?.credits
 
-    if (!userId || !bundleType || !serviceType) {
-      console.error('Missing metadata in checkout session:', session.id)
+    if (!userId || !bundleType || !serviceType || !creditsString) {
+      console.error('Missing metadata in checkout session:', session.id, {
+        userId: !!userId,
+        bundleType: !!bundleType,
+        serviceType: !!serviceType,
+        credits: !!creditsString
+      })
       return NextResponse.json(
         { error: 'Missing metadata' },
         { status: 400 }
       )
     }
 
-    // Determine credits based on bundle_type + service_type combination
-    let creditsRemaining = 0
+    // Parse credits from metadata (Stripe metadata is always strings)
+    const creditsRemaining = parseInt(creditsString, 10)
 
-    // Accept/Decline bundles (multi-credit)
-    if (serviceType === 'accept_decline') {
-      if (bundleType === 'standard_3_pack') {
-        creditsRemaining = 3
-      } else if (bundleType === 'standard_5_pack') {
-        creditsRemaining = 5
-      } else if (bundleType === 'rat_rate_3_pack') {
-        creditsRemaining = 3
-      } else if (bundleType === 'rat_rate_5_pack') {
-        creditsRemaining = 5
-      } else {
-        console.error('Unknown bundle_type for accept_decline:', bundleType)
-        return NextResponse.json(
-          { error: 'Unknown bundle configuration' },
-          { status: 400 }
-        )
-      }
-    }
-    // Accept/Decline + Bonus bundles (single-credit)
-    else if (serviceType === 'bundle') {
-      if (bundleType === 'standard_3_pack' || bundleType === 'rat_rate_3_pack') {
-        creditsRemaining = 1
-      } else {
-        console.error('Unknown bundle_type for bundle service:', bundleType)
-        return NextResponse.json(
-          { error: 'Unknown bundle configuration' },
-          { status: 400 }
-        )
-      }
-    }
-    // Counter Offer standalone (single-credit)
-    else if (serviceType === 'counter_offer') {
-      if (bundleType === 'standard_3_pack' || bundleType === 'rat_rate_3_pack') {
-        creditsRemaining = 1
-      } else {
-        console.error('Unknown bundle_type for counter_offer:', bundleType)
-        return NextResponse.json(
-          { error: 'Unknown bundle configuration' },
-          { status: 400 }
-        )
-      }
-    }
-    else {
-      console.error('Unknown service_type:', serviceType)
+    if (isNaN(creditsRemaining) || creditsRemaining < 1) {
+      console.error('Invalid credits value in metadata:', creditsString)
       return NextResponse.json(
-        { error: 'Unknown service type' },
+        { error: 'Invalid credits value' },
         { status: 400 }
       )
     }

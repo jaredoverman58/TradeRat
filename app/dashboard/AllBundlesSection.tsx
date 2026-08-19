@@ -134,6 +134,7 @@ function BundleCard({ bundle }: { bundle: typeof BUNDLES.STANDARD_3_PACK }) {
       <BundlePurchaseButton
         bundleType={bundle.bundleType}
         serviceType={bundle.serviceType}
+        credits={bundle.credits}
         price={bundle.price}
         name={bundle.name}
         description={bundle.description}

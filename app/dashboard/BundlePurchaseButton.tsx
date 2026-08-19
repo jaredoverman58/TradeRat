@@ -5,6 +5,7 @@ import { useState } from 'react'
 interface BundlePurchaseButtonProps {
   bundleType: 'standard_3_pack' | 'standard_5_pack' | 'rat_rate_3_pack' | 'rat_rate_5_pack'
   serviceType: 'accept_decline' | 'counter_offer' | 'bundle'
+  credits: number
   price: number // Price in dollars (will be converted to cents)
   name: string
   description: string
@@ -15,6 +16,7 @@ interface BundlePurchaseButtonProps {
 export default function BundlePurchaseButton({
   bundleType,
   serviceType,
+  credits,
   price,
   name,
   description,
@@ -34,6 +36,7 @@ export default function BundlePurchaseButton({
         body: JSON.stringify({
           bundle_type: bundleType,
           service_type: serviceType,
+          credits,
           price: Math.round(price * 100), // Convert dollars to cents
           name,
           description,

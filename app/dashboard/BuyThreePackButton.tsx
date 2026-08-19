@@ -11,6 +11,7 @@ export default function BuyThreePackButton() {
     <BundlePurchaseButton
       bundleType={bundle.bundleType}
       serviceType={bundle.serviceType}
+      credits={bundle.credits}
       price={bundle.price}
       name={bundle.name}
       description={bundle.description}

@@ -179,8 +179,13 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#F2EDE4',
+                marginBottom: '20px',
               }}>
                 <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$4.99</strong>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} />
               </div>
             </div>
 
@@ -220,8 +225,13 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#F2EDE4',
+                marginBottom: '20px',
               }}>
                 <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$6.99</strong>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} />
+                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} />
               </div>
             </div>
 
@@ -278,8 +288,13 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#F2EDE4',
+                marginBottom: '20px',
               }}>
                 <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$10.99</strong> <span style={{ fontSize: '0.75rem', color: '#6b6457' }}>(save $1)</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} />
               </div>
             </div>
 

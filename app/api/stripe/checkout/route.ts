@@ -24,10 +24,10 @@ export async function POST(request: Request) {
   try {
     // Parse request body for bundle configuration
     const body = await request.json()
-    const { bundle_type, service_type, price, name, description } = body
+    const { bundle_type, service_type, price, name, description, credits } = body
 
     // Validate required fields
-    if (!bundle_type || !service_type || !price || !name || !description) {
+    if (!bundle_type || !service_type || !price || !name || !description || credits === undefined) {
       return NextResponse.json(
         { error: 'Missing required bundle configuration' },
         { status: 400 }
@@ -85,6 +85,7 @@ export async function POST(request: Request) {
         supabase_user_id: user.id,
         bundle_type,
         service_type,
+        credits: credits.toString(), // Stripe metadata must be strings
       },
     }
 
