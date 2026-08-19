@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import BuyThreePackButton from './BuyThreePackButton'
 import PurchaseMessage from './PurchaseMessage'
+import ProfileDropdown from './ProfileDropdown'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -15,25 +16,31 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Check if user is an expert - experts skip onboarding and go to /expert
+  // Check user role - admins can always access dashboard
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('role, onboarding_completed')
+    .eq('user_id', user.id)
+    .single()
+
+  // Check if user is an expert (but not admin)
+  // Experts can manually navigate to dashboard - no forced redirect
   const { data: expert } = await supabase
     .from('experts')
     .select('id')
     .eq('user_id', user.id)
     .single()
 
-  if (expert) {
-    redirect('/expert')
+  // Only redirect non-admin experts to /expert if they came from login
+  // (This allows experts to manually navigate to dashboard)
+  const isAdmin = userRole?.role === 'admin'
+  if (expert && !isAdmin) {
+    // Allow experts to access dashboard manually - no redirect
+    // The middleware will handle redirect to /expert after login
   }
 
-  // Check if user has completed onboarding
-  const { data: userRole } = await supabase
-    .from('user_roles')
-    .select('onboarding_completed')
-    .eq('user_id', user.id)
-    .single()
-
-  if (userRole && !userRole.onboarding_completed) {
+  // Non-experts should complete onboarding
+  if (!expert && userRole && !userRole.onboarding_completed) {
     redirect('/onboarding')
   }
 
@@ -165,7 +172,7 @@ export default async function DashboardPage() {
               {user.email}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <Link
               href="/admin"
               style={{
@@ -182,24 +189,7 @@ export default async function DashboardPage() {
             >
               Admin
             </Link>
-            <form action="/api/auth/signout" method="post">
-              <button
-                type="submit"
-                style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  padding: '12px 24px',
-                  backgroundColor: 'transparent',
-                  color: '#6b6457',
-                  border: '1px solid #2a261e',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
-              >
-                Sign Out
-              </button>
-            </form>
+            <ProfileDropdown userEmail={user.email || ''} />
           </div>
         </div>
 
