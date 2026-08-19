@@ -1,4 +1,8 @@
+'use client'
+
 import Link from 'next/link'
+import BundlePurchaseButton from '@/app/dashboard/BundlePurchaseButton'
+import { BUNDLES } from '@/lib/bundles'
 
 export default function PricingPage() {
   return (
@@ -466,9 +470,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
+                marginBottom: '20px',
               }}>
                 Save $2 vs individual
               </div>
+              <BundlePurchaseButton {...BUNDLES.STANDARD_3_PACK} />
             </div>
 
             {/* 3-pack Rat Rate Evaluations */}
@@ -508,9 +514,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
+                marginBottom: '20px',
               }}>
                 Save $3 vs individual
               </div>
+              <BundlePurchaseButton {...BUNDLES.RAT_RATE_3_PACK} />
             </div>
 
             {/* 5-pack Standard */}
@@ -550,9 +558,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
+                marginBottom: '20px',
               }}>
                 Save $5 vs individual
               </div>
+              <BundlePurchaseButton {...BUNDLES.STANDARD_5_PACK} />
             </div>
 
             {/* 5-pack Rat Rate */}
@@ -592,9 +602,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
+                marginBottom: '20px',
               }}>
                 Save $5 vs individual
               </div>
+              <BundlePurchaseButton {...BUNDLES.RAT_RATE_5_PACK} />
             </div>
 
             {/* 3-pack Standard Finder */}

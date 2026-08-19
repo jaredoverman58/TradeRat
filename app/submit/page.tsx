@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import WaitlistScreen from './WaitlistScreen'
+import CreditSummary from './CreditSummary'
 
 type LeagueProfile = {
   id: string
@@ -43,6 +44,7 @@ export default function SubmitPage() {
   const [leagueType, setLeagueType] = useState('')
 
   // Trade details form
+  const [serviceType, setServiceType] = useState<'accept_decline' | 'counter_offer' | 'bundle'>('accept_decline')
   const [offerDirection, setOfferDirection] = useState<'received' | 'proposed'>('received')
   const [rateTier, setRateTier] = useState<'standard' | 'rat_rate'>('standard')
   const [receivePlayers, setReceivePlayers] = useState('')
@@ -213,7 +215,7 @@ export default function SubmitPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier: rateTier,
-          service_type: 'accept_decline',
+          service_type: serviceType,
           draft_data: {
             selectedProfileId,
             offerDirection,
@@ -317,7 +319,7 @@ export default function SubmitPage() {
         .insert({
           user_id: userId,
           league_profile_id: selectedProfileId || null,
-          service_type: 'accept_decline',
+          service_type: serviceType,
           offer_direction: offerDirection,
           rate_tier: rateTier,
           status: 'draft',
@@ -400,7 +402,7 @@ export default function SubmitPage() {
     return (
       <WaitlistScreen
         tier={rateTier}
-        serviceType="accept_decline"
+        serviceType={serviceType}
         standardAvailable={capacityStatus.standardAvailable}
         onJoinWaitlist={handleJoinWaitlist}
         onSubmitWithStandard={rateTier === 'rat_rate' ? handleSwitchToStandard : undefined}
@@ -494,6 +496,13 @@ export default function SubmitPage() {
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* Credit Summary - MUST BE FIRST */}
+          <CreditSummary
+            userId={userId}
+            selectedServiceType={serviceType}
+            onServiceTypeChange={setServiceType}
+          />
+
           {/* Step 1: League Profile */}
           <div style={{ marginBottom: '48px', paddingBottom: '48px', borderBottom: '1px solid #2a261e' }}>
             <h2 style={{
