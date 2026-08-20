@@ -246,16 +246,6 @@ export default async function DashboardPage() {
           {/* Paid Bundle Credits by Service Type */}
           {groupedServices.length > 0 && (
             <div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.15em',
-                color: '#6b6457',
-                marginBottom: '16px',
-              }}>
-                Paid Credits
-              </div>
               {groupedServices.map((service, idx) => (
                 <div key={service.serviceType} style={{ marginBottom: idx < groupedServices.length - 1 ? '24px' : '0' }}>
                   <div style={{
@@ -361,7 +351,7 @@ export default async function DashboardPage() {
             </h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '1px',
               backgroundColor: '#2a261e',
             }}>
