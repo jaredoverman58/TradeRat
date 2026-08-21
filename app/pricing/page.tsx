@@ -219,7 +219,7 @@ export default function PricingPage() {
                 color: '#F2EDE4',
                 marginBottom: '8px',
               }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$5.99</strong>
+                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$5.49</strong>
               </div>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -227,7 +227,7 @@ export default function PricingPage() {
                 color: '#F2EDE4',
                 marginBottom: '20px',
               }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$6.99</strong>
+                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$6.49</strong>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} />
@@ -282,7 +282,7 @@ export default function PricingPage() {
                 color: '#F2EDE4',
                 marginBottom: '8px',
               }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$8.99</strong> <span style={{ fontSize: '0.75rem', color: '#6b6457' }}>(save $1)</span>
+                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$8.99</strong>
               </div>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -290,7 +290,7 @@ export default function PricingPage() {
                 color: '#F2EDE4',
                 marginBottom: '20px',
               }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$10.99</strong> <span style={{ fontSize: '0.75rem', color: '#6b6457' }}>(save $1)</span>
+                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$10.99</strong>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} />
@@ -477,17 +477,9 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $12.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
                 marginBottom: '20px',
               }}>
-                Save $2 vs individual
+                $9.99
               </div>
               <BundlePurchaseButton {...BUNDLES.STANDARD_3_PACK} />
             </div>
@@ -521,17 +513,9 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $14.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
                 marginBottom: '20px',
               }}>
-                Save $3 vs individual
+                $12.99
               </div>
               <BundlePurchaseButton {...BUNDLES.RAT_RATE_3_PACK} />
             </div>
@@ -565,17 +549,9 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $19.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
                 marginBottom: '20px',
               }}>
-                Save $5 vs individual
+                $16.99
               </div>
               <BundlePurchaseButton {...BUNDLES.STANDARD_5_PACK} />
             </div>
@@ -609,17 +585,9 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $24.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
                 marginBottom: '20px',
               }}>
-                Save $5 vs individual
+                $21.99
               </div>
               <BundlePurchaseButton {...BUNDLES.RAT_RATE_5_PACK} />
             </div>
@@ -653,16 +621,8 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
               }}>
                 $39.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-              }}>
-                Save $5 vs individual
               </div>
             </div>
 
@@ -695,100 +655,8 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
-                marginBottom: '8px',
               }}>
                 $49.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-              }}>
-                Save $10 vs individual
-              </div>
-            </div>
-
-            {/* Mixed Standard */}
-            <div style={{
-              border: '1px solid #2a261e',
-              padding: '32px',
-              backgroundColor: '#1a1710',
-            }}>
-              <h3 style={{
-                fontFamily: 'var(--font-playfair)',
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#F2EDE4',
-                marginBottom: '12px',
-              }}>
-                Mixed: 3 Evals + 1 Finder (Standard)
-              </h3>
-              <p style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-                marginBottom: '16px',
-                lineHeight: 1.6,
-              }}>
-                Three trade evaluations plus one full league analysis. Great all-season package.
-              </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $24.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-              }}>
-                Save $5 vs individual
-              </div>
-            </div>
-
-            {/* Mixed Rat Rate */}
-            <div style={{
-              border: '1px solid #2a261e',
-              padding: '32px',
-              backgroundColor: '#1a1710',
-            }}>
-              <h3 style={{
-                fontFamily: 'var(--font-playfair)',
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#F2EDE4',
-                marginBottom: '12px',
-              }}>
-                Mixed: 3 Evals + 1 Finder (Rat Rate)
-              </h3>
-              <p style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-                marginBottom: '16px',
-                lineHeight: 1.6,
-              }}>
-                Three premium evaluations plus one full league analysis from The Rat. Elite package.
-              </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                color: '#C9A84C',
-                marginBottom: '8px',
-              }}>
-                $32.99
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#6b6457',
-              }}>
-                Save $6 vs individual
               </div>
             </div>
           </div>

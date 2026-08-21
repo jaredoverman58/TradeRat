@@ -44,10 +44,10 @@ export default async function AnalyticsTab() {
 
   // Calculate revenue over time
   const BUNDLE_PRICES: Record<string, number> = {
-    'standard_3_pack': 12.99,
-    'standard_5_pack': 19.99,
-    'rat_rate_3_pack': 14.99,
-    'rat_rate_5_pack': 24.99,
+    'standard_3_pack': 9.99,
+    'standard_5_pack': 16.99,
+    'rat_rate_3_pack': 12.99,
+    'rat_rate_5_pack': 21.99,
   }
 
   const revenueOverTime = bundles?.reduce((acc, bundle) => {
