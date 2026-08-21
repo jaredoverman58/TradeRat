@@ -1,4 +1,8 @@
+'use client'
+
 import Link from 'next/link'
+import BundlePurchaseButton from '@/app/dashboard/BundlePurchaseButton'
+import { BUNDLES } from '@/lib/bundles'
 
 type ServiceCard = {
   title: string
@@ -71,9 +75,46 @@ export default function ServicesSection({ content }: { content: ServicesContent 
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
+                marginBottom: '16px',
               }}>
                 {card.price}
               </div>
+
+              {/* Buy Buttons */}
+              {card.title === 'Accept or Decline' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} />
+                  <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} />
+                </div>
+              )}
+              {card.title === 'Counter Offer' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} />
+                  <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} />
+                </div>
+              )}
+              {card.title === 'Trade Finder' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <BundlePurchaseButton
+                    bundleType="standard_3_pack"
+                    serviceType="trade_finder"
+                    credits={1}
+                    price={14.99}
+                    name="Trade Finder Standard"
+                    description="Full league analysis by standard analyst"
+                    buttonText="Buy Standard — $14.99"
+                  />
+                  <BundlePurchaseButton
+                    bundleType="rat_rate_3_pack"
+                    serviceType="trade_finder"
+                    credits={1}
+                    price={19.99}
+                    name="Trade Finder Rat Rate"
+                    description="Full league analysis by The Rat"
+                    buttonText="Buy Rat Rate — $19.99"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -3,7 +3,7 @@
 
 export interface BundleConfig {
   bundleType: 'standard_3_pack' | 'standard_5_pack' | 'rat_rate_3_pack' | 'rat_rate_5_pack'
-  serviceType: 'accept_decline' | 'counter_offer' | 'bundle'
+  serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
   credits: number
   price: number // in dollars
   name: string

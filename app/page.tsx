@@ -6,6 +6,7 @@ import MeetRatSection from './landing/MeetRatSection'
 import StatsSection from './landing/StatsSection'
 import ServicesSection from './landing/ServicesSection'
 import TestimonialsSection from './landing/TestimonialsSection'
+import TradeFinderSection from './landing/TradeFinderSection'
 import PricingTableSection from './landing/PricingTableSection'
 import FinalCTASection from './landing/FinalCTASection'
 import Footer from './landing/Footer'
@@ -48,7 +49,12 @@ export default async function LandingPage() {
             case 'stats':
               return <StatsSection key={section.id} content={section.content} />
             case 'services':
-              return <ServicesSection key={section.id} content={section.content} />
+              return (
+                <>
+                  <ServicesSection key={section.id} content={section.content} />
+                  <TradeFinderSection key="trade-finder" />
+                </>
+              )
             case 'testimonials':
               // Use testimonials from the testimonials table
               return testimonials && testimonials.length > 0 ? (

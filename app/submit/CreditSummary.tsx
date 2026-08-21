@@ -8,12 +8,13 @@ interface CreditsByServiceType {
   accept_decline: number
   counter_offer: number
   bundle: number
+  trade_finder: number
 }
 
 interface CreditSummaryProps {
   userId: string | null
-  selectedServiceType: 'accept_decline' | 'counter_offer' | 'bundle'
-  onServiceTypeChange: (serviceType: 'accept_decline' | 'counter_offer' | 'bundle') => void
+  selectedServiceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
+  onServiceTypeChange: (serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder') => void
 }
 
 export default function CreditSummary({ userId, selectedServiceType, onServiceTypeChange }: CreditSummaryProps) {
@@ -44,6 +45,7 @@ export default function CreditSummary({ userId, selectedServiceType, onServiceTy
           accept_decline: 0,
           counter_offer: 0,
           bundle: 0,
+          trade_finder: 0,
         }
 
         bundles?.forEach(bundle => {
@@ -124,7 +126,7 @@ export default function CreditSummary({ userId, selectedServiceType, onServiceTy
     return null
   }
 
-  const totalCredits = credits.accept_decline + credits.counter_offer + credits.bundle
+  const totalCredits = credits.accept_decline + credits.counter_offer + credits.bundle + credits.trade_finder
   const availableServiceTypes = (Object.keys(credits) as Array<keyof CreditsByServiceType>).filter(
     type => credits[type] > 0
   )
@@ -167,10 +169,11 @@ export default function CreditSummary({ userId, selectedServiceType, onServiceTy
     )
   }
 
-  const serviceTypeLabels = {
+  const serviceTypeLabels: Record<keyof CreditsByServiceType, string> = {
     accept_decline: 'Accept/Decline',
     counter_offer: 'Counter Offer',
     bundle: 'Accept/Decline + Bonus',
+    trade_finder: 'Trade Finder',
   }
 
   // Has credits - show summary and selector if multiple types available

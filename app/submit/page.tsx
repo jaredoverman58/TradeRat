@@ -44,7 +44,7 @@ export default function SubmitPage() {
   const [leagueType, setLeagueType] = useState('')
 
   // Trade details form
-  const [serviceType, setServiceType] = useState<'accept_decline' | 'counter_offer' | 'bundle'>('accept_decline')
+  const [serviceType, setServiceType] = useState<'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'>('accept_decline')
   const [offerDirection, setOfferDirection] = useState<'received' | 'proposed'>('received')
   const [rateTier, setRateTier] = useState<'standard' | 'rat_rate'>('standard')
   const [receivePlayers, setReceivePlayers] = useState('')

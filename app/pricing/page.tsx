@@ -162,27 +162,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
-                marginBottom: '16px',
+                marginBottom: '20px',
                 lineHeight: 1.6,
               }}>
                 Get a clear accept or decline recommendation, backed by real analysis of the trade — why it works or doesn&apos;t for your specific team and league. Not just a yes or no.
               </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '8px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$3.99</strong>
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '20px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$4.99</strong>
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} />
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} />
@@ -208,27 +192,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
-                marginBottom: '16px',
+                marginBottom: '20px',
                 lineHeight: 1.6,
               }}>
                 Get a custom counter-offer suggestion based on both rosters. Requires opponent roster upload for accurate analysis.
               </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '8px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$5.49</strong>
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '20px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$6.49</strong>
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} />
                 <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} />
@@ -271,27 +239,11 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
-                marginBottom: '16px',
+                marginBottom: '20px',
                 lineHeight: 1.6,
               }}>
                 Get your accept or decline recommendation, plus a bonus every time: if we say decline, you&apos;ll get a ready-to-send counter offer; if we say accept, you&apos;ll get expert tips on negotiating even more value and/or additional insight into making your next move. You always get the full package, no matter what we recommend.
               </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '8px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$8.99</strong>
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '20px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$10.99</strong>
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} />
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} />
@@ -339,6 +291,18 @@ export default function PricingPage() {
               </div>
             </div>
           </div>
+
+          {/* Turnaround Time Note */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            color: '#6b6457',
+            fontStyle: 'italic',
+            textAlign: 'center',
+            marginTop: '32px',
+          }}>
+            Response times may vary — guaranteed within 24 hours. We always aim to respond as quickly as possible, often within a few hours.
+          </p>
         </div>
 
         {/* Trade Finder Deep Dive */}
