@@ -4,6 +4,7 @@ import Link from 'next/link'
 import BuyThreePackButton from './BuyThreePackButton'
 import PurchaseMessage from './PurchaseMessage'
 import ProfileDropdown from './ProfileDropdown'
+import CollapsiblePurchases from './CollapsiblePurchases'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -207,7 +208,7 @@ export default async function DashboardPage() {
             color: '#6b6457',
             marginBottom: '20px',
           }}>
-            Your Credits
+            Active Credits
           </div>
 
           {/* Free Evaluation Credit */}
@@ -263,11 +264,13 @@ export default async function DashboardPage() {
                       alignItems: 'center',
                       marginBottom: '8px',
                       paddingLeft: '16px',
+                      gap: '16px',
                     }}>
                       <div style={{
                         fontFamily: 'var(--font-dm-sans)',
                         fontSize: '0.875rem',
                         color: '#6b6457',
+                        flex: 1,
                       }}>
                         {tier.tierName}
                       </div>
@@ -279,6 +282,23 @@ export default async function DashboardPage() {
                       }}>
                         {tier.credits}
                       </div>
+                      <Link
+                        href={`/submit?service=${service.serviceType}&tier=${tier.tierName.toLowerCase().replace(' ', '_')}`}
+                        style={{
+                          fontFamily: 'var(--font-dm-sans)',
+                          padding: '8px 16px',
+                          backgroundColor: '#C9A84C',
+                          color: '#0C0A07',
+                          fontWeight: 600,
+                          textDecoration: 'none',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          fontSize: '0.75rem',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Submit Now
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -339,78 +359,11 @@ export default async function DashboardPage() {
 
         {/* Bundle Details */}
         {activeBundles.length > 0 && (
-          <div style={{ marginBottom: '60px' }}>
-            <h2 style={{
-              fontFamily: 'var(--font-playfair)',
-              fontSize: '2rem',
-              fontWeight: 700,
-              color: '#F2EDE4',
-              marginBottom: '24px',
-            }}>
-              Active Bundles
-            </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1px',
-              backgroundColor: '#2a261e',
-            }}>
-              {activeBundles.map((bundle) => (
-                <div
-                  key={bundle.id}
-                  style={{
-                    backgroundColor: '#0C0A07',
-                    padding: '32px',
-                  }}
-                >
-                  <div style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    color: '#C9A84C',
-                    marginBottom: '4px',
-                  }}>
-                    {getServiceName(bundle.service_type)}
-                  </div>
-                  <div style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    color: '#6b6457',
-                    marginBottom: '12px',
-                  }}>
-                    {getRateTierName(bundle.bundle_type)} • {bundle.bundle_type.replace(/_/g, ' ')}
-                  </div>
-                  <div style={{
-                    fontFamily: 'var(--font-playfair)',
-                    fontSize: '2.5rem',
-                    fontWeight: 700,
-                    color: '#F2EDE4',
-                    marginBottom: '8px',
-                  }}>
-                    {bundle.credits_remaining}
-                  </div>
-                  <div style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.875rem',
-                    color: '#6b6457',
-                    marginBottom: '16px',
-                  }}>
-                    {bundle.credits_remaining === 1 ? 'Credit' : 'Credits'} remaining
-                  </div>
-                  <div style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.75rem',
-                    color: '#6b6457',
-                  }}>
-                    Expires: {new Date(bundle.expires_at).toLocaleDateString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CollapsiblePurchases
+            bundles={activeBundles}
+            getServiceName={getServiceName}
+            getRateTierName={getRateTierName}
+          />
         )}
 
         {/* Pending Submissions */}

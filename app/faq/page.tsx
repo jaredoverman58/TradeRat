@@ -19,21 +19,7 @@ export default function FAQPage() {
   const faqs: FAQItem[] = [
     {
       question: 'How long does it take to get a response?',
-      answer: (
-        <>
-          <p style={{ marginBottom: '12px' }}>
-            Response times vary by service type:
-          </p>
-          <ul style={{ marginLeft: '20px', marginBottom: '12px' }}>
-            <li style={{ marginBottom: '8px' }}><strong>Accept/Decline:</strong> Most responses under 2 hours, guaranteed within 24 hours</li>
-            <li style={{ marginBottom: '8px' }}><strong>Counter Offer:</strong> Most responses under 4 hours, guaranteed within 24 hours</li>
-            <li style={{ marginBottom: '8px' }}><strong>Full League Trade Finder:</strong> Most responses under 8 hours, guaranteed within 48 hours</li>
-          </ul>
-          <p>
-            Rat Rate services receive priority analysis and are typically delivered even faster than standard turnaround times.
-          </p>
-        </>
-      ),
+      answer: "The Rat works while your league sleeps — most active 10 PM to 5 AM Mountain Time. Standard experts are available throughout the day and evening. We know your trade window won't wait — we always aim to respond as quickly as possible, often within a few hours. Response times may vary — but your analysis is always guaranteed within 24 hours.",
     },
     {
       question: 'What if I disagree with the advice?',

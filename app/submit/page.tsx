@@ -1424,6 +1424,17 @@ export default function SubmitPage() {
             />
           </div>
 
+          {/* Turnaround Message */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            color: '#6b6457',
+            textAlign: 'center',
+            marginBottom: '16px',
+          }}>
+            We know your trade window won&apos;t wait — we always aim to respond as quickly as possible.
+          </p>
+
           {/* Submit Button */}
           <button
             type="submit"

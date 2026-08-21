@@ -101,9 +101,23 @@ export default function HeroSection({ content }: { content: HeroContent }) {
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.875rem',
           color: '#6b6457',
+          marginBottom: '16px',
         }}>
           {content.disclaimer}
         </p>
+
+        <Link
+          href="/pricing"
+          style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            color: '#8B7D6B',
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}
+        >
+          View full pricing →
+        </Link>
       </div>
     </section>
   )

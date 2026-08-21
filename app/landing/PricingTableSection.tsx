@@ -41,7 +41,7 @@ export default function PricingTableSection({ content }: { content: PricingTable
           {/* Header */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '2fr 1fr 1fr',
+            gridTemplateColumns: '55% 22.5% 22.5%',
             borderBottom: '1px solid #2a261e',
             backgroundColor: '#1a1710',
           }}>
@@ -80,7 +80,8 @@ export default function PricingTableSection({ content }: { content: PricingTable
               textAlign: 'center',
               borderLeft: '1px solid #2a261e',
             }}>
-              Rat Rate
+              <span style={{ display: 'none' }}>Rat Rate</span>
+              <span style={{ display: 'inline' }}>Rat</span>
             </div>
           </div>
 
@@ -90,7 +91,7 @@ export default function PricingTableSection({ content }: { content: PricingTable
               key={index}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '2fr 1fr 1fr',
+                gridTemplateColumns: '55% 22.5% 22.5%',
                 borderBottom: index < content.services.length - 1 ? '1px solid #2a261e' : 'none',
                 backgroundColor: service.is_popular ? '#1a1710' : 'transparent',
               }}
@@ -100,22 +101,18 @@ export default function PricingTableSection({ content }: { content: PricingTable
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#F2EDE4',
-                display: 'flex',
-                alignItems: 'center',
               }}>
-                {service.name}
+                <div>{service.name}</div>
                 {service.is_popular && (
-                  <span style={{
-                    marginLeft: '12px',
+                  <div style={{
+                    marginTop: '4px',
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.625rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
+                    fontSize: '0.75rem',
                     color: '#C9A84C',
-                    fontWeight: 600,
+                    fontStyle: 'italic',
                   }}>
-                    Most Popular
-                  </span>
+                    Decline gets a counter. Accept gets an edge.
+                  </div>
                 )}
               </div>
               <div style={{

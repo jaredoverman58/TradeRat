@@ -73,10 +73,10 @@ export default function PricingPage() {
                 padding: 0,
               }}>
                 <li style={{ marginBottom: '8px' }}>✓ Analysis by The Badger or The Monkey</li>
-                <li style={{ marginBottom: '8px' }}>✓ 24-48 hour turnaround</li>
-                <li style={{ marginBottom: '8px' }}>✓ Written analysis</li>
+                <li style={{ marginBottom: '8px' }}>✓ Written or audio analysis backed by real expertise</li>
                 <li style={{ marginBottom: '8px' }}>✓ Roster impact assessment</li>
-                <li style={{ marginBottom: '8px' }}>✓ Best value pricing</li>
+                <li style={{ marginBottom: '8px' }}>✓ Expert recommendation tailored to your situation</li>
+                <li style={{ marginBottom: '8px' }}>✓ Most accessible price point</li>
               </ul>
             </div>
 
@@ -116,11 +116,11 @@ export default function PricingPage() {
                 listStyle: 'none',
                 padding: 0,
               }}>
-                <li style={{ marginBottom: '8px' }}>✓ <strong>The Rat guaranteed</strong></li>
-                <li style={{ marginBottom: '8px' }}>✓ Priority 24-hour turnaround</li>
-                <li style={{ marginBottom: '8px' }}>✓ In-depth written analysis</li>
-                <li style={{ marginBottom: '8px' }}>✓ Comprehensive roster impact</li>
-                <li style={{ marginBottom: '8px' }}>✓ Premium expert insights</li>
+                <li style={{ marginBottom: '8px' }}>✓ The Rat personally reviews every submission</li>
+                <li style={{ marginBottom: '8px' }}>✓ In-depth written or audio analysis</li>
+                <li style={{ marginBottom: '8px' }}>✓ Premium roster impact assessment</li>
+                <li style={{ marginBottom: '8px' }}>✓ Sharpest mind in the business</li>
+                <li style={{ marginBottom: '8px' }}>✓ Catches angles other experts miss</li>
               </ul>
             </div>
           </div>
