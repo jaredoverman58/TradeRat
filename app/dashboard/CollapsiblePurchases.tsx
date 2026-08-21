@@ -12,12 +12,28 @@ type Bundle = {
 
 type Props = {
   bundles: Bundle[]
-  getServiceName: (serviceType: string) => string
-  getRateTierName: (bundleType: string) => string
 }
 
-export default function CollapsiblePurchases({ bundles, getServiceName, getRateTierName }: Props) {
+export default function CollapsiblePurchases({ bundles }: Props) {
   const [isExpanded, setIsExpanded] = useState(false)
+
+  // Helper to get service display name
+  const getServiceName = (serviceType: string) => {
+    const names: Record<string, string> = {
+      'accept_decline': 'Accept/Decline',
+      'counter_offer': 'Counter Offer',
+      'bundle': 'Accept/Decline + Bonus',
+      'trade_finder': 'Trade Finder',
+    }
+    return names[serviceType] || serviceType
+  }
+
+  // Helper to get rate tier display name
+  const getRateTierName = (bundleType: string) => {
+    if (bundleType.includes('rat_rate')) return 'Rat Rate'
+    if (bundleType.includes('standard')) return 'Standard'
+    return bundleType
+  }
 
   return (
     <div style={{ marginBottom: '60px' }}>

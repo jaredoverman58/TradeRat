@@ -359,11 +359,7 @@ export default async function DashboardPage() {
 
         {/* Bundle Details */}
         {activeBundles.length > 0 && (
-          <CollapsiblePurchases
-            bundles={activeBundles}
-            getServiceName={getServiceName}
-            getRateTierName={getRateTierName}
-          />
+          <CollapsiblePurchases bundles={activeBundles} />
         )}
 
         {/* Pending Submissions */}
