@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import BuyConfirmationModal from '@/components/BuyConfirmationModal'
 
 interface BundlePurchaseButtonProps {
   bundleType: 'standard_3_pack' | 'standard_5_pack' | 'rat_rate_3_pack' | 'rat_rate_5_pack'
@@ -11,6 +12,7 @@ interface BundlePurchaseButtonProps {
   description: string
   buttonText: string
   disabled?: boolean
+  variant?: 'landing' | 'pricing' // Default to 'landing' for landing page usage
 }
 
 export default function BundlePurchaseButton({
@@ -22,10 +24,19 @@ export default function BundlePurchaseButton({
   description,
   buttonText,
   disabled = false,
+  variant = 'landing',
 }: BundlePurchaseButtonProps) {
   const [loading, setLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
-  const handlePurchase = async () => {
+  // Show the confirmation modal
+  const handlePurchase = () => {
+    setShowModal(true)
+  }
+
+  // Process checkout after confirmation
+  const handleConfirm = async () => {
+    setShowModal(false)
     setLoading(true)
     try {
       const response = await fetch('/api/stripe/checkout', {
@@ -59,25 +70,48 @@ export default function BundlePurchaseButton({
     }
   }
 
+  // Cancel modal
+  const handleCancel = () => {
+    setShowModal(false)
+  }
+
+  // Determine tier from bundleType
+  const tier = bundleType.includes('rat_rate') ? 'rat' : 'standard'
+
   return (
-    <button
-      onClick={handlePurchase}
-      disabled={loading || disabled}
-      style={{
-        fontFamily: 'var(--font-dm-sans)',
-        padding: '16px 40px',
-        backgroundColor: loading || disabled ? '#6b6457' : '#C9A84C',
-        color: '#0C0A07',
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: '0.1em',
-        fontSize: '0.875rem',
-        border: 'none',
-        cursor: loading || disabled ? 'not-allowed' : 'pointer',
-        opacity: loading || disabled ? 0.6 : 1,
-      }}
-    >
-      {loading ? 'Processing...' : buttonText}
-    </button>
+    <>
+      <button
+        onClick={handlePurchase}
+        disabled={loading || disabled}
+        style={{
+          fontFamily: 'var(--font-dm-sans)',
+          padding: '16px 40px',
+          backgroundColor: loading || disabled ? '#6b6457' : '#C9A84C',
+          color: '#0C0A07',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          fontSize: '0.875rem',
+          border: 'none',
+          cursor: loading || disabled ? 'not-allowed' : 'pointer',
+          opacity: loading || disabled ? 0.6 : 1,
+        }}
+      >
+        {loading ? 'Processing...' : buttonText}
+      </button>
+
+      {showModal && (
+        <BuyConfirmationModal
+          variant={variant}
+          serviceType={serviceType}
+          tier={tier}
+          price={price}
+          credits={credits}
+          name={name}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      )}
+    </>
   )
 }

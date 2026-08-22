@@ -168,8 +168,8 @@ export default function PricingPage() {
                 Get a clear accept or decline recommendation, backed by real analysis of the trade — why it works or doesn&apos;t for your specific team and league. Not just a yes or no.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} />
-                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} variant="landing" />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} variant="landing" />
               </div>
             </div>
 
@@ -198,8 +198,8 @@ export default function PricingPage() {
                 Get a custom counter-offer suggestion based on both rosters. Requires opponent roster upload for accurate analysis.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} />
-                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} />
+                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} variant="landing" />
+                <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} variant="landing" />
               </div>
             </div>
 
@@ -245,8 +245,8 @@ export default function PricingPage() {
                 Get your accept or decline recommendation, plus a bonus every time: if we say decline, you&apos;ll get a ready-to-send counter offer; if we say accept, you&apos;ll get expert tips on negotiating even more value and/or additional insight into making your next move. You always get the full package, no matter what we recommend.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} />
-                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} variant="landing" />
+                <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} variant="landing" />
               </div>
             </div>
 
@@ -445,7 +445,7 @@ export default function PricingPage() {
               }}>
                 $9.99
               </div>
-              <BundlePurchaseButton {...BUNDLES.STANDARD_3_PACK} />
+              <BundlePurchaseButton {...BUNDLES.STANDARD_3_PACK} variant="landing" />
             </div>
 
             {/* 3-pack Rat Rate Evaluations */}
@@ -481,7 +481,7 @@ export default function PricingPage() {
               }}>
                 $12.99
               </div>
-              <BundlePurchaseButton {...BUNDLES.RAT_RATE_3_PACK} />
+              <BundlePurchaseButton {...BUNDLES.RAT_RATE_3_PACK} variant="landing" />
             </div>
 
             {/* 5-pack Standard */}
@@ -517,7 +517,7 @@ export default function PricingPage() {
               }}>
                 $16.99
               </div>
-              <BundlePurchaseButton {...BUNDLES.STANDARD_5_PACK} />
+              <BundlePurchaseButton {...BUNDLES.STANDARD_5_PACK} variant="landing" />
             </div>
 
             {/* 5-pack Rat Rate */}
@@ -553,7 +553,7 @@ export default function PricingPage() {
               }}>
                 $21.99
               </div>
-              <BundlePurchaseButton {...BUNDLES.RAT_RATE_5_PACK} />
+              <BundlePurchaseButton {...BUNDLES.RAT_RATE_5_PACK} variant="landing" />
             </div>
 
             {/* 3-pack Standard Finder */}

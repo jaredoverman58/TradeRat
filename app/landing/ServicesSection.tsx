@@ -93,26 +93,10 @@ export default function ServicesSection({ content }: { content: ServicesContent 
                   <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} />
                 </div>
               )}
-              {card.title === 'Trade Finder' && (
+              {card.title === 'Accept/Decline + Bonus' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <BundlePurchaseButton
-                    bundleType="standard_3_pack"
-                    serviceType="trade_finder"
-                    credits={1}
-                    price={14.99}
-                    name="Trade Finder Standard"
-                    description="Full league analysis by standard analyst"
-                    buttonText="Buy Standard — $14.99"
-                  />
-                  <BundlePurchaseButton
-                    bundleType="rat_rate_3_pack"
-                    serviceType="trade_finder"
-                    credits={1}
-                    price={19.99}
-                    name="Trade Finder Rat Rate"
-                    description="Full league analysis by The Rat"
-                    buttonText="Buy Rat Rate — $19.99"
-                  />
+                  <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} />
+                  <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} />
                 </div>
               )}
             </div>

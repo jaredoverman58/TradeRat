@@ -13,6 +13,18 @@ export default function TradeFinderSection() {
         maxWidth: '1200px',
         margin: '0 auto',
       }}>
+        {/* Section Label */}
+        <div style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.75rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          color: '#C9A84C',
+          marginBottom: '48px',
+        }}>
+          TRADE FINDER
+        </div>
+
         <div style={{
           border: '2px solid #C9A84C',
           padding: '48px',
