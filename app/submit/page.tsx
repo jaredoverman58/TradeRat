@@ -74,6 +74,7 @@ export default function SubmitPage() {
   const [givePicks, setGivePicks] = useState('')
   const [fabReceive, setFabReceive] = useState('')
   const [fabGive, setFabGive] = useState('')
+  const [tradeFinderContext, setTradeFinderContext] = useState('')
   const [additionalContext, setAdditionalContext] = useState('')
 
   // SMS notification opt-in state
@@ -82,6 +83,7 @@ export default function SubmitPage() {
 
   // File upload state
   const [submissionFiles, setSubmissionFiles] = useState<SubmissionFile[]>([])
+  const [showRosterLabels, setShowRosterLabels] = useState(false)
 
   // Form state
   const [submitting, setSubmitting] = useState(false)
@@ -163,15 +165,13 @@ export default function SubmitPage() {
   }, [supabase, router])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map((file, index) => ({
+    const newFiles = acceptedFiles.map((file) => ({
       file,
-      label: serviceType === 'trade_finder'
-        ? `Team ${submissionFiles.length + index + 1}`
-        : '',
+      label: '',
       isOwnRoster: false
     }))
     setSubmissionFiles(prev => [...prev, ...newFiles])
-  }, [serviceType, submissionFiles.length])
+  }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -332,31 +332,16 @@ export default function SubmitPage() {
       return
     }
 
-    if (!selectedProfileId && !showNewProfileForm) {
-      setError('Please select or create a league profile')
-      return
-    }
-
-    if (submissionFiles.length === 0) {
-      setError('Please upload at least one screenshot')
-      return
-    }
-
-    if (smsOptIn && !phoneNumber) {
-      setError('Please enter a phone number to receive SMS notifications, or uncheck the SMS opt-in box')
-      return
-    }
-
-    setError(null)
-
     // PRE-SUBMISSION CREDIT CHECK
     if (!credits || credits[serviceType] === 0) {
       // User doesn't have credits for this service type - show purchase modal
       const bundleInfo = getSingleBundleForServiceType(serviceType, rateTier)
       setPendingBundle(bundleInfo)
       setShowBuyModal(true)
-      return // Don't proceed with submission
+      return
     }
+
+    setError(null)
 
     // User HAS credits - proceed with submission
     setSubmitting(true)
@@ -381,6 +366,11 @@ export default function SubmitPage() {
       }
 
       // Step 1: Create submission in draft status
+      // For trade_finder, use tradeFinderContext; for all other service types, use additionalContext
+      const contextValue = serviceType === 'trade_finder'
+        ? (tradeFinderContext || null)
+        : (additionalContext || null)
+
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
         .insert({
@@ -396,7 +386,7 @@ export default function SubmitPage() {
           give_picks: givePicks || null,
           fab_receive: fabReceive ? parseFloat(fabReceive) : null,
           fab_give: fabGive ? parseFloat(fabGive) : null,
-          additional_context: additionalContext || null
+          additional_context: contextValue
         })
         .select()
         .single()
@@ -1082,27 +1072,26 @@ export default function SubmitPage() {
               </div>
             </div>
 
-            {/* Players */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
+            {/* Trade Finder Context - only for Trade Finder, required */}
+            {serviceType === 'trade_finder' && (
+              <div style={{ marginBottom: '32px' }}>
                 <label style={{
                   fontFamily: 'var(--font-dm-sans)',
                   fontSize: '0.875rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em',
                   color: '#F2EDE4',
-                  marginBottom: '8px',
+                  marginBottom: '16px',
                   display: 'block',
                 }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They're Offering You (Players)"
-                    : "You Receive (Players)"}
+                  Tell Your Expert About Your Situation * (Required)
                 </label>
                 <textarea
-                  value={receivePlayers}
-                  onChange={(e) => setReceivePlayers(e.target.value)}
-                  placeholder="e.g., Christian McCaffrey, Davante Adams"
-                  rows={3}
+                  value={tradeFinderContext}
+                  onChange={(e) => setTradeFinderContext(e.target.value)}
+                  placeholder="Include your team's needs — are you competing or rebuilding, which positions you're looking to upgrade — plus anything else that could help your expert find the best possible trade: previous trade discussions (and with whom), untouchable players on either side, or specific managers' trade tendencies."
+                  rows={6}
+                  required
                   style={{
                     width: '100%',
                     padding: '16px',
@@ -1115,173 +1104,214 @@ export default function SubmitPage() {
                   }}
                 />
               </div>
+            )}
 
-              <div>
-                <label style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: '#F2EDE4',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They Want in Return (Players)"
-                    : "You Give (Players)"}
-                </label>
-                <textarea
-                  value={givePlayers}
-                  onChange={(e) => setGivePlayers(e.target.value)}
-                  placeholder="e.g., Justin Jefferson, Joe Mixon"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: '#0C0A07',
-                    border: '1px solid #2a261e',
-                    color: '#F2EDE4',
+            {/* Players - hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
-            </div>
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They're Offering You (Players)"
+                      : "You Receive (Players)"}
+                  </label>
+                  <textarea
+                    value={receivePlayers}
+                    onChange={(e) => setReceivePlayers(e.target.value)}
+                    placeholder="e.g., Christian McCaffrey, Davante Adams"
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                    }}
+                  />
+                </div>
 
-            {/* Picks */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: '#F2EDE4',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They're Offering You (Picks)"
-                    : "You Receive (Picks)"}
-                </label>
-                <textarea
-                  value={receivePicks}
-                  onChange={(e) => setReceivePicks(e.target.value)}
-                  placeholder="e.g., 2025 1st Round, 2026 3rd Round"
-                  rows={2}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: '#0C0A07',
-                    border: '1px solid #2a261e',
-                    color: '#F2EDE4',
+                <div>
+                  <label style={{
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                    resize: 'vertical',
-                  }}
-                />
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They Want in Return (Players)"
+                      : "You Give (Players)"}
+                  </label>
+                  <textarea
+                    value={givePlayers}
+                    onChange={(e) => setGivePlayers(e.target.value)}
+                    placeholder="e.g., Justin Jefferson, Joe Mixon"
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                    }}
+                  />
+                </div>
               </div>
+            )}
 
-              <div>
-                <label style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: '#F2EDE4',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They Want in Return (Picks)"
-                    : "You Give (Picks)"}
-                </label>
-                <textarea
-                  value={givePicks}
-                  onChange={(e) => setGivePicks(e.target.value)}
-                  placeholder="e.g., 2025 2nd Round"
-                  rows={2}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: '#0C0A07',
-                    border: '1px solid #2a261e',
-                    color: '#F2EDE4',
+            {/* Picks - hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
-            </div>
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They're Offering You (Picks)"
+                      : "You Receive (Picks)"}
+                  </label>
+                  <textarea
+                    value={receivePicks}
+                    onChange={(e) => setReceivePicks(e.target.value)}
+                    placeholder="e.g., 2025 1st Round, 2026 3rd Round"
+                    rows={2}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                    }}
+                  />
+                </div>
 
-            {/* FAAB */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: '#F2EDE4',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They're Offering You (FAAB/Waiver Budget)"
-                    : "You Receive (FAAB/Waiver Budget)"}
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={fabReceive}
-                  onChange={(e) => setFabReceive(e.target.value)}
-                  placeholder="$0.00"
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: '#0C0A07',
-                    border: '1px solid #2a261e',
-                    color: '#F2EDE4',
+                <div>
+                  <label style={{
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                  }}
-                />
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They Want in Return (Picks)"
+                      : "You Give (Picks)"}
+                  </label>
+                  <textarea
+                    value={givePicks}
+                    onChange={(e) => setGivePicks(e.target.value)}
+                    placeholder="e.g., 2025 2nd Round"
+                    rows={2}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                    }}
+                  />
+                </div>
               </div>
+            )}
 
-              <div>
-                <label style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: '#F2EDE4',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}>
-                  {serviceType === 'counter_offer' || serviceType === 'bundle'
-                    ? "What They Want in Return (FAAB/Waiver Budget)"
-                    : "You Give (FAAB/Waiver Budget)"}
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={fabGive}
-                  onChange={(e) => setFabGive(e.target.value)}
-                  placeholder="$0.00"
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: '#0C0A07',
-                    border: '1px solid #2a261e',
-                    color: '#F2EDE4',
+            {/* FAAB - hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{
                     fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                  }}
-                />
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They're Offering You (FAAB/Waiver Budget)"
+                      : "You Receive (FAAB/Waiver Budget)"}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={fabReceive}
+                    onChange={(e) => setFabReceive(e.target.value)}
+                    placeholder="$0.00"
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                    display: 'block',
+                  }}>
+                    {serviceType === 'counter_offer' || serviceType === 'bundle'
+                      ? "What They Want in Return (FAAB/Waiver Budget)"
+                      : "You Give (FAAB/Waiver Budget)"}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={fabGive}
+                    onChange={(e) => setFabGive(e.target.value)}
+                    placeholder="$0.00"
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#0C0A07',
+                      border: '1px solid #2a261e',
+                      color: '#F2EDE4',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                    }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Step 3: File Upload */}
@@ -1291,10 +1321,18 @@ export default function SubmitPage() {
               fontSize: '1.5rem',
               fontWeight: 700,
               color: '#F2EDE4',
-              marginBottom: '24px',
+              marginBottom: '8px',
             }}>
-              3. Upload Screenshots
+              3. Upload Screenshots{' '}
+              <span style={{
+                fontSize: '0.875rem',
+                fontWeight: 400,
+                color: serviceType === 'accept_decline' ? '#6b6457' : '#C9A84C',
+              }}>
+                {serviceType === 'accept_decline' ? '(Optional)' : '(Required)'}
+              </span>
             </h2>
+            <div style={{ marginBottom: '24px' }} />
 
             <p style={{
               fontFamily: 'var(--font-dm-sans)',
@@ -1304,7 +1342,7 @@ export default function SubmitPage() {
               lineHeight: '1.6',
             }}>
               {serviceType === 'trade_finder'
-                ? "Upload a screenshot of every roster in your league, including your own. Label each one so your expert knows which team is which."
+                ? "Upload a screenshot of every roster in your league, including your own. If team names aren't clearly shown in the screenshots, label each one so your expert knows which team is which."
                 : "Upload screenshots of your roster and your opponent's roster. This helps the expert understand your team needs and provide better advice."}
             </p>
 
@@ -1341,6 +1379,36 @@ export default function SubmitPage() {
             {/* File List */}
             {submissionFiles.length > 0 && (
               <div>
+                {/* Toggle for Trade Finder roster labels */}
+                {serviceType === 'trade_finder' && !showRosterLabels && (
+                  <button
+                    type="button"
+                    onClick={() => setShowRosterLabels(true)}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      backgroundColor: '#1a1710',
+                      border: '2px solid #C9A84C',
+                      color: '#C9A84C',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      marginBottom: '16px',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2a261e'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a1710'
+                    }}
+                  >
+                    Team names aren&apos;t clearly visible in my screenshots — let me label them
+                  </button>
+                )}
+
                 {submissionFiles.map((file, index) => (
                   <div
                     key={index}
@@ -1354,7 +1422,7 @@ export default function SubmitPage() {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: '12px',
+                      marginBottom: serviceType !== 'trade_finder' || showRosterLabels ? '12px' : '0',
                     }}>
                       <span style={{
                         fontFamily: 'var(--font-dm-sans)',
@@ -1379,80 +1447,96 @@ export default function SubmitPage() {
                       </button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        value={file.label}
-                        onChange={(e) => updateFileLabel(index, e.target.value)}
-                        placeholder={serviceType === 'trade_finder'
-                          ? "e.g., 'Team Name' or 'Manager Name'"
-                          : "Optional label (e.g., 'My Roster', 'Opponent Roster')"}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          backgroundColor: '#0C0A07',
-                          border: '1px solid #2a261e',
-                          color: '#F2EDE4',
-                          fontFamily: 'var(--font-dm-sans)',
-                          fontSize: '0.875rem',
-                        }}
-                      />
-
-                      <label style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        fontFamily: 'var(--font-dm-sans)',
-                        fontSize: '0.875rem',
-                        color: '#F2EDE4',
-                        whiteSpace: 'nowrap',
-                      }}>
+                    {/* Label input and checkbox - label hidden by default for Trade Finder */}
+                    {(serviceType !== 'trade_finder' || showRosterLabels) ? (
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <input
-                          type="checkbox"
-                          checked={file.isOwnRoster || false}
-                          onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
-                          style={{ marginRight: '8px' }}
+                          type="text"
+                          value={file.label}
+                          onChange={(e) => updateFileLabel(index, e.target.value)}
+                          placeholder={serviceType === 'trade_finder'
+                            ? "e.g., 'Team Name' or 'Manager Name'"
+                            : "Optional label (e.g., 'My Roster', 'Opponent Roster')"}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            backgroundColor: '#0C0A07',
+                            border: '1px solid #2a261e',
+                            color: '#F2EDE4',
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.875rem',
+                          }}
                         />
-                        This is my roster
-                      </label>
-                    </div>
+
+                        {serviceType === 'trade_finder' && (
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.875rem',
+                            color: '#F2EDE4',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={file.isOwnRoster || false}
+                              onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
+                              style={{ marginRight: '8px' }}
+                            />
+                            This is my roster
+                          </label>
+                        )}
+                      </div>
+                    ) : (
+                      /* Trade Finder: show only checkbox when labels are hidden */
+                      serviceType === 'trade_finder' && (
+                        <div style={{ marginTop: '12px' }}>
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.875rem',
+                            color: '#F2EDE4',
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={file.isOwnRoster || false}
+                              onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
+                              style={{ marginRight: '8px' }}
+                            />
+                            This is my roster
+                          </label>
+                        </div>
+                      )
+                    )}
                   </div>
                 ))}
 
                 {/* Progress indicator for Trade Finder */}
-                {serviceType === 'trade_finder' && selectedProfileId && (
-                  <div style={{
-                    marginTop: '16px',
-                    padding: '12px 16px',
-                    backgroundColor: '#1a1710',
-                    border: '1px solid #2a261e',
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.875rem',
-                    color: '#F2EDE4',
-                  }}>
-                    <strong>{submissionFiles.length} of {numTeams} rosters uploaded</strong>
-                    {submissionFiles.length < numTeams && (
-                      <span style={{ color: '#6b6457', marginLeft: '8px' }}>
-                        ({numTeams - submissionFiles.length} remaining)
-                      </span>
-                    )}
-                  </div>
-                )}
+                {serviceType === 'trade_finder' && selectedProfileId && (() => {
+                  const actualNumTeams = leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
+                  return (
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '12px 16px',
+                      backgroundColor: '#1a1710',
+                      border: '1px solid #2a261e',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                      color: '#F2EDE4',
+                    }}>
+                      <strong>{submissionFiles.length} of {actualNumTeams} rosters uploaded</strong>
+                      {submissionFiles.length < actualNumTeams && (
+                        <span style={{ color: '#6b6457', marginLeft: '8px' }}>
+                          ({actualNumTeams - submissionFiles.length} remaining)
+                        </span>
+                      )}
+                    </div>
+                  )
+                })()}
 
-                {/* Trade Finder validation message */}
-                {serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster) && (
-                  <div style={{
-                    marginTop: '16px',
-                    padding: '12px 16px',
-                    backgroundColor: '#2a1a0a',
-                    border: '1px solid #C9A84C',
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.875rem',
-                    color: '#C9A84C',
-                  }}>
-                    ⚠ Please mark which roster is yours before submitting.
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -1559,48 +1643,48 @@ export default function SubmitPage() {
             </div>
           </div>
 
-          {/* Step 5: Additional Context */}
-          <div style={{ marginBottom: '48px' }}>
-            <h2 style={{
-              fontFamily: 'var(--font-playfair)',
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: '#F2EDE4',
-              marginBottom: '24px',
-            }}>
-              5. Additional Context
-            </h2>
-
-            <label style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '0.875rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#F2EDE4',
-              marginBottom: '16px',
-              display: 'block',
-            }}>
-              Additional Context (Optional)
-            </label>
-            <textarea
-              value={additionalContext}
-              onChange={(e) => setAdditionalContext(e.target.value)}
-              placeholder={serviceType === 'trade_finder'
-                ? "Include any details that could help your expert find the best possible trade — previous trade discussions (and with whom), untouchable players on either side, specific managers' trade tendencies, or anything else relevant."
-                : "Tell us about your team's needs, playoff outlook, concerns about this specific trade, or anything else that might help the expert provide better advice."}
-              rows={6}
-              style={{
-                width: '100%',
-                padding: '16px',
-                backgroundColor: '#0C0A07',
-                border: '1px solid #2a261e',
+          {/* Step 5: Additional Context - hidden for Trade Finder */}
+          {serviceType !== 'trade_finder' && (
+            <div style={{ marginBottom: '48px' }}>
+              <h2 style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '1.5rem',
+                fontWeight: 700,
                 color: '#F2EDE4',
+                marginBottom: '24px',
+              }}>
+                5. Additional Context
+              </h2>
+
+              <label style={{
                 fontFamily: 'var(--font-dm-sans)',
-                fontSize: '1rem',
-                resize: 'vertical',
-              }}
-            />
-          </div>
+                fontSize: '0.875rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#F2EDE4',
+                marginBottom: '16px',
+                display: 'block',
+              }}>
+                Additional Context (Optional)
+              </label>
+              <textarea
+                value={additionalContext}
+                onChange={(e) => setAdditionalContext(e.target.value)}
+                placeholder="Tell us about your team's needs, playoff outlook, concerns about this specific trade, or anything else that might help the expert provide better advice."
+                rows={6}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  backgroundColor: '#0C0A07',
+                  border: '1px solid #2a261e',
+                  color: '#F2EDE4',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+          )}
 
           {/* Turnaround Message */}
           <p style={{
@@ -1615,11 +1699,19 @@ export default function SubmitPage() {
 
           {/* Submit Button */}
           {(() => {
+            // Calculate actual team count for Trade Finder validation
+            const actualNumTeams = selectedProfileId
+              ? leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
+              : numTeams
+
             const isDisabled = Boolean(
               submitting ||
-              submissionFiles.length === 0 ||
               (userId && !selectedProfileId && !showNewProfileForm) ||
-              (serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster))
+              (serviceType !== 'accept_decline' && submissionFiles.length === 0) ||
+              (serviceType === 'trade_finder' && submissionFiles.length !== actualNumTeams) ||
+              (serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster)) ||
+              (serviceType === 'trade_finder' && !tradeFinderContext.trim()) ||
+              (smsOptIn && !phoneNumber)
             )
 
             return (
