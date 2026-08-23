@@ -112,13 +112,15 @@ export default function SubmitPage() {
   }, [supabase, router])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => ({
+    const newFiles = acceptedFiles.map((file, index) => ({
       file,
-      label: '',
+      label: serviceType === 'trade_finder'
+        ? `Team ${submissionFiles.length + index + 1}`
+        : '',
       isOwnRoster: false
     }))
     setSubmissionFiles(prev => [...prev, ...newFiles])
-  }, [])
+  }, [serviceType, submissionFiles.length])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -144,6 +146,12 @@ export default function SubmitPage() {
     e.preventDefault()
 
     if (!userId) return
+
+    // Validate required fields
+    if (!leagueName.trim() || !platform || !scoringFormat || !leagueType) {
+      setError('Please fill in all required league fields')
+      return
+    }
 
     setError(null)
 
@@ -526,7 +534,7 @@ export default function SubmitPage() {
                   marginBottom: '16px',
                   display: 'block',
                 }}>
-                  Select League *
+                  Select League * (Required)
                 </label>
                 <select
                   value={selectedProfileId}
@@ -578,7 +586,7 @@ export default function SubmitPage() {
                       marginBottom: '8px',
                       display: 'block',
                     }}>
-                      League Name *
+                      League Name * (Required)
                     </label>
                     <input
                       type="text"
@@ -795,75 +803,77 @@ export default function SubmitPage() {
               2. Trade Details
             </h2>
 
-            {/* Offer Direction */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                color: '#F2EDE4',
-                marginBottom: '16px',
-                display: 'block',
-              }}>
-                Who Proposed This Trade? *
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div
-                  onClick={() => setOfferDirection('received')}
-                  style={{
-                    border: offerDirection === 'received' ? '2px solid #C9A84C' : '2px solid #2a261e',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    backgroundColor: offerDirection === 'received' ? '#1a1710' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    border: offerDirection === 'received' ? '6px solid #C9A84C' : '2px solid #2a261e',
-                    marginRight: '12px',
-                  }} />
-                  <span style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                    color: '#F2EDE4',
-                  }}>
-                    I received this offer
-                  </span>
-                </div>
+            {/* Offer Direction - hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && (
+              <div style={{ marginBottom: '32px' }}>
+                <label style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#F2EDE4',
+                  marginBottom: '16px',
+                  display: 'block',
+                }}>
+                  Who Proposed This Trade? *
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div
+                    onClick={() => setOfferDirection('received')}
+                    style={{
+                      border: offerDirection === 'received' ? '2px solid #C9A84C' : '2px solid #2a261e',
+                      padding: '16px',
+                      cursor: 'pointer',
+                      backgroundColor: offerDirection === 'received' ? '#1a1710' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      border: offerDirection === 'received' ? '6px solid #C9A84C' : '2px solid #2a261e',
+                      marginRight: '12px',
+                    }} />
+                    <span style={{
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      color: '#F2EDE4',
+                    }}>
+                      I received this offer
+                    </span>
+                  </div>
 
-                <div
-                  onClick={() => setOfferDirection('proposed')}
-                  style={{
-                    border: offerDirection === 'proposed' ? '2px solid #C9A84C' : '2px solid #2a261e',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    backgroundColor: offerDirection === 'proposed' ? '#1a1710' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    border: offerDirection === 'proposed' ? '6px solid #C9A84C' : '2px solid #2a261e',
-                    marginRight: '12px',
-                  }} />
-                  <span style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '1rem',
-                    color: '#F2EDE4',
-                  }}>
-                    I&apos;m proposing this offer
-                  </span>
+                  <div
+                    onClick={() => setOfferDirection('proposed')}
+                    style={{
+                      border: offerDirection === 'proposed' ? '2px solid #C9A84C' : '2px solid #2a261e',
+                      padding: '16px',
+                      cursor: 'pointer',
+                      backgroundColor: offerDirection === 'proposed' ? '#1a1710' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      border: offerDirection === 'proposed' ? '6px solid #C9A84C' : '2px solid #2a261e',
+                      marginRight: '12px',
+                    }} />
+                    <span style={{
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '1rem',
+                      color: '#F2EDE4',
+                    }}>
+                      I&apos;m proposing this offer
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Rate Tier */}
             <div style={{ marginBottom: '32px' }}>
@@ -969,7 +979,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Receive (Players)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They're Offering You (Players)"
+                    : "You Receive (Players)"}
                 </label>
                 <textarea
                   value={receivePlayers}
@@ -999,7 +1011,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Give (Players)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They Want in Return (Players)"
+                    : "You Give (Players)"}
                 </label>
                 <textarea
                   value={givePlayers}
@@ -1032,7 +1046,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Receive (Picks)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They're Offering You (Picks)"
+                    : "You Receive (Picks)"}
                 </label>
                 <textarea
                   value={receivePicks}
@@ -1062,7 +1078,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Give (Picks)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They Want in Return (Picks)"
+                    : "You Give (Picks)"}
                 </label>
                 <textarea
                   value={givePicks}
@@ -1095,7 +1113,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Receive (FAAB/Waiver Budget)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They're Offering You (FAAB/Waiver Budget)"
+                    : "You Receive (FAAB/Waiver Budget)"}
                 </label>
                 <input
                   type="number"
@@ -1125,7 +1145,9 @@ export default function SubmitPage() {
                   marginBottom: '8px',
                   display: 'block',
                 }}>
-                  You Give (FAAB/Waiver Budget)
+                  {serviceType === 'counter_offer' || serviceType === 'bundle'
+                    ? "What They Want in Return (FAAB/Waiver Budget)"
+                    : "You Give (FAAB/Waiver Budget)"}
                 </label>
                 <input
                   type="number"
@@ -1166,7 +1188,9 @@ export default function SubmitPage() {
               marginBottom: '24px',
               lineHeight: '1.6',
             }}>
-              Upload screenshots of your roster and your opponent&apos;s roster. This helps the expert understand your team needs and provide better advice.
+              {serviceType === 'trade_finder'
+                ? "Upload a screenshot of every roster in your league, including your own. Label each one so your expert knows which team is which."
+                : "Upload screenshots of your roster and your opponent's roster. This helps the expert understand your team needs and provide better advice."}
             </p>
 
             <div
@@ -1245,7 +1269,9 @@ export default function SubmitPage() {
                         type="text"
                         value={file.label}
                         onChange={(e) => updateFileLabel(index, e.target.value)}
-                        placeholder="Optional label (e.g., 'My Roster', 'Opponent Roster')"
+                        placeholder={serviceType === 'trade_finder'
+                          ? "e.g., 'Team Name' or 'Manager Name'"
+                          : "Optional label (e.g., 'My Roster', 'Opponent Roster')"}
                         style={{
                           flex: 1,
                           padding: '8px 12px',
@@ -1277,6 +1303,41 @@ export default function SubmitPage() {
                     </div>
                   </div>
                 ))}
+
+                {/* Progress indicator for Trade Finder */}
+                {serviceType === 'trade_finder' && selectedProfileId && (
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px 16px',
+                    backgroundColor: '#1a1710',
+                    border: '1px solid #2a261e',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    color: '#F2EDE4',
+                  }}>
+                    <strong>{submissionFiles.length} of {numTeams} rosters uploaded</strong>
+                    {submissionFiles.length < numTeams && (
+                      <span style={{ color: '#6b6457', marginLeft: '8px' }}>
+                        ({numTeams - submissionFiles.length} remaining)
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Trade Finder validation message */}
+                {serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster) && (
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px 16px',
+                    backgroundColor: '#2a1a0a',
+                    border: '1px solid #C9A84C',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    color: '#C9A84C',
+                  }}>
+                    ⚠ Please mark which roster is yours before submitting.
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1404,12 +1465,14 @@ export default function SubmitPage() {
               marginBottom: '16px',
               display: 'block',
             }}>
-              Anything Else the Expert Should Know?
+              Additional Context (Optional)
             </label>
             <textarea
               value={additionalContext}
               onChange={(e) => setAdditionalContext(e.target.value)}
-              placeholder="Tell us about your team's needs, playoff outlook, concerns about this specific trade, or anything else that might help the expert provide better advice."
+              placeholder={serviceType === 'trade_finder'
+                ? "Include any details that could help your expert find the best possible trade — previous trade discussions (and with whom), untouchable players on either side, specific managers' trade tendencies, or anything else relevant."
+                : "Tell us about your team's needs, playoff outlook, concerns about this specific trade, or anything else that might help the expert provide better advice."}
               rows={6}
               style={{
                 width: '100%',
@@ -1436,25 +1499,36 @@ export default function SubmitPage() {
           </p>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={Boolean(submitting || submissionFiles.length === 0 || (userId && !selectedProfileId && !showNewProfileForm))}
-            style={{
-              fontFamily: 'var(--font-dm-sans)',
-              width: '100%',
-              padding: '20px',
-              backgroundColor: submitting || submissionFiles.length === 0 ? '#2a261e' : '#C9A84C',
-              color: submitting || submissionFiles.length === 0 ? '#6b6457' : '#0C0A07',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontSize: '1rem',
-              border: 'none',
-              cursor: submitting || submissionFiles.length === 0 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {submitting ? 'Submitting...' : !userId ? 'Sign In to Submit' : 'Submit Trade for Evaluation'}
-          </button>
+          {(() => {
+            const isDisabled = Boolean(
+              submitting ||
+              submissionFiles.length === 0 ||
+              (userId && !selectedProfileId && !showNewProfileForm) ||
+              (serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster))
+            )
+
+            return (
+              <button
+                type="submit"
+                disabled={isDisabled}
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  width: '100%',
+                  padding: '20px',
+                  backgroundColor: isDisabled ? '#2a261e' : '#C9A84C',
+                  color: isDisabled ? '#6b6457' : '#0C0A07',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '1rem',
+                  border: 'none',
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {submitting ? 'Submitting...' : !userId ? 'Sign In to Submit' : 'Submit Trade for Evaluation'}
+              </button>
+            )
+          })()}
         </form>
       </div>
     </div>
