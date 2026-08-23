@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 interface CreditsByServiceType {
@@ -13,59 +11,14 @@ interface CreditsByServiceType {
 
 interface CreditSummaryProps {
   userId: string | null
+  credits: CreditsByServiceType | null
+  creditsLoading: boolean
   selectedServiceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
   onServiceTypeChange: (serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder') => void
 }
 
-export default function CreditSummary({ userId, selectedServiceType, onServiceTypeChange }: CreditSummaryProps) {
-  const [credits, setCredits] = useState<CreditsByServiceType | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    async function fetchCredits() {
-      if (!userId) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        // Fetch all active bundles for this user
-        const { data: bundles, error } = await supabase
-          .from('bundles')
-          .select('service_type, credits_remaining')
-          .eq('user_id', userId)
-          .gt('credits_remaining', 0)
-          .gt('expires_at', new Date().toISOString())
-
-        if (error) throw error
-
-        // Aggregate credits by service type
-        const creditsByType: CreditsByServiceType = {
-          accept_decline: 0,
-          counter_offer: 0,
-          bundle: 0,
-          trade_finder: 0,
-        }
-
-        bundles?.forEach(bundle => {
-          if (bundle.service_type in creditsByType) {
-            creditsByType[bundle.service_type as keyof CreditsByServiceType] += bundle.credits_remaining
-          }
-        })
-
-        setCredits(creditsByType)
-      } catch (error) {
-        console.error('Error fetching credits:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchCredits()
-  }, [userId, supabase])
-
-  if (loading) {
+export default function CreditSummary({ userId, credits, creditsLoading, selectedServiceType, onServiceTypeChange }: CreditSummaryProps) {
+  if (creditsLoading) {
     return (
       <div style={{
         padding: '32px',
@@ -131,8 +84,17 @@ export default function CreditSummary({ userId, selectedServiceType, onServiceTy
     type => credits[type] > 0
   )
 
-  // No credits at all
+  const serviceTypeLabels: Record<keyof CreditsByServiceType, string> = {
+    accept_decline: 'Accept/Decline',
+    counter_offer: 'Counter Offer',
+    bundle: 'Accept/Decline + Bonus',
+    trade_finder: 'Trade Finder',
+  }
+
+  // No credits at all - show service type picker
   if (totalCredits === 0) {
+    const allServiceTypes: Array<keyof CreditsByServiceType> = ['accept_decline', 'counter_offer', 'bundle', 'trade_finder']
+
     return (
       <div style={{
         padding: '32px',
@@ -140,40 +102,84 @@ export default function CreditSummary({ userId, selectedServiceType, onServiceTy
         border: '2px solid #C9A84C',
         marginBottom: '48px',
       }}>
-        <p style={{
+        <h2 style={{
+          fontFamily: 'var(--font-playfair)',
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: '#C9A84C',
+          marginBottom: '24px',
+        }}>
+          Select Service Type
+        </h2>
+
+        <label style={{
           fontFamily: 'var(--font-dm-sans)',
-          fontSize: '1rem',
+          fontSize: '0.875rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
           color: '#F2EDE4',
           marginBottom: '16px',
+          display: 'block',
         }}>
-          You don&apos;t have any credits. Get started on the pricing page.
+          Choose Your Service Type *
+        </label>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {allServiceTypes.map(serviceType => (
+            <div
+              key={serviceType}
+              onClick={() => onServiceTypeChange(serviceType)}
+              style={{
+                border: selectedServiceType === serviceType ? '2px solid #C9A84C' : '2px solid #2a261e',
+                padding: '16px',
+                cursor: 'pointer',
+                backgroundColor: selectedServiceType === serviceType ? '#0C0A07' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                border: selectedServiceType === serviceType ? '6px solid #C9A84C' : '2px solid #2a261e',
+                marginRight: '12px',
+              }} />
+              <span style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                color: '#F2EDE4',
+              }}>
+                {serviceTypeLabels[serviceType]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          color: '#6b6457',
+          marginTop: '16px',
+        }}>
+          You don&apos;t have any credits yet — select a service type above, and you&apos;ll be prompted to purchase when you submit.
         </p>
-        <Link
-          href="/pricing"
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            fontFamily: 'var(--font-dm-sans)',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: '#0C0A07',
-            backgroundColor: '#C9A84C',
-            textDecoration: 'none',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-          }}
-        >
-          View Pricing
-        </Link>
+
+        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #2a261e' }}>
+          <Link
+            href="/pricing"
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#C9A84C',
+              textDecoration: 'none',
+            }}
+          >
+            View pricing details →
+          </Link>
+        </div>
       </div>
     )
-  }
-
-  const serviceTypeLabels: Record<keyof CreditsByServiceType, string> = {
-    accept_decline: 'Accept/Decline',
-    counter_offer: 'Counter Offer',
-    bundle: 'Accept/Decline + Bonus',
-    trade_finder: 'Trade Finder',
   }
 
   // Has credits - show summary and selector if multiple types available

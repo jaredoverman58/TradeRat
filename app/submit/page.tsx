@@ -7,6 +7,8 @@ import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import WaitlistScreen from './WaitlistScreen'
 import CreditSummary from './CreditSummary'
+import BuyConfirmationModal from '@/components/BuyConfirmationModal'
+import { BUNDLES } from '@/lib/bundles'
 
 type LeagueProfile = {
   id: string
@@ -42,6 +44,25 @@ export default function SubmitPage() {
   const [scoringFormat, setScoringFormat] = useState('')
   const [numTeams, setNumTeams] = useState<number>(12)
   const [leagueType, setLeagueType] = useState('')
+
+  // Credit state (lifted from CreditSummary)
+  interface CreditsByServiceType {
+    accept_decline: number
+    counter_offer: number
+    bundle: number
+    trade_finder: number
+  }
+  const [credits, setCredits] = useState<CreditsByServiceType | null>(null)
+  const [creditsLoading, setCreditsLoading] = useState(true)
+
+  // Buy modal state
+  const [showBuyModal, setShowBuyModal] = useState(false)
+  const [pendingBundle, setPendingBundle] = useState<{
+    serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
+    tier: 'standard' | 'rat'
+    price: number
+    name: string
+  } | null>(null)
 
   // Trade details form
   const [serviceType, setServiceType] = useState<'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'>('accept_decline')
@@ -82,10 +103,40 @@ export default function SubmitPage() {
       // Login will be required when actually submitting
       if (!user) {
         setLoading(false)
+        setCreditsLoading(false)
         return
       }
 
       setUserId(user.id)
+
+      // Fetch credits for this user
+      const { data: bundles, error: bundlesError } = await supabase
+        .from('bundles')
+        .select('service_type, credits_remaining')
+        .eq('user_id', user.id)
+        .gt('credits_remaining', 0)
+        .gt('expires_at', new Date().toISOString())
+
+      if (bundlesError) {
+        console.error('Error fetching credits:', bundlesError)
+      } else {
+        // Aggregate credits by service type
+        const creditsByType: CreditsByServiceType = {
+          accept_decline: 0,
+          counter_offer: 0,
+          bundle: 0,
+          trade_finder: 0,
+        }
+
+        bundles?.forEach(bundle => {
+          if (bundle.service_type in creditsByType) {
+            creditsByType[bundle.service_type as keyof CreditsByServiceType] += bundle.credits_remaining
+          }
+        })
+
+        setCredits(creditsByType)
+      }
+      setCreditsLoading(false)
 
       // Load league profiles
       const { data: profiles, error: profilesError } = await supabase
@@ -265,7 +316,6 @@ export default function SubmitPage() {
 
     // Require login for actual submission
     if (!userId) {
-      // Store the form state in sessionStorage so user can resume after login
       sessionStorage.setItem('pendingSubmission', JSON.stringify({
         selectedProfileId,
         offerDirection,
@@ -292,13 +342,23 @@ export default function SubmitPage() {
       return
     }
 
-    // Validate SMS opt-in: if checkbox is checked, phone number is required
     if (smsOptIn && !phoneNumber) {
       setError('Please enter a phone number to receive SMS notifications, or uncheck the SMS opt-in box')
       return
     }
 
     setError(null)
+
+    // PRE-SUBMISSION CREDIT CHECK
+    if (!credits || credits[serviceType] === 0) {
+      // User doesn't have credits for this service type - show purchase modal
+      const bundleInfo = getSingleBundleForServiceType(serviceType, rateTier)
+      setPendingBundle(bundleInfo)
+      setShowBuyModal(true)
+      return // Don't proceed with submission
+    }
+
+    // User HAS credits - proceed with submission
     setSubmitting(true)
 
     // Check capacity before proceeding
@@ -317,7 +377,6 @@ export default function SubmitPage() {
 
         if (phoneUpdateError) {
           console.warn('Failed to update phone number:', phoneUpdateError)
-          // Don't block submission if phone update fails
         }
       }
 
@@ -358,13 +417,11 @@ export default function SubmitPage() {
           throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`)
         }
 
-        // Store the file path (not URL) in the database
-        // Signed URLs will be generated when viewing the file
         const { error: fileRecordError } = await supabase
           .from('submission_files')
           .insert({
             submission_id: submission.id,
-            file_url: fileName, // Store path instead of URL
+            file_url: fileName,
             file_type: file.type,
             label: label || null,
             is_own_roster: isOwnRoster
@@ -382,7 +439,6 @@ export default function SubmitPage() {
         .eq('id', submission.id)
 
       if (updateError) {
-        // Check for the specific credit error from the trigger
         if (updateError.message.includes('No available credits')) {
           throw new Error('No available credits for this submission. Please purchase a bundle first.')
         }
@@ -394,6 +450,63 @@ export default function SubmitPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setSubmitting(false)
+    }
+  }
+
+  // Helper: Map service type + rate tier to single-purchase bundle info
+  function getSingleBundleForServiceType(
+    svcType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder',
+    tier: 'standard' | 'rat_rate'
+  ) {
+    const tierKey = tier === 'rat_rate' ? 'rat' : 'standard'
+
+    // Map to BUNDLES constants
+    if (svcType === 'accept_decline') {
+      const bundle = tier === 'rat_rate' ? BUNDLES.ACCEPT_DECLINE_RAT_RATE : BUNDLES.ACCEPT_DECLINE_STANDARD
+      return {
+        serviceType: svcType,
+        tier: tierKey as 'standard' | 'rat',
+        price: bundle.price,
+        name: bundle.name,
+      }
+    }
+
+    if (svcType === 'counter_offer') {
+      const bundle = tier === 'rat_rate' ? BUNDLES.COUNTER_OFFER_RAT_RATE : BUNDLES.COUNTER_OFFER_STANDARD
+      return {
+        serviceType: svcType,
+        tier: tierKey as 'standard' | 'rat',
+        price: bundle.price,
+        name: bundle.name,
+      }
+    }
+
+    if (svcType === 'bundle') {
+      const bundle = tier === 'rat_rate' ? BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE : BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD
+      return {
+        serviceType: svcType,
+        tier: tierKey as 'standard' | 'rat',
+        price: bundle.price,
+        name: bundle.name,
+      }
+    }
+
+    // trade_finder - actual pricing: $14.99 Standard / $19.99 Rat Rate
+    if (svcType === 'trade_finder') {
+      return {
+        serviceType: svcType,
+        tier: tierKey as 'standard' | 'rat',
+        price: tier === 'rat_rate' ? 19.99 : 14.99,
+        name: tier === 'rat_rate' ? 'Single Finder Premium' : 'Single Finder',
+      }
+    }
+
+    // Fallback
+    return {
+      serviceType: svcType,
+      tier: tierKey as 'standard' | 'rat',
+      price: 4.99,
+      name: 'Single Purchase',
     }
   }
 
@@ -507,6 +620,8 @@ export default function SubmitPage() {
           {/* Credit Summary - MUST BE FIRST */}
           <CreditSummary
             userId={userId}
+            credits={credits}
+            creditsLoading={creditsLoading}
             selectedServiceType={serviceType}
             onServiceTypeChange={setServiceType}
           />
@@ -1530,6 +1645,24 @@ export default function SubmitPage() {
             )
           })()}
         </form>
+
+        {/* Buy Confirmation Modal */}
+        {showBuyModal && pendingBundle && (
+          <BuyConfirmationModal
+            variant="pricing"
+            serviceType={pendingBundle.serviceType}
+            tier={pendingBundle.tier}
+            price={pendingBundle.price}
+            credits={1}
+            name={pendingBundle.name}
+            onConfirm={() => {
+              console.log('Purchase flow triggered for:', pendingBundle)
+              alert(`Purchase flow will be implemented next. Service: ${pendingBundle.name}, Price: $${pendingBundle.price}`)
+              setShowBuyModal(false)
+            }}
+            onCancel={() => setShowBuyModal(false)}
+          />
+        )}
       </div>
     </div>
   )
