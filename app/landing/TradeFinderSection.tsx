@@ -125,10 +125,14 @@ export default function TradeFinderSection() {
             href="/article/why-the-rat-sees-what-algorithms-miss"
             style={{
               fontFamily: 'var(--font-dm-sans)',
-              fontSize: '0.875rem',
+              fontSize: '1rem',
+              fontWeight: 600,
               color: '#C9A84C',
               textDecoration: 'none',
               display: 'inline-block',
+              padding: '12px 24px',
+              border: '1px solid #C9A84C',
+              transition: 'all 0.2s ease',
             }}
           >
             Read: Why The Rat Sees What Algorithms Miss →
