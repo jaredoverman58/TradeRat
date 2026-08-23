@@ -76,6 +76,8 @@ export default function SubmitPage() {
   const [fabGive, setFabGive] = useState('')
   const [tradeFinderContext, setTradeFinderContext] = useState('')
   const [additionalContext, setAdditionalContext] = useState('')
+  const [showPicks, setShowPicks] = useState(false)
+  const [showFaab, setShowFaab] = useState(false)
 
   // SMS notification opt-in state
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -1072,6 +1074,32 @@ export default function SubmitPage() {
               </div>
             </div>
 
+            {/* Intro Text - only for non-Trade Finder services */}
+            {serviceType !== 'trade_finder' && (
+              <div style={{
+                marginBottom: '32px',
+                paddingTop: '32px',
+                borderTop: '1px solid #2a261e',
+              }}>
+                <div style={{
+                  backgroundColor: '#1a1710',
+                  border: '1px solid #C9A84C',
+                  padding: '20px',
+                }}>
+                  <p style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    color: '#C9A84C',
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}>
+                    Every trade needs at least one item on each side — players, picks, or FAAB. Fill in what applies; leave the rest blank.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Trade Finder Context - only for Trade Finder, required */}
             {serviceType === 'trade_finder' && (
               <div style={{ marginBottom: '32px' }}>
@@ -1108,75 +1136,160 @@ export default function SubmitPage() {
 
             {/* Players - hidden for Trade Finder */}
             {serviceType !== 'trade_finder' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.875rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: '#F2EDE4',
-                    marginBottom: '8px',
-                    display: 'block',
-                  }}>
-                    {serviceType === 'counter_offer' || serviceType === 'bundle'
-                      ? "What They're Offering You (Players)"
-                      : "You Receive (Players)"}
-                  </label>
-                  <textarea
-                    value={receivePlayers}
-                    onChange={(e) => setReceivePlayers(e.target.value)}
-                    placeholder="e.g., Christian McCaffrey, Davante Adams"
-                    rows={3}
-                    style={{
-                      width: '100%',
-                      padding: '16px',
-                      backgroundColor: '#0C0A07',
-                      border: '1px solid #2a261e',
-                      color: '#F2EDE4',
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                  <div>
+                    <label style={{
                       fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '1rem',
-                      resize: 'vertical',
-                    }}
-                  />
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      color: '#F2EDE4',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}>
+                      {serviceType === 'counter_offer' || serviceType === 'bundle'
+                        ? "What They're Offering You (Players)"
+                        : "You Receive (Players)"}
+                    </label>
+                    <textarea
+                      value={receivePlayers}
+                      onChange={(e) => setReceivePlayers(e.target.value)}
+                      placeholder="e.g., Christian McCaffrey, Davante Adams"
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        backgroundColor: '#0C0A07',
+                        border: '1px solid #2a261e',
+                        color: '#F2EDE4',
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '1rem',
+                        resize: 'vertical',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      color: '#F2EDE4',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}>
+                      {serviceType === 'counter_offer' || serviceType === 'bundle'
+                        ? "What They Want in Return (Players)"
+                        : "You Give (Players)"}
+                    </label>
+                    <textarea
+                      value={givePlayers}
+                      onChange={(e) => setGivePlayers(e.target.value)}
+                      placeholder="e.g., Justin Jefferson, Joe Mixon"
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        backgroundColor: '#0C0A07',
+                        border: '1px solid #2a261e',
+                        color: '#F2EDE4',
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '1rem',
+                        resize: 'vertical',
+                      }}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.875rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: '#F2EDE4',
-                    marginBottom: '8px',
-                    display: 'block',
-                  }}>
-                    {serviceType === 'counter_offer' || serviceType === 'bundle'
-                      ? "What They Want in Return (Players)"
-                      : "You Give (Players)"}
-                  </label>
-                  <textarea
-                    value={givePlayers}
-                    onChange={(e) => setGivePlayers(e.target.value)}
-                    placeholder="e.g., Justin Jefferson, Joe Mixon"
-                    rows={3}
-                    style={{
-                      width: '100%',
-                      padding: '16px',
-                      backgroundColor: '#0C0A07',
-                      border: '1px solid #2a261e',
-                      color: '#F2EDE4',
-                      fontFamily: 'var(--font-dm-sans)',
-                      fontSize: '1rem',
-                      resize: 'vertical',
-                    }}
-                  />
+                {/* Toggle Links */}
+                <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
+                  {!showPicks ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowPicks(true)}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#C9A84C',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      + Add Draft Picks
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPicks(false)
+                        setReceivePicks('')
+                        setGivePicks('')
+                      }}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#C9A84C',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      − Remove Draft Picks
+                    </button>
+                  )}
+
+                  {!showFaab ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowFaab(true)}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#C9A84C',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      + Add FAAB / Waiver Budget
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowFaab(false)
+                        setFabReceive('')
+                        setFabGive('')
+                      }}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#C9A84C',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      − Remove FAAB / Waiver Budget
+                    </button>
+                  )}
                 </div>
-              </div>
+              </>
             )}
 
-            {/* Picks - hidden for Trade Finder */}
-            {serviceType !== 'trade_finder' && (
+            {/* Picks - conditional on showPicks, hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && showPicks && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{
@@ -1244,8 +1357,8 @@ export default function SubmitPage() {
               </div>
             )}
 
-            {/* FAAB - hidden for Trade Finder */}
-            {serviceType !== 'trade_finder' && (
+            {/* FAAB - conditional on showFaab, hidden for Trade Finder */}
+            {serviceType !== 'trade_finder' && showFaab && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{
@@ -1704,6 +1817,11 @@ export default function SubmitPage() {
               ? leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
               : numTeams
 
+            // Trade details validation for non-Trade Finder services
+            const hasReceiveItem = receivePlayers.trim() || receivePicks.trim() || (fabReceive && fabReceive.trim())
+            const hasGiveItem = givePlayers.trim() || givePicks.trim() || (fabGive && fabGive.trim())
+            const tradeDetailsInvalid = (serviceType !== 'trade_finder') && (!hasReceiveItem || !hasGiveItem)
+
             const isDisabled = Boolean(
               submitting ||
               (userId && !selectedProfileId && !showNewProfileForm) ||
@@ -1711,7 +1829,8 @@ export default function SubmitPage() {
               (serviceType === 'trade_finder' && submissionFiles.length !== actualNumTeams) ||
               (serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster)) ||
               (serviceType === 'trade_finder' && !tradeFinderContext.trim()) ||
-              (smsOptIn && !phoneNumber)
+              (smsOptIn && !phoneNumber) ||
+              tradeDetailsInvalid
             )
 
             return (
