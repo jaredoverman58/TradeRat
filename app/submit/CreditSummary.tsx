@@ -15,9 +15,12 @@ interface CreditSummaryProps {
   creditsLoading: boolean
   selectedServiceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
   onServiceTypeChange: (serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder') => void
+  hasFreeEval: boolean
+  usingFreeEval: boolean
+  onUsingFreeEvalChange: (using: boolean) => void
 }
 
-export default function CreditSummary({ userId, credits, creditsLoading, selectedServiceType, onServiceTypeChange }: CreditSummaryProps) {
+export default function CreditSummary({ userId, credits, creditsLoading, selectedServiceType, onServiceTypeChange, hasFreeEval, usingFreeEval, onUsingFreeEvalChange }: CreditSummaryProps) {
   if (creditsLoading) {
     return (
       <div style={{
@@ -125,15 +128,63 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
         </label>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Free Evaluation Option - if available */}
+          {hasFreeEval && (
+            <div
+              onClick={() => {
+                onUsingFreeEvalChange(true)
+                onServiceTypeChange('accept_decline')
+              }}
+              style={{
+                border: usingFreeEval ? '2px solid #C9A84C' : '2px solid #C9A84C',
+                padding: '16px',
+                cursor: 'pointer',
+                backgroundColor: usingFreeEval ? '#2a2310' : '#1a1710',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  border: usingFreeEval ? '6px solid #C9A84C' : '2px solid #C9A84C',
+                  marginRight: '12px',
+                }} />
+                <span style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '1rem',
+                  color: '#F2EDE4',
+                  fontWeight: 600,
+                }}>
+                  Free Evaluation
+                </span>
+              </div>
+              <span style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#C9A84C',
+                fontWeight: 600,
+              }}>
+                1 available
+              </span>
+            </div>
+          )}
+
           {allServiceTypes.map(serviceType => (
             <div
               key={serviceType}
-              onClick={() => onServiceTypeChange(serviceType)}
+              onClick={() => {
+                onUsingFreeEvalChange(false)
+                onServiceTypeChange(serviceType)
+              }}
               style={{
-                border: selectedServiceType === serviceType ? '2px solid #C9A84C' : '2px solid #2a261e',
+                border: (!usingFreeEval && selectedServiceType === serviceType) ? '2px solid #C9A84C' : '2px solid #2a261e',
                 padding: '16px',
                 cursor: 'pointer',
-                backgroundColor: selectedServiceType === serviceType ? '#0C0A07' : 'transparent',
+                backgroundColor: (!usingFreeEval && selectedServiceType === serviceType) ? '#0C0A07' : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
               }}
@@ -142,7 +193,7 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
                 width: '20px',
                 height: '20px',
                 borderRadius: '50%',
-                border: selectedServiceType === serviceType ? '6px solid #C9A84C' : '2px solid #2a261e',
+                border: (!usingFreeEval && selectedServiceType === serviceType) ? '6px solid #C9A84C' : '2px solid #2a261e',
                 marginRight: '12px',
               }} />
               <span style={{
@@ -218,8 +269,8 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
         </div>
       ))}
 
-      {/* Service type selector if multiple types available */}
-      {availableServiceTypes.length > 1 ? (
+      {/* Service type selector if multiple types available OR free eval exists */}
+      {(availableServiceTypes.length > 1 || hasFreeEval) ? (
         <div style={{ marginTop: '24px' }}>
           <label style={{
             fontFamily: 'var(--font-dm-sans)',
@@ -233,15 +284,18 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
             Select Service Type for This Submission *
           </label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {availableServiceTypes.map(serviceType => (
+            {/* Free Evaluation Option - if available */}
+            {hasFreeEval && (
               <div
-                key={serviceType}
-                onClick={() => onServiceTypeChange(serviceType)}
+                onClick={() => {
+                  onUsingFreeEvalChange(true)
+                  onServiceTypeChange('accept_decline')
+                }}
                 style={{
-                  border: selectedServiceType === serviceType ? '2px solid #C9A84C' : '2px solid #2a261e',
+                  border: usingFreeEval ? '2px solid #C9A84C' : '2px solid #C9A84C',
                   padding: '16px',
                   cursor: 'pointer',
-                  backgroundColor: selectedServiceType === serviceType ? '#0C0A07' : 'transparent',
+                  backgroundColor: usingFreeEval ? '#2a2310' : '#1a1710',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -252,7 +306,52 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
                     width: '20px',
                     height: '20px',
                     borderRadius: '50%',
-                    border: selectedServiceType === serviceType ? '6px solid #C9A84C' : '2px solid #2a261e',
+                    border: usingFreeEval ? '6px solid #C9A84C' : '2px solid #C9A84C',
+                    marginRight: '12px',
+                  }} />
+                  <span style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '1rem',
+                    color: '#F2EDE4',
+                    fontWeight: 600,
+                  }}>
+                    Free Evaluation
+                  </span>
+                </div>
+                <span style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  color: '#C9A84C',
+                  fontWeight: 600,
+                }}>
+                  1 available
+                </span>
+              </div>
+            )}
+
+            {availableServiceTypes.map(serviceType => (
+              <div
+                key={serviceType}
+                onClick={() => {
+                  onUsingFreeEvalChange(false)
+                  onServiceTypeChange(serviceType)
+                }}
+                style={{
+                  border: (!usingFreeEval && selectedServiceType === serviceType) ? '2px solid #C9A84C' : '2px solid #2a261e',
+                  padding: '16px',
+                  cursor: 'pointer',
+                  backgroundColor: (!usingFreeEval && selectedServiceType === serviceType) ? '#0C0A07' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    border: (!usingFreeEval && selectedServiceType === serviceType) ? '6px solid #C9A84C' : '2px solid #2a261e',
                     marginRight: '12px',
                   }} />
                   <span style={{
@@ -279,7 +378,9 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
             color: '#6b6457',
             marginTop: '12px',
           }}>
-            This submission will use 1 {serviceTypeLabels[selectedServiceType]} credit.
+            {usingFreeEval
+              ? 'This submission will use your free evaluation.'
+              : `This submission will use 1 ${serviceTypeLabels[selectedServiceType]} credit.`}
           </p>
         </div>
       ) : (
@@ -292,7 +393,9 @@ export default function CreditSummary({ userId, credits, creditsLoading, selecte
           paddingTop: '16px',
           borderTop: '1px solid #2a261e',
         }}>
-          This submission will use 1 {serviceTypeLabels[selectedServiceType]} credit.
+          {usingFreeEval
+            ? 'This submission will use your free evaluation.'
+            : `This submission will use 1 ${serviceTypeLabels[selectedServiceType]} credit.`}
         </p>
       )}
 

@@ -8,6 +8,7 @@ import Link from 'next/link'
 import WaitlistScreen from './WaitlistScreen'
 import CreditSummary from './CreditSummary'
 import BuyConfirmationModal from '@/components/BuyConfirmationModal'
+import FreeEvaluationConfirmationModal from '@/components/FreeEvaluationConfirmationModal'
 import { BUNDLES } from '@/lib/bundles'
 
 type LeagueProfile = {
@@ -54,9 +55,12 @@ export default function SubmitPage() {
   }
   const [credits, setCredits] = useState<CreditsByServiceType | null>(null)
   const [creditsLoading, setCreditsLoading] = useState(true)
+  const [hasFreeEval, setHasFreeEval] = useState(false)
+  const [usingFreeEval, setUsingFreeEval] = useState(false)
 
   // Buy modal state
   const [showBuyModal, setShowBuyModal] = useState(false)
+  const [showFreeEvalModal, setShowFreeEvalModal] = useState(false)
   const [pendingBundle, setPendingBundle] = useState<{
     serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
     tier: 'standard' | 'rat'
@@ -140,6 +144,22 @@ export default function SubmitPage() {
 
         setCredits(creditsByType)
       }
+
+      // Fetch free evaluation status
+      const { data: freeEval, error: freeEvalError } = await supabase
+        .from('free_evaluations')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (freeEvalError) {
+        console.error('Error fetching free evaluation:', freeEvalError)
+      } else {
+        // Check if free eval is available (not used and not expired)
+        const isFreeEvalAvailable = freeEval && !freeEval.used && (!freeEval.expires_at || new Date(freeEval.expires_at) > new Date())
+        setHasFreeEval(isFreeEvalAvailable)
+      }
+
       setCreditsLoading(false)
 
       // Load league profiles
@@ -313,47 +333,7 @@ export default function SubmitPage() {
     setSubmitting(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Require login for actual submission
-    if (!userId) {
-      sessionStorage.setItem('pendingSubmission', JSON.stringify({
-        selectedProfileId,
-        offerDirection,
-        rateTier,
-        receivePlayers,
-        givePlayers,
-        receivePicks,
-        givePicks,
-        fabReceive,
-        fabGive,
-        additionalContext,
-      }))
-      router.push('/login?redirect=/submit')
-      return
-    }
-
-    // PRE-SUBMISSION CREDIT CHECK
-    if (!credits || credits[serviceType] === 0) {
-      // User doesn't have credits for this service type - show purchase modal
-      const bundleInfo = getSingleBundleForServiceType(serviceType, rateTier)
-      setPendingBundle(bundleInfo)
-      setShowBuyModal(true)
-      return
-    }
-
-    setError(null)
-
-    // User HAS credits - proceed with submission
-    setSubmitting(true)
-
-    // Check capacity before proceeding
-    const capacityOk = await checkCapacityBeforeSubmit()
-    if (!capacityOk) {
-      return
-    }
-
+  const proceedWithSubmission = async () => {
     try {
       // Step 0: Update user's phone number if SMS opt-in is enabled
       if (phoneNumber && smsOptIn) {
@@ -443,6 +423,71 @@ export default function SubmitPage() {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setSubmitting(false)
     }
+  }
+
+  const handleFreeEvalConfirm = async () => {
+    setShowFreeEvalModal(false)
+    setError(null)
+    setSubmitting(true)
+
+    // Check capacity before proceeding
+    const capacityOk = await checkCapacityBeforeSubmit()
+    if (!capacityOk) {
+      return
+    }
+
+    // Proceed with submission (database trigger will handle marking free_evaluations.used = true)
+    await proceedWithSubmission()
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Require login for actual submission
+    if (!userId) {
+      sessionStorage.setItem('pendingSubmission', JSON.stringify({
+        selectedProfileId,
+        offerDirection,
+        rateTier,
+        receivePlayers,
+        givePlayers,
+        receivePicks,
+        givePicks,
+        fabReceive,
+        fabGive,
+        additionalContext,
+      }))
+      router.push('/login?redirect=/submit')
+      return
+    }
+
+    // FREE EVALUATION CHECK - handle before paid credit check
+    if (usingFreeEval) {
+      setShowFreeEvalModal(true)
+      return
+    }
+
+    // PRE-SUBMISSION CREDIT CHECK
+    if (!credits || credits[serviceType] === 0) {
+      // User doesn't have credits for this service type - show purchase modal
+      const bundleInfo = getSingleBundleForServiceType(serviceType, rateTier)
+      setPendingBundle(bundleInfo)
+      setShowBuyModal(true)
+      return
+    }
+
+    setError(null)
+
+    // User HAS credits - proceed with submission
+    setSubmitting(true)
+
+    // Check capacity before proceeding
+    const capacityOk = await checkCapacityBeforeSubmit()
+    if (!capacityOk) {
+      return
+    }
+
+    await proceedWithSubmission()
   }
 
   // Helper: Map service type + rate tier to single-purchase bundle info
@@ -616,6 +661,9 @@ export default function SubmitPage() {
             creditsLoading={creditsLoading}
             selectedServiceType={serviceType}
             onServiceTypeChange={setServiceType}
+            hasFreeEval={hasFreeEval}
+            usingFreeEval={usingFreeEval}
+            onUsingFreeEvalChange={setUsingFreeEval}
           />
 
           {/* Step 1: League Profile */}
@@ -1872,6 +1920,14 @@ export default function SubmitPage() {
               setShowBuyModal(false)
             }}
             onCancel={() => setShowBuyModal(false)}
+          />
+        )}
+
+        {/* Free Evaluation Confirmation Modal */}
+        {showFreeEvalModal && (
+          <FreeEvaluationConfirmationModal
+            onConfirm={handleFreeEvalConfirm}
+            onCancel={() => setShowFreeEvalModal(false)}
           />
         )}
       </div>
