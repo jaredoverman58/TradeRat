@@ -101,7 +101,7 @@ export default function FreeEvaluationConfirmationModal({
             Reasoning behind the analysis
           </li>
           <li style={{ marginBottom: '8px' }}>
-            Written response you can reference anytime
+            Written and/or audio response you can reference anytime
           </li>
         </ul>
 

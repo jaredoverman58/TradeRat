@@ -5,7 +5,7 @@ import BundlePurchaseButton from '@/app/dashboard/BundlePurchaseButton'
 
 export default function TradeFinderSection() {
   return (
-    <section style={{
+    <section id="trade-finder" style={{
       padding: '80px 24px',
       borderTop: '1px solid #2a261e',
     }}>

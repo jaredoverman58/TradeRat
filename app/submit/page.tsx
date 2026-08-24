@@ -186,6 +186,40 @@ export default function SubmitPage() {
     loadData()
   }, [supabase, router])
 
+  // Handle URL parameters (free_eval=true or service=X&tier=Y)
+  useEffect(() => {
+    // Only apply URL params after credits have loaded
+    if (creditsLoading) return
+
+    // Read URL parameters from window.location
+    const urlParams = new URLSearchParams(window.location.search)
+    const freeEvalParam = urlParams.get('free_eval')
+    const serviceParam = urlParams.get('service')
+    const tierParam = urlParams.get('tier')
+
+    // Handle free_eval=true parameter
+    if (freeEvalParam === 'true' && hasFreeEval) {
+      setUsingFreeEval(true)
+      setServiceType('accept_decline')
+    }
+    // Handle service=X&tier=Y parameters from paid credit buttons
+    else if (serviceParam && tierParam) {
+      const validServiceTypes = ['accept_decline', 'counter_offer', 'bundle', 'trade_finder']
+      const validTiers = ['standard', 'rat_rate']
+
+      if (validServiceTypes.includes(serviceParam) && validTiers.includes(tierParam)) {
+        const service = serviceParam as 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
+        const tier = tierParam as 'standard' | 'rat_rate'
+
+        // Only apply if user has credits for this service type
+        if (credits && credits[service] > 0) {
+          setServiceType(service)
+          setRateTier(tier)
+        }
+      }
+    }
+  }, [creditsLoading, hasFreeEval, credits])
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => ({
       file,

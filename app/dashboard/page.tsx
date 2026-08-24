@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import BuyThreePackButton from './BuyThreePackButton'
 import PurchaseMessage from './PurchaseMessage'
 import ProfileDropdown from './ProfileDropdown'
 import CollapsiblePurchases from './CollapsiblePurchases'
@@ -221,27 +220,54 @@ export default async function DashboardPage() {
               borderBottom: '1px solid #2a261e',
             }}>
               <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '8px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: '16px',
               }}>
-                Free Evaluation
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-playfair)',
-                fontSize: '3rem',
-                fontWeight: 900,
-                color: '#C9A84C',
-              }}>
-                1
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.75rem',
-                color: '#6b6457',
-              }}>
-                One-time credit • Accept/Decline evaluation
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    color: '#F2EDE4',
+                    marginBottom: '8px',
+                  }}>
+                    Free Evaluation
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-playfair)',
+                    fontSize: '3rem',
+                    fontWeight: 900,
+                    color: '#C9A84C',
+                  }}>
+                    1
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.75rem',
+                    color: '#6b6457',
+                  }}>
+                    One-time credit • Accept/Decline evaluation
+                  </div>
+                </div>
+                <Link
+                  href="/submit?free_eval=true"
+                  style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    padding: '8px 16px',
+                    backgroundColor: '#C9A84C',
+                    color: '#0C0A07',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontSize: '0.75rem',
+                    whiteSpace: 'nowrap',
+                    alignSelf: 'center',
+                  }}
+                >
+                  Use Now
+                </Link>
               </div>
             </div>
           )}
@@ -299,7 +325,7 @@ export default async function DashboardPage() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Submit Now
+                        Use Now
                       </Link>
                     </div>
                   ))}
@@ -321,7 +347,7 @@ export default async function DashboardPage() {
           )}
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Link
-              href="/submit"
+              href="/pricing"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '16px 40px',
@@ -335,26 +361,24 @@ export default async function DashboardPage() {
                 display: 'inline-block',
               }}
             >
-              Submit Trade Request
+              {hasFreeCredit || groupedServices.length > 0 ? 'Get More Credits' : 'Purchase Credits to Get Started'}
             </Link>
-            <BuyThreePackButton />
             <Link
-              href="/pricing"
+              href="/#trade-finder"
               style={{
                 fontFamily: 'var(--font-dm-sans)',
                 padding: '16px 40px',
-                backgroundColor: 'transparent',
-                color: '#6b6457',
+                backgroundColor: '#C9A84C',
+                color: '#0C0A07',
                 fontWeight: 600,
                 textDecoration: 'none',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 fontSize: '0.875rem',
-                border: '1px solid #C9A84C',
                 display: 'inline-block',
               }}
             >
-              View All Pricing
+              Go Big — Try Trade Finder
             </Link>
           </div>
         </div>
