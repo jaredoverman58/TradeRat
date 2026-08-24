@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   try {
     // Parse request body for bundle configuration
     const body = await request.json()
-    const { bundle_type, service_type, price, name, description, credits } = body
+    const { bundle_type, service_type, price, name, description, credits, return_to } = body
 
     // Validate required fields
     if (!bundle_type || !service_type || !price || !name || !description || credits === undefined) {
@@ -33,6 +33,15 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    // Determine success/cancel URLs based on return_to parameter
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+    const successUrl = return_to === 'submit'
+      ? `${baseUrl}/submit?purchase=success`
+      : `${baseUrl}/dashboard?purchase=success`
+    const cancelUrl = return_to === 'submit'
+      ? `${baseUrl}/submit?purchase=cancelled`
+      : `${baseUrl}/dashboard?purchase=cancelled`
 
     // Get or create Stripe customer
     let customerId: string | null = null
@@ -79,8 +88,8 @@ export async function POST(request: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?purchase=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?purchase=cancelled`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       metadata: {
         supabase_user_id: user.id,
         bundle_type,

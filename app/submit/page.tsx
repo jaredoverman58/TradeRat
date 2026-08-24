@@ -99,6 +99,7 @@ export default function SubmitPage() {
   // Form state
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // Capacity and waitlist state
   const [showWaitlist, setShowWaitlist] = useState(false)
@@ -190,6 +191,62 @@ export default function SubmitPage() {
 
     loadData()
   }, [supabase, router])
+
+  // Restore form data from sessionStorage (after login or checkout redirect)
+  useEffect(() => {
+    // Wait until initial data load is complete
+    if (loading || creditsLoading) return
+
+    const saved = sessionStorage.getItem('pendingSubmission')
+    if (!saved) return
+
+    try {
+      const data = JSON.parse(saved)
+
+      // Restore scalar fields
+      if (data.selectedProfileId) setSelectedProfileId(data.selectedProfileId)
+      if (data.serviceType) setServiceType(data.serviceType)
+      if (data.offerDirection) setOfferDirection(data.offerDirection)
+      if (data.rateTier) setRateTier(data.rateTier)
+      setReceivePlayers(data.receivePlayers || '')
+      setGivePlayers(data.givePlayers || '')
+      setReceivePicks(data.receivePicks || '')
+      setGivePicks(data.givePicks || '')
+      setFabReceive(data.fabReceive || '')
+      setFabGive(data.fabGive || '')
+      setTradeFinderContext(data.tradeFinderContext || '')
+      setAdditionalContext(data.additionalContext || '')
+      setSmsOptIn(data.smsOptIn || false)
+      setPhoneNumber(data.phoneNumber || '')
+
+      // Restore files (create placeholder File objects with saved metadata)
+      if (data.files && data.files.length > 0) {
+        const restoredFiles = data.files
+          .filter((f: any) => f.filePath) // Only restore successfully uploaded files
+          .map((f: any) => ({
+            id: f.id,
+            file: new File([], f.fileName, { type: f.fileType || 'image/jpeg' }),
+            label: f.label,
+            isOwnRoster: f.isOwnRoster,
+            filePath: f.filePath,
+            uploading: false,
+          }))
+        setSubmissionFiles(restoredFiles)
+      }
+
+      // Clear sessionStorage
+      sessionStorage.removeItem('pendingSubmission')
+
+      // Show success message if coming from checkout
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('purchase') === 'success') {
+        setSuccessMessage('Purchase complete! Your trade details have been restored — just confirm and submit.')
+        setError(null)
+      }
+    } catch (error) {
+      console.error('Failed to restore submission data:', error)
+    }
+  }, [loading, creditsLoading])
 
   // Handle URL parameters (free_eval=true or service=X&tier=Y)
   useEffect(() => {
@@ -516,6 +573,7 @@ export default function SubmitPage() {
     if (!userId) {
       sessionStorage.setItem('pendingSubmission', JSON.stringify({
         selectedProfileId,
+        serviceType,
         offerDirection,
         rateTier,
         receivePlayers,
@@ -524,7 +582,18 @@ export default function SubmitPage() {
         givePicks,
         fabReceive,
         fabGive,
+        tradeFinderContext,
         additionalContext,
+        smsOptIn,
+        phoneNumber,
+        files: submissionFiles.map(f => ({
+          id: f.id,
+          filePath: f.filePath || '',
+          fileName: f.file.name,
+          fileType: f.file.type,
+          label: f.label,
+          isOwnRoster: f.isOwnRoster
+        }))
       }))
       router.push('/login?redirect=/submit')
       return
@@ -714,6 +783,20 @@ export default function SubmitPage() {
               </Link>
               {' '}to submit a trade evaluation request.
             </p>
+          </div>
+        )}
+
+        {successMessage && (
+          <div style={{
+            backgroundColor: '#0a2a0a',
+            border: '1px solid #44ff44',
+            color: '#66ff66',
+            padding: '16px',
+            marginBottom: '32px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            {successMessage}
           </div>
         )}
 
@@ -2039,6 +2122,32 @@ export default function SubmitPage() {
               setSubmitting(true)
               setError(null)
 
+              // Save form state before redirect to checkout
+              sessionStorage.setItem('pendingSubmission', JSON.stringify({
+                selectedProfileId,
+                serviceType,
+                offerDirection,
+                rateTier,
+                receivePlayers,
+                givePlayers,
+                receivePicks,
+                givePicks,
+                fabReceive,
+                fabGive,
+                tradeFinderContext,
+                additionalContext,
+                smsOptIn,
+                phoneNumber,
+                files: submissionFiles.map(f => ({
+                  id: f.id,
+                  filePath: f.filePath || '',
+                  fileName: f.file.name,
+                  fileType: f.file.type,
+                  label: f.label,
+                  isOwnRoster: f.isOwnRoster
+                }))
+              }))
+
               try {
                 // Get full bundle info including bundleType, credits, description
                 const bundleInfo = getSingleBundleForServiceType(pendingBundle.serviceType, pendingBundle.tier === 'rat' ? 'rat_rate' : 'standard')
@@ -2055,6 +2164,7 @@ export default function SubmitPage() {
                     price: Math.round(bundleInfo.price * 100), // Convert dollars to cents
                     name: bundleInfo.name,
                     description: bundleInfo.description,
+                    return_to: 'submit',
                   }),
                 })
 
