@@ -269,25 +269,14 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
-                marginBottom: '16px',
+                marginBottom: '20px',
                 lineHeight: 1.6,
               }}>
                 Our most comprehensive service. Upload all league rosters, and our expert analyzes the entire league to find your best trade opportunity.
               </p>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                marginBottom: '8px',
-              }}>
-                <span style={{ color: '#6b6457' }}>Standard:</span> <strong style={{ color: '#C9A84C' }}>$14.99</strong>
-              </div>
-              <div style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-              }}>
-                <span style={{ color: '#6b6457' }}>Rat Rate:</span> <strong style={{ color: '#C9A84C' }}>$19.99</strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_STANDARD} variant="landing" />
+                <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_RAT_RATE} variant="landing" />
               </div>
             </div>
           </div>
@@ -585,9 +574,11 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
+                marginBottom: '20px',
               }}>
                 $39.99
               </div>
+              <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_3PACK_STANDARD} variant="landing" />
             </div>
 
             {/* 3-pack Rat Rate Finder */}
@@ -619,9 +610,83 @@ export default function PricingPage() {
                 fontSize: '1.5rem',
                 fontWeight: 700,
                 color: '#C9A84C',
+                marginBottom: '20px',
               }}>
                 $49.99
               </div>
+              <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_3PACK_RAT_RATE} variant="landing" />
+            </div>
+
+            {/* 5-pack Standard Finder */}
+            <div style={{
+              border: '1px solid #C9A84C',
+              padding: '32px',
+              backgroundColor: '#1a1710',
+            }}>
+              <h3 style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '12px',
+              }}>
+                5-Pack Standard Trade Finder
+              </h3>
+              <p style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#6b6457',
+                marginBottom: '16px',
+                lineHeight: 1.6,
+              }}>
+                Five full league analyses. Maximum value for active traders managing multiple leagues.
+              </p>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '20px',
+              }}>
+                $64.99
+              </div>
+              <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_5PACK_STANDARD} variant="landing" />
+            </div>
+
+            {/* 5-pack Rat Rate Finder */}
+            <div style={{
+              border: '1px solid #C9A84C',
+              padding: '32px',
+              backgroundColor: '#1a1710',
+            }}>
+              <h3 style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '12px',
+              }}>
+                5-Pack Rat Rate Trade Finder
+              </h3>
+              <p style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#6b6457',
+                marginBottom: '16px',
+                lineHeight: 1.6,
+              }}>
+                Five premium full league analyses from The Rat. Ultimate package for serious competitors.
+              </p>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginBottom: '20px',
+              }}>
+                $84.99
+              </div>
+              <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_5PACK_RAT_RATE} variant="landing" />
             </div>
           </div>
         </div>

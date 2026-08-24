@@ -115,4 +115,67 @@ export const BUNDLES = {
     description: 'Expert counter offer suggestion personally reviewed by The Rat',
     buttonText: 'Buy Counter Offer Rat Rate — $6.49',
   } as BundleConfig,
+
+  // Trade Finder single services
+  TRADE_FINDER_STANDARD: {
+    bundleType: 'standard_3_pack',
+    serviceType: 'trade_finder',
+    credits: 1,
+    price: 14.99,
+    name: 'Trade Finder Standard',
+    description: 'Full league analysis by standard analyst',
+    buttonText: 'Buy Standard — $14.99',
+  } as BundleConfig,
+
+  TRADE_FINDER_RAT_RATE: {
+    bundleType: 'rat_rate_3_pack',
+    serviceType: 'trade_finder',
+    credits: 1,
+    price: 19.99,
+    name: 'Trade Finder Rat Rate',
+    description: 'Full league analysis by The Rat',
+    buttonText: 'Buy Rat Rate — $19.99',
+  } as BundleConfig,
+
+  // Trade Finder 3-packs
+  TRADE_FINDER_3PACK_STANDARD: {
+    bundleType: 'standard_3_pack',
+    serviceType: 'trade_finder',
+    credits: 3,
+    price: 39.99,
+    name: '3-Pack Trade Finder Standard',
+    description: 'Three full league analyses by standard analysts',
+    buttonText: 'Buy 3-Pack — $39.99',
+  } as BundleConfig,
+
+  TRADE_FINDER_3PACK_RAT_RATE: {
+    bundleType: 'rat_rate_3_pack',
+    serviceType: 'trade_finder',
+    credits: 3,
+    price: 49.99,
+    name: '3-Pack Trade Finder Rat Rate',
+    description: 'Three full league analyses by The Rat',
+    buttonText: 'Buy 3-Pack — $49.99',
+  } as BundleConfig,
+
+  // Trade Finder 5-packs
+  TRADE_FINDER_5PACK_STANDARD: {
+    bundleType: 'standard_5_pack',
+    serviceType: 'trade_finder',
+    credits: 5,
+    price: 64.99,
+    name: '5-Pack Trade Finder Standard',
+    description: 'Five full league analyses by standard analysts',
+    buttonText: 'Buy 5-Pack — $64.99',
+  } as BundleConfig,
+
+  TRADE_FINDER_5PACK_RAT_RATE: {
+    bundleType: 'rat_rate_5_pack',
+    serviceType: 'trade_finder',
+    credits: 5,
+    price: 84.99,
+    name: '5-Pack Trade Finder Rat Rate',
+    description: 'Five full league analyses by The Rat',
+    buttonText: 'Buy 5-Pack — $84.99',
+  } as BundleConfig,
 }
