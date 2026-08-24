@@ -21,9 +21,13 @@ type LeagueProfile = {
 }
 
 type SubmissionFile = {
+  id: string              // Unique ID for tracking
   file: File
   label: string
   isOwnRoster: boolean
+  filePath?: string       // Storage path once uploaded
+  uploading?: boolean     // True while upload in progress
+  uploadError?: string    // Error message if upload failed
 }
 
 export default function SubmitPage() {
@@ -88,6 +92,7 @@ export default function SubmitPage() {
   const [smsOptIn, setSmsOptIn] = useState(false)
 
   // File upload state
+  const [draftId] = useState(() => crypto.randomUUID()) // Stable draft ID for storage paths
   const [submissionFiles, setSubmissionFiles] = useState<SubmissionFile[]>([])
   const [showRosterLabels, setShowRosterLabels] = useState(false)
 
@@ -220,14 +225,51 @@ export default function SubmitPage() {
     }
   }, [creditsLoading, hasFreeEval, credits])
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (!userId) {
+      setError('Please sign in before uploading files')
+      return
+    }
+
+    // Create entries with unique IDs and uploading status
     const newFiles = acceptedFiles.map((file) => ({
+      id: crypto.randomUUID(),
       file,
       label: '',
-      isOwnRoster: false
+      isOwnRoster: false,
+      uploading: true,
     }))
+
     setSubmissionFiles(prev => [...prev, ...newFiles])
-  }, [])
+
+    // Upload each file independently
+    newFiles.forEach(async (fileEntry, i) => {
+      try {
+        const fileExt = fileEntry.file.name.split('.').pop()
+        const fileName = `${userId}/${draftId}/${Date.now()}-${i}.${fileExt}`
+
+        const { error } = await supabase.storage
+          .from('trade-screenshots')
+          .upload(fileName, fileEntry.file)
+
+        if (error) throw error
+
+        // Success: update with filePath
+        setSubmissionFiles(prev => prev.map(f =>
+          f.id === fileEntry.id
+            ? { ...f, uploading: false, filePath: fileName }
+            : f
+        ))
+      } catch (error) {
+        // Failure: update with error message
+        setSubmissionFiles(prev => prev.map(f =>
+          f.id === fileEntry.id
+            ? { ...f, uploading: false, uploadError: error instanceof Error ? error.message : 'Upload failed' }
+            : f
+        ))
+      }
+    })
+  }, [userId, draftId, supabase])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -237,16 +279,16 @@ export default function SubmitPage() {
     maxSize: 10 * 1024 * 1024, // 10MB
   })
 
-  const removeFile = (index: number) => {
-    setSubmissionFiles(prev => prev.filter((_, i) => i !== index))
+  const removeFile = (id: string) => {
+    setSubmissionFiles(prev => prev.filter(f => f.id !== id))
   }
 
-  const updateFileLabel = (index: number, label: string) => {
-    setSubmissionFiles(prev => prev.map((f, i) => i === index ? { ...f, label } : f))
+  const updateFileLabel = (id: string, label: string) => {
+    setSubmissionFiles(prev => prev.map(f => f.id === id ? { ...f, label } : f))
   }
 
-  const updateFileIsOwnRoster = (index: number, isOwnRoster: boolean) => {
-    setSubmissionFiles(prev => prev.map((f, i) => i === index ? { ...f, isOwnRoster } : f))
+  const updateFileIsOwnRoster = (id: string, isOwnRoster: boolean) => {
+    setSubmissionFiles(prev => prev.map(f => f.id === id ? { ...f, isOwnRoster } : f))
   }
 
   const handleCreateProfile = async (e: React.FormEvent) => {
@@ -409,28 +451,21 @@ export default function SubmitPage() {
 
       if (submissionError) throw submissionError
 
-      // Step 2: Upload files and create submission_files records
-      for (let i = 0; i < submissionFiles.length; i++) {
-        const { file, label, isOwnRoster } = submissionFiles[i]
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${userId}/${submission.id}/${Date.now()}-${i}.${fileExt}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('trade-screenshots')
-          .upload(fileName, file)
-
-        if (uploadError) {
-          throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`)
+      // Step 2: Create submission_files records (files already uploaded on drop)
+      for (const fileEntry of submissionFiles) {
+        // Verify file was uploaded successfully
+        if (!fileEntry.filePath) {
+          throw new Error(`File ${fileEntry.file.name} was not uploaded successfully`)
         }
 
         const { error: fileRecordError } = await supabase
           .from('submission_files')
           .insert({
             submission_id: submission.id,
-            file_url: fileName,
-            file_type: file.type,
-            label: label || null,
-            is_own_roster: isOwnRoster
+            file_url: fileEntry.filePath,  // Use pre-uploaded path
+            file_type: fileEntry.file.type,
+            label: fileEntry.label || null,
+            is_own_roster: fileEntry.isOwnRoster
           })
 
         if (fileRecordError) {
@@ -539,6 +574,9 @@ export default function SubmitPage() {
         tier: tierKey as 'standard' | 'rat',
         price: bundle.price,
         name: bundle.name,
+        bundleType: bundle.bundleType,
+        credits: bundle.credits,
+        description: bundle.description,
       }
     }
 
@@ -549,6 +587,9 @@ export default function SubmitPage() {
         tier: tierKey as 'standard' | 'rat',
         price: bundle.price,
         name: bundle.name,
+        bundleType: bundle.bundleType,
+        credits: bundle.credits,
+        description: bundle.description,
       }
     }
 
@@ -559,16 +600,23 @@ export default function SubmitPage() {
         tier: tierKey as 'standard' | 'rat',
         price: bundle.price,
         name: bundle.name,
+        bundleType: bundle.bundleType,
+        credits: bundle.credits,
+        description: bundle.description,
       }
     }
 
-    // trade_finder - actual pricing: $14.99 Standard / $19.99 Rat Rate
+    // trade_finder
     if (svcType === 'trade_finder') {
+      const bundle = tier === 'rat_rate' ? BUNDLES.TRADE_FINDER_RAT_RATE : BUNDLES.TRADE_FINDER_STANDARD
       return {
         serviceType: svcType,
         tier: tierKey as 'standard' | 'rat',
-        price: tier === 'rat_rate' ? 19.99 : 14.99,
-        name: tier === 'rat_rate' ? 'Single Finder Premium' : 'Single Finder',
+        price: bundle.price,
+        name: bundle.name,
+        bundleType: bundle.bundleType,
+        credits: bundle.credits,
+        description: bundle.description,
       }
     }
 
@@ -578,6 +626,9 @@ export default function SubmitPage() {
       tier: tierKey as 'standard' | 'rat',
       price: 4.99,
       name: 'Single Purchase',
+      bundleType: 'standard_3_pack' as const,
+      credits: 1,
+      description: 'Single trade evaluation',
     }
   }
 
@@ -1604,9 +1655,9 @@ export default function SubmitPage() {
                   </button>
                 )}
 
-                {submissionFiles.map((file, index) => (
+                {submissionFiles.map((fileEntry) => (
                   <div
-                    key={index}
+                    key={fileEntry.id}
                     style={{
                       padding: '16px',
                       border: '1px solid #2a261e',
@@ -1619,16 +1670,45 @@ export default function SubmitPage() {
                       alignItems: 'center',
                       marginBottom: serviceType !== 'trade_finder' || showRosterLabels ? '12px' : '0',
                     }}>
-                      <span style={{
-                        fontFamily: 'var(--font-dm-sans)',
-                        fontSize: '0.875rem',
-                        color: '#F2EDE4',
-                      }}>
-                        {file.file.name}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                        <span style={{
+                          fontFamily: 'var(--font-dm-sans)',
+                          fontSize: '0.875rem',
+                          color: '#F2EDE4',
+                        }}>
+                          {fileEntry.file.name}
+                        </span>
+                        {fileEntry.uploading && (
+                          <span style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.75rem',
+                            color: '#C9A84C',
+                          }}>
+                            Uploading...
+                          </span>
+                        )}
+                        {fileEntry.uploadError && (
+                          <span style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.75rem',
+                            color: '#ff6666',
+                          }}>
+                            {fileEntry.uploadError}
+                          </span>
+                        )}
+                        {fileEntry.filePath && !fileEntry.uploading && (
+                          <span style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            fontSize: '0.75rem',
+                            color: '#6b6457',
+                          }}>
+                            ✓ Uploaded
+                          </span>
+                        )}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => removeFile(index)}
+                        onClick={() => removeFile(fileEntry.id)}
                         style={{
                           background: 'none',
                           border: 'none',
@@ -1647,8 +1727,8 @@ export default function SubmitPage() {
                       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <input
                           type="text"
-                          value={file.label}
-                          onChange={(e) => updateFileLabel(index, e.target.value)}
+                          value={fileEntry.label}
+                          onChange={(e) => updateFileLabel(fileEntry.id, e.target.value)}
                           placeholder={serviceType === 'trade_finder'
                             ? "e.g., 'Team Name' or 'Manager Name'"
                             : "Optional label (e.g., 'My Roster', 'Opponent Roster')"}
@@ -1675,8 +1755,8 @@ export default function SubmitPage() {
                           }}>
                             <input
                               type="checkbox"
-                              checked={file.isOwnRoster || false}
-                              onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
+                              checked={fileEntry.isOwnRoster || false}
+                              onChange={(e) => updateFileIsOwnRoster(fileEntry.id, e.target.checked)}
                               style={{ marginRight: '8px' }}
                             />
                             This is my roster
@@ -1697,8 +1777,8 @@ export default function SubmitPage() {
                           }}>
                             <input
                               type="checkbox"
-                              checked={file.isOwnRoster || false}
-                              onChange={(e) => updateFileIsOwnRoster(index, e.target.checked)}
+                              checked={fileEntry.isOwnRoster || false}
+                              onChange={(e) => updateFileIsOwnRoster(fileEntry.id, e.target.checked)}
                               style={{ marginRight: '8px' }}
                             />
                             This is my roster
@@ -1899,6 +1979,10 @@ export default function SubmitPage() {
               ? leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
               : numTeams
 
+            // File upload validation
+            const hasUploadingFiles = submissionFiles.some(f => f.uploading)
+            const hasUploadErrors = submissionFiles.some(f => f.uploadError)
+
             // Trade details validation for non-Trade Finder services
             const hasReceiveItem = receivePlayers.trim() || receivePicks.trim() || (fabReceive && fabReceive.trim())
             const hasGiveItem = givePlayers.trim() || givePicks.trim() || (fabGive && fabGive.trim())
@@ -1906,6 +1990,8 @@ export default function SubmitPage() {
 
             const isDisabled = Boolean(
               submitting ||
+              hasUploadingFiles ||
+              hasUploadErrors ||
               (userId && !selectedProfileId && !showNewProfileForm) ||
               (serviceType !== 'accept_decline' && submissionFiles.length === 0) ||
               (serviceType === 'trade_finder' && submissionFiles.length !== actualNumTeams) ||
@@ -1948,10 +2034,43 @@ export default function SubmitPage() {
             price={pendingBundle.price}
             credits={1}
             name={pendingBundle.name}
-            onConfirm={() => {
-              console.log('Purchase flow triggered for:', pendingBundle)
-              alert(`Purchase flow will be implemented next. Service: ${pendingBundle.name}, Price: $${pendingBundle.price}`)
+            onConfirm={async () => {
               setShowBuyModal(false)
+              setSubmitting(true)
+              setError(null)
+
+              try {
+                // Get full bundle info including bundleType, credits, description
+                const bundleInfo = getSingleBundleForServiceType(pendingBundle.serviceType, pendingBundle.tier === 'rat' ? 'rat_rate' : 'standard')
+
+                const response = await fetch('/api/stripe/checkout', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    bundle_type: bundleInfo.bundleType,
+                    service_type: bundleInfo.serviceType,
+                    credits: bundleInfo.credits,
+                    price: Math.round(bundleInfo.price * 100), // Convert dollars to cents
+                    name: bundleInfo.name,
+                    description: bundleInfo.description,
+                  }),
+                })
+
+                const data = await response.json()
+
+                if (data.url) {
+                  window.location.href = data.url
+                } else {
+                  setError('Failed to start checkout. Please try again.')
+                  setSubmitting(false)
+                }
+              } catch (error) {
+                console.error('Error starting checkout:', error)
+                setError('Failed to start checkout. Please try again.')
+                setSubmitting(false)
+              }
             }}
             onCancel={() => setShowBuyModal(false)}
           />
