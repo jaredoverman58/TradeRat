@@ -345,42 +345,49 @@ export default async function DashboardPage() {
               No credits available. Purchase a bundle to get started.
             </div>
           )}
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <Link
-              href="/pricing"
-              style={{
-                fontFamily: 'var(--font-dm-sans)',
-                padding: '16px 40px',
-                backgroundColor: '#C9A84C',
-                color: '#0C0A07',
-                fontWeight: 600,
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                fontSize: '0.875rem',
-                display: 'inline-block',
-              }}
-            >
-              {hasFreeCredit || groupedServices.length > 0 ? 'Get More Credits' : 'Purchase Credits to Get Started'}
-            </Link>
-            <Link
-              href="/#trade-finder"
-              style={{
-                fontFamily: 'var(--font-dm-sans)',
-                padding: '16px 40px',
-                backgroundColor: '#C9A84C',
-                color: '#0C0A07',
-                fontWeight: 600,
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                fontSize: '0.875rem',
-                display: 'inline-block',
-              }}
-            >
-              Go Big — Try Trade Finder
-            </Link>
-          </div>
+          {(() => {
+            // Check if user has any purchase or submission history (regardless of current balance)
+            const hasHistory = (bundles && bundles.length > 0) || (submissions && submissions.length > 0)
+
+            return (
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <Link
+                  href="/pricing"
+                  style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    padding: '16px 40px',
+                    backgroundColor: '#C9A84C',
+                    color: '#0C0A07',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontSize: '0.875rem',
+                    display: 'inline-block',
+                  }}
+                >
+                  {hasHistory ? 'Get More Credits' : 'Purchase Credits to Get Started'}
+                </Link>
+                <Link
+                  href="/#trade-finder"
+                  style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    padding: '16px 40px',
+                    backgroundColor: '#C9A84C',
+                    color: '#0C0A07',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontSize: '0.875rem',
+                    display: 'inline-block',
+                  }}
+                >
+                  Go Big — Try Trade Finder
+                </Link>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Bundle Details */}

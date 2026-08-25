@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import WaitlistScreen from './WaitlistScreen'
@@ -100,6 +100,7 @@ export default function SubmitPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [skipCreditCheckOnce, setSkipCreditCheckOnce] = useState(false)
 
   // Capacity and waitlist state
   const [showWaitlist, setShowWaitlist] = useState(false)
@@ -107,6 +108,9 @@ export default function SubmitPage() {
     ratRateAvailable: boolean
     standardAvailable: boolean
   } | null>(null)
+
+  // Guard against double auto-submit
+  const hasAutoSubmittedRef = useRef(false)
 
   // Load user and league profiles
   useEffect(() => {
@@ -192,6 +196,73 @@ export default function SubmitPage() {
     loadData()
   }, [supabase, router])
 
+  // Auto-submit with credit check and retry logic
+  const checkCreditsAndSubmit = async (attemptNumber = 1, maxAttempts = 3): Promise<void> => {
+    try {
+      // Re-fetch credits to confirm payment processed
+      const { data: bundles, error: bundlesError } = await supabase
+        .from('bundles')
+        .select('service_type, credits_remaining')
+        .eq('user_id', userId)
+        .gt('credits_remaining', 0)
+        .gt('expires_at', new Date().toISOString())
+
+      if (bundlesError) throw bundlesError
+
+      // Aggregate credits by type
+      const creditsByType: CreditsByServiceType = {
+        accept_decline: 0,
+        counter_offer: 0,
+        bundle: 0,
+        trade_finder: 0,
+      }
+
+      bundles?.forEach(bundle => {
+        if (bundle.service_type in creditsByType) {
+          creditsByType[bundle.service_type as keyof CreditsByServiceType] += bundle.credits_remaining
+        }
+      })
+
+      // Check if credit exists for the purchased service type
+      const hasCredit = creditsByType[serviceType] > 0
+
+      if (hasCredit) {
+        // SUCCESS: Credit found, proceed with submission
+        setSuccessMessage('Payment successful — submitting your trade evaluation...')
+        setError(null)
+
+        // Update local credits state
+        setCredits(creditsByType)
+
+        // Auto-submit
+        await proceedWithSubmission()
+
+        // Clear sessionStorage on successful submission
+        sessionStorage.removeItem('pendingSubmission')
+
+      } else if (attemptNumber < maxAttempts) {
+        // RETRY: Credit not found yet, wait and try again
+        setSuccessMessage(`Payment successful! Waiting for confirmation... (${attemptNumber}/${maxAttempts})`)
+
+        await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
+
+        return checkCreditsAndSubmit(attemptNumber + 1, maxAttempts)
+
+      } else {
+        // GIVE UP: Max attempts reached, webhook likely delayed
+        // Allow one manual retry without credit check since payment already succeeded
+        setSkipCreditCheckOnce(true)
+        setSuccessMessage('Payment received — your form is saved right here. Please wait a few seconds, then click Submit below to finish.')
+        setSubmitting(false)
+      }
+
+    } catch (error) {
+      console.error('Error during auto-submit:', error)
+      setError(error instanceof Error ? error.message : 'Failed to submit. Please try again.')
+      setSubmitting(false)
+    }
+  }
+
   // Restore form data from sessionStorage (after login or checkout redirect)
   useEffect(() => {
     // Wait until initial data load is complete
@@ -199,6 +270,9 @@ export default function SubmitPage() {
 
     const saved = sessionStorage.getItem('pendingSubmission')
     if (!saved) return
+
+    // Guard against double-run
+    if (hasAutoSubmittedRef.current) return
 
     try {
       const data = JSON.parse(saved)
@@ -234,18 +308,28 @@ export default function SubmitPage() {
         setSubmissionFiles(restoredFiles)
       }
 
-      // Clear sessionStorage
-      sessionStorage.removeItem('pendingSubmission')
-
-      // Show success message if coming from checkout
+      // Check if coming from checkout or login redirect
       const urlParams = new URLSearchParams(window.location.search)
       if (urlParams.get('purchase') === 'success') {
-        setSuccessMessage('Purchase complete! Your trade details have been restored — just confirm and submit.')
+        // Mark as handled to prevent re-runs
+        hasAutoSubmittedRef.current = true
+
+        // Set initial success message
+        setSuccessMessage('Payment successful! Processing your submission...')
         setError(null)
+        setSubmitting(true)
+
+        // Start auto-submit with retry logic
+        checkCreditsAndSubmit()
+
+      } else {
+        // For login-redirect case (no auto-submit), clear immediately
+        sessionStorage.removeItem('pendingSubmission')
       }
     } catch (error) {
       console.error('Failed to restore submission data:', error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, creditsLoading])
 
   // Handle URL parameters (free_eval=true or service=X&tier=Y)
@@ -543,7 +627,8 @@ export default function SubmitPage() {
         throw updateError
       }
 
-      // Success - redirect to confirmation
+      // Success - clear any saved form data and redirect to confirmation
+      sessionStorage.removeItem('pendingSubmission')
       router.push(`/submit/success?id=${submission.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
@@ -606,7 +691,12 @@ export default function SubmitPage() {
     }
 
     // PRE-SUBMISSION CREDIT CHECK
-    if (!credits || credits[serviceType] === 0) {
+    // Skip credit check if user just completed payment and webhook is delayed
+    if (skipCreditCheckOnce) {
+      // Reset flag immediately - only bypass once
+      setSkipCreditCheckOnce(false)
+      // Proceed to submission - database-level check will catch if still no credit
+    } else if (!credits || credits[serviceType] === 0) {
       // User doesn't have credits for this service type - show purchase modal
       const bundleInfo = getSingleBundleForServiceType(serviceType, rateTier)
       setPendingBundle(bundleInfo)
@@ -616,7 +706,7 @@ export default function SubmitPage() {
 
     setError(null)
 
-    // User HAS credits - proceed with submission
+    // User HAS credits (or skipped check due to delayed webhook) - proceed with submission
     setSubmitting(true)
 
     // Check capacity before proceeding
@@ -1826,7 +1916,7 @@ export default function SubmitPage() {
                           }}
                         />
 
-                        {serviceType === 'trade_finder' && (
+                        {(serviceType === 'trade_finder' || serviceType === 'counter_offer' || serviceType === 'bundle') && (
                           <label style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -2065,11 +2155,17 @@ export default function SubmitPage() {
             // File upload validation
             const hasUploadingFiles = submissionFiles.some(f => f.uploading)
             const hasUploadErrors = submissionFiles.some(f => f.uploadError)
+            const hasOwnRosterMarked = submissionFiles.some(f => f.isOwnRoster)
 
             // Trade details validation for non-Trade Finder services
             const hasReceiveItem = receivePlayers.trim() || receivePicks.trim() || (fabReceive && fabReceive.trim())
             const hasGiveItem = givePlayers.trim() || givePicks.trim() || (fabGive && fabGive.trim())
             const tradeDetailsInvalid = (serviceType !== 'trade_finder') && (!hasReceiveItem || !hasGiveItem)
+
+            // Check if "This is my roster" is required but not marked
+            const needsOwnRosterMarked = (serviceType === 'trade_finder' || serviceType === 'counter_offer' || serviceType === 'bundle') &&
+                                         submissionFiles.length > 0 &&
+                                         !hasOwnRosterMarked
 
             const isDisabled = Boolean(
               submitting ||
@@ -2078,32 +2174,50 @@ export default function SubmitPage() {
               (userId && !selectedProfileId && !showNewProfileForm) ||
               (serviceType !== 'accept_decline' && submissionFiles.length === 0) ||
               (serviceType === 'trade_finder' && submissionFiles.length !== actualNumTeams) ||
-              (serviceType === 'trade_finder' && !submissionFiles.some(f => f.isOwnRoster)) ||
+              ((serviceType === 'trade_finder' || serviceType === 'counter_offer' || serviceType === 'bundle') && !hasOwnRosterMarked) ||
               (serviceType === 'trade_finder' && !tradeFinderContext.trim()) ||
               (smsOptIn && !phoneNumber) ||
               tradeDetailsInvalid
             )
 
             return (
-              <button
-                type="submit"
-                disabled={isDisabled}
-                style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  width: '100%',
-                  padding: '20px',
-                  backgroundColor: isDisabled ? '#2a261e' : '#C9A84C',
-                  color: isDisabled ? '#6b6457' : '#0C0A07',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  fontSize: '1rem',
-                  border: 'none',
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {submitting ? 'Submitting...' : !userId ? 'Sign In to Submit' : 'Submit Trade for Evaluation'}
-              </button>
+              <>
+                {/* Inline Validation Warning */}
+                {needsOwnRosterMarked && (
+                  <div style={{
+                    backgroundColor: '#2a1a0a',
+                    border: '1px solid #C9A84C',
+                    color: '#C9A84C',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                    textAlign: 'center',
+                  }}>
+                    Please mark which roster is yours before submitting
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isDisabled}
+                  style={{
+                    fontFamily: 'var(--font-dm-sans)',
+                    width: '100%',
+                    padding: '20px',
+                    backgroundColor: isDisabled ? '#2a261e' : '#C9A84C',
+                    color: isDisabled ? '#6b6457' : '#0C0A07',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    fontSize: '1rem',
+                    border: 'none',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {submitting ? 'Submitting...' : !userId ? 'Sign In to Submit' : 'Submit Trade for Evaluation'}
+                </button>
+              </>
             )
           })()}
         </form>
