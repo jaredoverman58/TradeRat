@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { Fragment } from 'react'
 import NavBar from './landing/NavBar'
 import HeroSection from './landing/HeroSection'
 import WhyRatSection from './landing/WhyRatSection'
@@ -50,10 +51,10 @@ export default async function LandingPage() {
               return <StatsSection key={section.id} content={section.content} />
             case 'services':
               return (
-                <>
-                  <ServicesSection key={section.id} content={section.content} />
-                  <TradeFinderSection key="trade-finder" />
-                </>
+                <Fragment key={section.id}>
+                  <ServicesSection content={section.content} />
+                  <TradeFinderSection />
+                </Fragment>
               )
             case 'testimonials':
               // Use testimonials from the testimonials table
