@@ -610,15 +610,8 @@ export default async function DashboardPage() {
               color: '#F2EDE4',
               marginBottom: '16px',
             }}>
-              No submissions yet
+              Nothing here yet. Even a rat&apos;s gotta eat — submit a trade.
             </div>
-            <p style={{
-              fontFamily: 'var(--font-dm-sans)',
-              color: '#6b6457',
-              marginBottom: '32px',
-            }}>
-              Submit your first trade evaluation to get expert analysis
-            </p>
             <Link
               href="/submit"
               style={{

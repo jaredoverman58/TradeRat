@@ -242,6 +242,20 @@ export default async function ExpertQueuePage() {
     }
   }
 
+  // Expert-specific empty queue text
+  const getEmptyQueueText = () => {
+    const expertName = expert.name.toLowerCase()
+
+    if (expertName.includes('rat')) {
+      return 'No trades waiting. The Rat naps when the queue&apos;s clear.'
+    } else if (expertName.includes('monkey')) {
+      return 'No trades waiting. The Monkey&apos;s bored and throwing things.'
+    }
+
+    // Fallback for other experts (e.g., The Badger)
+    return 'No trades waiting right now.'
+  }
+
   const { descriptor, quote } = getExpertContent()
 
   return (
@@ -723,16 +737,9 @@ export default async function ExpertQueuePage() {
                 fontFamily: 'var(--font-playfair)',
                 fontSize: '1.5rem',
                 color: '#F2EDE4',
-                marginBottom: '16px',
               }}>
-                Queue is empty
+                {getEmptyQueueText()}
               </div>
-              <p style={{
-                fontFamily: 'var(--font-dm-sans)',
-                color: '#6b6457',
-              }}>
-                No open submissions at the moment. Check back later.
-              </p>
             </div>
           )}
         </div>
