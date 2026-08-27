@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import Link from 'next/link'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -11,6 +10,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [signingIn, setSigningIn] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -38,6 +38,36 @@ export default function SignupPage() {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSignInClick = async () => {
+    // If either field is empty, just navigate to login page
+    if (!email || !password) {
+      router.push('/login')
+      return
+    }
+
+    // Both fields have values, attempt direct sign in
+    setError(null)
+    setSigningIn(true)
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push('/dashboard')
+        router.refresh()
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setSigningIn(false)
     }
   }
 
@@ -209,9 +239,24 @@ export default function SignupPage() {
               fontSize: '0.875rem',
             }}>
               Already have an account?{' '}
-              <Link href="/login" style={{ color: '#C9A84C', textDecoration: 'none' }}>
-                Sign in
-              </Link>
+              <button
+                type="button"
+                onClick={handleSignInClick}
+                disabled={signingIn}
+                style={{
+                  color: '#C9A84C',
+                  textDecoration: 'none',
+                  background: 'none',
+                  border: 'none',
+                  cursor: signingIn ? 'not-allowed' : 'pointer',
+                  padding: 0,
+                  font: 'inherit',
+                  fontSize: '0.875rem',
+                  fontFamily: 'var(--font-dm-sans)',
+                }}
+              >
+                {signingIn ? 'Signing in...' : 'Sign in'}
+              </button>
             </p>
           </div>
         </div>

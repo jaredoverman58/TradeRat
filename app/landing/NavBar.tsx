@@ -33,25 +33,44 @@ export default function NavBar() {
           TRADE RAT
         </Link>
 
-        <Link
-          href="/signup"
-          style={{
-            fontFamily: 'var(--font-dm-sans)',
-            padding: '12px 24px',
-            minHeight: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#C9A84C',
-            color: '#0C0A07',
-            fontWeight: 600,
-            textDecoration: 'none',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontSize: '0.875rem',
-          }}
-        >
-          Claim Your Free Analysis
-        </Link>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px',
+        }}>
+          <Link
+            href="/login"
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              color: '#d4af37',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+            }}
+          >
+            Sign In
+          </Link>
+
+          <Link
+            href="/signup"
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '12px 24px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#C9A84C',
+              color: '#0C0A07',
+              fontWeight: 600,
+              textDecoration: 'none',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+            }}
+          >
+            Claim Your Free Analysis
+          </Link>
+        </div>
       </div>
     </nav>
   )
