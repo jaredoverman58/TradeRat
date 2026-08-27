@@ -576,7 +576,7 @@ export default function SubmitPage() {
           user_id: userId,
           league_profile_id: selectedProfileId || null,
           service_type: serviceType,
-          offer_direction: offerDirection,
+          offer_direction: serviceType === 'trade_finder' ? null : offerDirection,
           rate_tier: rateTier,
           status: 'draft',
           receive_players: receivePlayers || null,

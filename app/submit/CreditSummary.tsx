@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 interface CreditsByServiceType {
   accept_decline: number
@@ -21,6 +22,20 @@ interface CreditSummaryProps {
 }
 
 export default function CreditSummary({ userId, credits, creditsLoading, selectedServiceType, onServiceTypeChange, hasFreeEval, usingFreeEval, onUsingFreeEvalChange }: CreditSummaryProps) {
+  // Auto-set serviceType when only one type has credits available
+  useEffect(() => {
+    if (!credits || creditsLoading) return
+
+    const availableServiceTypes = (Object.keys(credits) as Array<keyof CreditsByServiceType>).filter(
+      type => credits[type] > 0
+    )
+
+    // If exactly one service type has credits and current selection doesn't have credits, auto-switch
+    if (availableServiceTypes.length === 1 && credits[selectedServiceType] === 0) {
+      onServiceTypeChange(availableServiceTypes[0])
+    }
+  }, [credits, creditsLoading, selectedServiceType, onServiceTypeChange])
+
   if (creditsLoading) {
     return (
       <div style={{
