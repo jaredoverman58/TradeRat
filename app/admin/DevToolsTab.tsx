@@ -9,6 +9,12 @@ interface Expert {
   tier: string
 }
 
+interface User {
+  id: string
+  email: string
+  created_at: string
+}
+
 export default function DevToolsTab() {
   const router = useRouter()
   const [experts, setExperts] = useState<Expert[]>([])
@@ -18,6 +24,19 @@ export default function DevToolsTab() {
   const [result, setResult] = useState<{ submissionId: string; expertUrl: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [resettingOnboarding, setResettingOnboarding] = useState(false)
+
+  // Credit Adjuster state
+  const [users, setUsers] = useState<User[]>([])
+  const [selectedUserId, setSelectedUserId] = useState<string>('')
+  const [creditServiceType, setCreditServiceType] = useState<string>('accept_decline')
+  const [creditTier, setCreditTier] = useState<string>('standard')
+  const [creditsRemaining, setCreditsRemaining] = useState<string>('0')
+  const [creditLoading, setCreditLoading] = useState(false)
+  const [creditResult, setCreditResult] = useState<string | null>(null)
+  const [creditError, setCreditError] = useState<string | null>(null)
+  const [zeroingCredits, setZeroingCredits] = useState(false)
+  const [fetchingCurrentCredits, setFetchingCurrentCredits] = useState(false)
+  const [currentCreditsExists, setCurrentCreditsExists] = useState(false)
 
   // Fetch experts on mount
   useEffect(() => {
@@ -31,6 +50,57 @@ export default function DevToolsTab() {
       })
       .catch(() => setError('Failed to load experts'))
   }, [])
+
+  // Fetch users on mount
+  useEffect(() => {
+    fetch('/api/admin/list-users')
+      .then(res => res.json())
+      .then(data => {
+        setUsers(data.users || [])
+        if (data.users && data.users.length > 0) {
+          setSelectedUserId(data.users[0].id)
+        }
+      })
+      .catch(() => setCreditError('Failed to load users'))
+  }, [])
+
+  // Fetch current credits whenever user, service type, or tier changes
+  useEffect(() => {
+    if (!selectedUserId) return
+
+    const fetchCurrentCredits = async () => {
+      setFetchingCurrentCredits(true)
+      try {
+        const res = await fetch('/api/admin/get-current-credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: selectedUserId,
+            serviceType: creditServiceType,
+            tier: creditTier,
+          }),
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to fetch current credits')
+        }
+
+        setCreditsRemaining(String(data.credits))
+        setCurrentCreditsExists(data.exists)
+      } catch (err) {
+        console.error('Error fetching current credits:', err)
+        // Don't show error to user, just default to 0
+        setCreditsRemaining('0')
+        setCurrentCreditsExists(false)
+      } finally {
+        setFetchingCurrentCredits(false)
+      }
+    }
+
+    fetchCurrentCredits()
+  }, [selectedUserId, creditServiceType, creditTier])
 
   const handleResetOnboarding = async () => {
     setResettingOnboarding(true)
@@ -89,6 +159,87 @@ export default function DevToolsTab() {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSetCredits = async () => {
+    console.log('Credit Adjuster submit:', { selectedUserId, creditServiceType, creditTier, creditsRemaining })
+
+    if (!selectedUserId) {
+      setCreditError('Please select a user')
+      return
+    }
+
+    const credits = parseInt(creditsRemaining, 10)
+    if (isNaN(credits) || credits < 0) {
+      setCreditError('Please enter a valid number of credits (0 or greater)')
+      return
+    }
+
+    setCreditLoading(true)
+    setCreditError(null)
+    setCreditResult(null)
+
+    try {
+      const res = await fetch('/api/admin/adjust-credits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUserId,
+          serviceType: creditServiceType,
+          tier: creditTier,
+          creditsRemaining: credits,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to adjust credits')
+      }
+
+      setCreditResult(data.message || 'Credits updated successfully')
+    } catch (err) {
+      setCreditError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setCreditLoading(false)
+    }
+  }
+
+  const handleZeroAllCredits = async () => {
+    if (!selectedUserId) {
+      setCreditError('Please select a user')
+      return
+    }
+
+    if (!confirm('Are you sure you want to zero ALL credits for this user?')) {
+      return
+    }
+
+    setZeroingCredits(true)
+    setCreditError(null)
+    setCreditResult(null)
+
+    try {
+      const res = await fetch('/api/admin/zero-credits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUserId,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to zero credits')
+      }
+
+      setCreditResult(data.message || 'All credits zeroed successfully')
+    } catch (err) {
+      setCreditError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setZeroingCredits(false)
     }
   }
 
@@ -357,6 +508,271 @@ export default function DevToolsTab() {
         >
           {resettingOnboarding ? 'Resetting...' : 'Reset My Onboarding'}
         </button>
+      </div>
+
+      {/* Credit Adjuster Tool */}
+      <div style={{
+        border: '1px solid #2a261e',
+        padding: '32px',
+        backgroundColor: '#1a1710',
+        marginTop: '32px',
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--font-playfair)',
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          color: '#F2EDE4',
+          marginBottom: '8px',
+        }}>
+          Credit Adjuster
+        </h3>
+        <p style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          color: '#6b6457',
+          marginBottom: '24px',
+        }}>
+          Manually set credit balance for any user&apos;s bundle, or zero all credits for testing.
+        </p>
+
+        {creditError && (
+          <div style={{
+            backgroundColor: '#2a0a0a',
+            border: '1px solid #ff4444',
+            color: '#ff6666',
+            padding: '16px',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            {creditError}
+          </div>
+        )}
+
+        {creditResult && (
+          <div style={{
+            backgroundColor: '#0a2a0a',
+            border: '1px solid #44ff44',
+            color: '#66ff66',
+            padding: '16px',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            {creditResult}
+          </div>
+        )}
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#F2EDE4',
+            display: 'block',
+            marginBottom: '8px',
+          }}>
+            Select User
+          </label>
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            disabled={creditLoading || zeroingCredits}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#0C0A07',
+              border: '1px solid #2a261e',
+              color: '#F2EDE4',
+              fontSize: '1rem',
+            }}
+          >
+            {users.length === 0 ? (
+              <option>Loading users...</option>
+            ) : (
+              users.map(user => (
+                <option key={user.id} value={user.id}>
+                  {user.email}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#F2EDE4',
+            display: 'block',
+            marginBottom: '8px',
+          }}>
+            Service Type
+          </label>
+          <select
+            value={creditServiceType}
+            onChange={(e) => setCreditServiceType(e.target.value)}
+            disabled={creditLoading || zeroingCredits}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#0C0A07',
+              border: '1px solid #2a261e',
+              color: '#F2EDE4',
+              fontSize: '1rem',
+            }}
+          >
+            <option value="accept_decline">Accept/Decline</option>
+            <option value="counter_offer">Counter Offer</option>
+            <option value="bundle">Accept/Decline + Bonus (Bundle)</option>
+            <option value="trade_finder">Trade Finder</option>
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#F2EDE4',
+            display: 'block',
+            marginBottom: '8px',
+          }}>
+            Tier
+          </label>
+          <select
+            value={creditTier}
+            onChange={(e) => setCreditTier(e.target.value)}
+            disabled={creditLoading || zeroingCredits}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#0C0A07',
+              border: '1px solid #2a261e',
+              color: '#F2EDE4',
+              fontSize: '1rem',
+            }}
+          >
+            <option value="standard">Standard</option>
+            <option value="rat_rate">Rat Rate</option>
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#F2EDE4',
+            display: 'block',
+            marginBottom: '8px',
+          }}>
+            Credits Remaining
+          </label>
+          {fetchingCurrentCredits ? (
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#6b6457',
+              padding: '12px',
+              marginBottom: '8px',
+            }}>
+              Loading current value...
+            </div>
+          ) : (
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: currentCreditsExists ? '#C9A84C' : '#6b6457',
+              marginBottom: '8px',
+            }}>
+              {currentCreditsExists
+                ? `Current: ${creditsRemaining} credits (existing bundle)`
+                : 'No existing bundle (will create new)'}
+            </div>
+          )}
+          <input
+            type="number"
+            min="0"
+            value={creditsRemaining}
+            onChange={(e) => setCreditsRemaining(e.target.value)}
+            disabled={creditLoading || zeroingCredits || fetchingCurrentCredits}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#0C0A07',
+              border: '1px solid #2a261e',
+              color: '#F2EDE4',
+              fontSize: '1rem',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+          <button
+            onClick={handleSetCredits}
+            disabled={creditLoading || zeroingCredits || !selectedUserId}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '16px 32px',
+              backgroundColor: creditLoading || zeroingCredits || !selectedUserId ? '#2a261e' : '#C9A84C',
+              color: creditLoading || zeroingCredits || !selectedUserId ? '#6b6457' : '#0C0A07',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+              border: 'none',
+              cursor: creditLoading || zeroingCredits || !selectedUserId ? 'not-allowed' : 'pointer',
+              flex: 1,
+            }}
+          >
+            {creditLoading ? 'Setting...' : 'Set Credits'}
+          </button>
+
+          <button
+            onClick={handleZeroAllCredits}
+            disabled={creditLoading || zeroingCredits || !selectedUserId}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '16px 32px',
+              backgroundColor: creditLoading || zeroingCredits || !selectedUserId ? '#2a261e' : '#6b6457',
+              color: creditLoading || zeroingCredits || !selectedUserId ? '#4a4337' : '#F2EDE4',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+              border: '1px solid #2a261e',
+              cursor: creditLoading || zeroingCredits || !selectedUserId ? 'not-allowed' : 'pointer',
+              flex: 1,
+            }}
+          >
+            {zeroingCredits ? 'Zeroing...' : 'Zero All Credits for This User'}
+          </button>
+        </div>
+
+        <div style={{
+          border: '1px solid #2a261e',
+          padding: '16px',
+          backgroundColor: '#0C0A07',
+          fontSize: '0.75rem',
+          fontFamily: 'var(--font-dm-sans)',
+          color: '#6b6457',
+          lineHeight: '1.6',
+        }}>
+          <strong style={{ color: '#C9A84C' }}>How This Works:</strong><br />
+          • Set Credits: Updates or creates a bundle for the selected user/service/tier combination<br />
+          • Bundle Type: Automatically uses 3-pack variant (standard_3_pack or rat_rate_3_pack)<br />
+          • Zero All: Sets credits_remaining = 0 for ALL bundles owned by selected user
+        </div>
       </div>
     </div>
   )
