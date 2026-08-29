@@ -171,14 +171,17 @@ export default function TermsPage() {
                 If analysis is delivered beyond 48 hours from submission, a full refund will be issued
               </li>
               <li style={{ marginBottom: '8px' }}>
-                <strong>Exception:</strong> If you submit a request within 48 hours of your league&apos;s trade deadline,
+                <strong>Exception:</strong> If you submit a request within 48 hours of your league{"'"}s trade deadline,
                 no refund will be issued for late delivery due to insufficient time buffer
               </li>
               <li style={{ marginBottom: '8px' }}>
-                You are responsible for knowing your league&apos;s trade deadline dates
+                You are responsible for knowing your league{"'"}s trade deadline dates
               </li>
               <li style={{ marginBottom: '8px' }}>
                 Refunds are processed to the original payment method within 5-10 business days
+              </li>
+              <li style={{ marginBottom: '8px' }}>
+                Free evaluations are not subject to the guaranteed turnaround times or refund policy above — we aim to respond as quickly as possible, but no specific timeframe or refund applies to free evaluations.
               </li>
             </ul>
           </section>
