@@ -25,23 +25,16 @@ export default async function DashboardPage() {
     .single()
 
   // Check if user is an expert (but not admin)
-  // Experts can manually navigate to dashboard - no forced redirect
   const { data: expert } = await supabase
     .from('experts')
     .select('id')
     .eq('user_id', user.id)
     .single()
 
-  // Only redirect non-admin experts to /expert if they came from login
-  // (This allows experts to manually navigate to dashboard)
   const isAdmin = userRole?.role === 'admin'
-  if (expert && !isAdmin) {
-    // Allow experts to access dashboard manually - no redirect
-    // The middleware will handle redirect to /expert after login
-  }
 
-  // Non-experts should complete onboarding
-  if (!expert && userRole && !userRole.onboarding_completed) {
+  // Non-expert, non-admin users should complete onboarding
+  if (!expert && !isAdmin && userRole && !userRole.onboarding_completed) {
     redirect('/onboarding')
   }
 

@@ -30,8 +30,8 @@ export async function GET(request: Request) {
           .eq('user_id', user.id)
           .single()
 
-        // Redirect non-admin experts to /expert on login
-        if (expert && !isAdmin && next === '/dashboard') {
+        // Always redirect non-admin experts to /expert on login (bypass onboarding and dashboard)
+        if (expert && !isAdmin) {
           next = '/expert'
         }
       }
