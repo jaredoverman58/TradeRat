@@ -67,6 +67,10 @@ export default async function SubmissionDetailPage({
     }
   }
 
+  // Check if this is a test submission
+  const isTestSubmission = submission.additional_context?.includes('Created via bulk seeder') ||
+                          submission.additional_context?.includes('Created via admin dev tools')
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -100,6 +104,38 @@ export default async function SubmissionDetailPage({
           submittedAt={submission.created_at}
           serviceType={submission.service_type}
         />
+
+        {/* Test Submission Banner */}
+        {isTestSubmission && (
+          <div style={{
+            backgroundColor: '#2a0a0a',
+            border: '3px solid #ff4444',
+            borderRadius: '4px',
+            padding: '24px',
+            marginBottom: '32px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#ff6666',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              marginBottom: '12px',
+            }}>
+              ⚠️ TEST SUBMISSION
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.9rem',
+              color: '#F2EDE4',
+              lineHeight: '1.6',
+            }}>
+              Please respond as if this were real (written and/or audio). Roster photos are just examples of how uploads look — not the actual rosters for this trade.
+            </div>
+          </div>
+        )}
 
         {/* Submission Info Card */}
         <div style={{

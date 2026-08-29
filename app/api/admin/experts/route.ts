@@ -26,7 +26,7 @@ export async function GET() {
   // Fetch all experts
   const { data: experts, error } = await supabase
     .from('experts')
-    .select('id, name, tier')
+    .select('id, name, tier, user_id')
     .order('name')
 
   if (error) {
