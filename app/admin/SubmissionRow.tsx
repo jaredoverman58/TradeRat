@@ -84,6 +84,12 @@ export default function SubmissionRow({
     }
   }>>([])
 
+  // Delete confirmation state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteTypedId, setDeleteTypedId] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteMessage, setDeleteMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
   const loadDetails = useCallback(async () => {
     setLoading(true)
     const supabase = createClient()
@@ -175,6 +181,47 @@ export default function SubmissionRow({
       })
     } finally {
       setReassigning(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    setDeleteMessage(null)
+    try {
+      const response = await fetch('/api/admin/delete-submission', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId: submission.id,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setDeleteMessage({
+          type: 'error',
+          text: `Failed to delete: ${errorData.error || 'Unknown error'}`
+        })
+        return
+      }
+
+      setDeleteMessage({
+        type: 'success',
+        text: 'Submission deleted successfully'
+      })
+
+      // Wait a moment for user to see success message, then refresh
+      setTimeout(() => {
+        onReassign() // Refresh the parent list (reuses callback name but works for any refresh)
+      }, 1500)
+    } catch (error) {
+      console.error('Error deleting submission:', error)
+      setDeleteMessage({
+        type: 'error',
+        text: 'An unexpected error occurred'
+      })
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -436,6 +483,164 @@ export default function SubmissionRow({
                   )}
                 </div>
               )}
+
+              {/* Danger Zone - Delete Submission */}
+              <div>
+                <h3 style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#ff6666',
+                  marginBottom: '12px',
+                }}>
+                  Danger Zone
+                </h3>
+                <div style={{
+                  border: '2px solid #ff4444',
+                  padding: '20px',
+                  backgroundColor: '#1a0a0a',
+                }}>
+                  {!showDeleteConfirm ? (
+                    <div>
+                      <p style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#F2EDE4',
+                        marginBottom: '16px',
+                      }}>
+                        Permanently delete this submission and all associated files, responses, and ratings. This action cannot be undone.
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDeleteConfirm(true)
+                          setDeleteTypedId('')
+                          setDeleteMessage(null)
+                        }}
+                        style={{
+                          fontFamily: 'var(--font-dm-sans)',
+                          padding: '12px 20px',
+                          backgroundColor: 'transparent',
+                          color: '#ff6666',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          fontSize: '0.875rem',
+                          border: '1px solid #ff4444',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Delete This Submission
+                      </button>
+                    </div>
+                  ) : (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <p style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#F2EDE4',
+                        marginBottom: '12px',
+                      }}>
+                        <strong>Confirm deletion:</strong>
+                      </p>
+                      <div style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.75rem',
+                        color: '#6b6457',
+                        marginBottom: '16px',
+                        lineHeight: '1.6',
+                      }}>
+                        <div>User: <span style={{ color: '#C9A84C' }}>{userEmail}</span></div>
+                        <div>Service Type: <span style={{ color: '#F2EDE4' }}>{formatServiceType(submission.service_type)}</span></div>
+                        <div>Status: <span style={{ color: '#F2EDE4' }}>{formatStatus(submission.status)}</span></div>
+                      </div>
+                      <p style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.75rem',
+                        color: '#ff6666',
+                        marginBottom: '8px',
+                      }}>
+                        Type <strong>{shortenId(submission.id)}</strong> to confirm:
+                      </p>
+                      <input
+                        type="text"
+                        value={deleteTypedId}
+                        onChange={(e) => setDeleteTypedId(e.target.value)}
+                        placeholder={shortenId(submission.id)}
+                        style={{
+                          width: '200px',
+                          padding: '8px 12px',
+                          backgroundColor: '#0C0A07',
+                          border: '1px solid #2a261e',
+                          color: '#F2EDE4',
+                          fontFamily: 'monospace',
+                          fontSize: '0.875rem',
+                          marginBottom: '16px',
+                        }}
+                      />
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleteTypedId !== shortenId(submission.id) || deleting}
+                          style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            padding: '12px 20px',
+                            backgroundColor: deleteTypedId === shortenId(submission.id) && !deleting ? '#ff4444' : '#2a261e',
+                            color: deleteTypedId === shortenId(submission.id) && !deleting ? '#0C0A07' : '#6b6457',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            fontSize: '0.875rem',
+                            border: 'none',
+                            cursor: deleteTypedId === shortenId(submission.id) && !deleting ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          {deleting ? 'Deleting...' : 'Confirm Delete'}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowDeleteConfirm(false)
+                            setDeleteTypedId('')
+                            setDeleteMessage(null)
+                          }}
+                          disabled={deleting}
+                          style={{
+                            fontFamily: 'var(--font-dm-sans)',
+                            padding: '12px 20px',
+                            backgroundColor: 'transparent',
+                            color: deleting ? '#6b6457' : '#F2EDE4',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            fontSize: '0.875rem',
+                            border: '1px solid #2a261e',
+                            cursor: deleting ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delete success/error message */}
+                  {deleteMessage && (
+                    <div style={{
+                      marginTop: '16px',
+                      padding: '12px 16px',
+                      backgroundColor: deleteMessage.type === 'success' ? '#1a2e1a' : '#2a0a0a',
+                      border: `1px solid ${deleteMessage.type === 'success' ? '#4a7c59' : '#ff4444'}`,
+                      color: deleteMessage.type === 'success' ? '#88cc88' : '#ff6666',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.875rem',
+                    }}>
+                      {deleteMessage.text}
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* League Info */}
               {submission.league_profile && (
