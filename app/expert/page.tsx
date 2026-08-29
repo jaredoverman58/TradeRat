@@ -247,9 +247,9 @@ export default async function ExpertQueuePage() {
     const expertName = expert.name.toLowerCase()
 
     if (expertName.includes('rat')) {
-      return 'No trades waiting. The Rat naps when the queue&apos;s clear.'
+      return "No trades waiting. The Rat naps when the queue's clear."
     } else if (expertName.includes('monkey')) {
-      return 'No trades waiting. The Monkey&apos;s bored and throwing things.'
+      return "No trades waiting. The Monkey's bored and throwing things."
     }
 
     // Fallback for other experts (e.g., The Badger)
@@ -282,22 +282,6 @@ export default async function ExpertQueuePage() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <Link
-              href="/dashboard"
-              style={{
-                fontFamily: 'var(--font-dm-sans)',
-                padding: '12px 24px',
-                backgroundColor: 'transparent',
-                color: '#6b6457',
-                border: '1px solid #2a261e',
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-              }}
-            >
-              Dashboard
-            </Link>
             <form action="/api/auth/signout" method="post">
               <button
                 type="submit"

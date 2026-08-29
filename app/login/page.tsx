@@ -28,7 +28,36 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.push('/dashboard')
+        // Check if user is an expert (but not admin) and redirect to /expert
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (user) {
+          // Check if user has admin role
+          const { data: userRole } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .single()
+
+          const isAdmin = userRole?.role === 'admin'
+
+          // Check if user is an expert
+          const { data: expert } = await supabase
+            .from('experts')
+            .select('id')
+            .eq('user_id', user.id)
+            .single()
+
+          // Redirect non-admin experts to /expert
+          if (expert && !isAdmin) {
+            router.push('/expert')
+          } else {
+            router.push('/dashboard')
+          }
+        } else {
+          router.push('/dashboard')
+        }
+
         router.refresh()
       }
     } catch (err) {
