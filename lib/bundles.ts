@@ -121,10 +121,10 @@ export const BUNDLES = {
     bundleType: 'standard_3_pack',
     serviceType: 'trade_finder',
     credits: 1,
-    price: 14.99,
+    price: 16.99,
     name: 'Trade Finder Standard',
     description: 'Full league analysis by standard analyst',
-    buttonText: 'Buy Standard — $14.99',
+    buttonText: 'Buy Standard — $16.99',
   } as BundleConfig,
 
   TRADE_FINDER_RAT_RATE: {
@@ -142,10 +142,10 @@ export const BUNDLES = {
     bundleType: 'standard_3_pack',
     serviceType: 'trade_finder',
     credits: 3,
-    price: 39.99,
+    price: 45.99,
     name: '3-Pack Trade Finder Standard',
     description: 'Three full league analyses by standard analysts',
-    buttonText: 'Buy 3-Pack — $39.99',
+    buttonText: 'Buy 3-Pack — $45.99',
   } as BundleConfig,
 
   TRADE_FINDER_3PACK_RAT_RATE: {
@@ -163,10 +163,10 @@ export const BUNDLES = {
     bundleType: 'standard_5_pack',
     serviceType: 'trade_finder',
     credits: 5,
-    price: 64.99,
+    price: 74.99,
     name: '5-Pack Trade Finder Standard',
     description: 'Five full league analyses by standard analysts',
-    buttonText: 'Buy 5-Pack — $64.99',
+    buttonText: 'Buy 5-Pack — $74.99',
   } as BundleConfig,
 
   TRADE_FINDER_5PACK_RAT_RATE: {

@@ -269,11 +269,33 @@ export default function PricingPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
-                marginBottom: '20px',
+                marginBottom: '16px',
                 lineHeight: 1.6,
               }}>
                 Our most comprehensive service. Upload all league rosters, and our expert analyzes the entire league to find your best trade opportunity.
               </p>
+              <ul style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                paddingLeft: '20px',
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Best move + up to 2 backup options per analysis</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Reasoning to help pitch and close the deal</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Includes 1 free Accept/Decline credit</span>
+                </li>
+              </ul>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_STANDARD} variant="landing" />
                 <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_RAT_RATE} variant="landing" />
@@ -364,10 +386,9 @@ export default function PricingPage() {
               What You Receive:
             </h3>
             <ul style={{ paddingLeft: '24px' }}>
-              <li style={{ marginBottom: '8px' }}><strong>1-3 specific trade recommendations</strong> with target teams and exact players to offer/request</li>
-              <li style={{ marginBottom: '8px' }}><strong>Detailed analysis</strong> of why each trade works for both sides</li>
+              <li style={{ marginBottom: '8px' }}><strong>Your single best available move</strong>, plus up to 2 backup options, with target teams and exact players to offer/request</li>
+              <li style={{ marginBottom: '8px' }}><strong>Detailed reasoning</strong> behind each recommendation, so you have what you need to help pitch and close the deal</li>
               <li style={{ marginBottom: '8px' }}><strong>Roster impact breakdown</strong> showing how your team improves</li>
-              <li style={{ marginBottom: '8px' }}><strong>Alternative targets</strong> if your first choice declines</li>
               <li style={{ marginBottom: '8px' }}><strong>Negotiation strategy</strong> to maximize your chances of acceptance</li>
             </ul>
 
@@ -569,6 +590,28 @@ export default function PricingPage() {
               }}>
                 Three full league analyses. Perfect for early season, mid-season, and playoff push.
               </p>
+              <ul style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                paddingLeft: '20px',
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Best move + up to 2 backup options per analysis</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Reasoning to help pitch and close the deal</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Includes 2 free Accept/Decline credits</span>
+                </li>
+              </ul>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '1.5rem',
@@ -576,7 +619,7 @@ export default function PricingPage() {
                 color: '#C9A84C',
                 marginBottom: '20px',
               }}>
-                $39.99
+                $45.99
               </div>
               <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_3PACK_STANDARD} variant="landing" />
             </div>
@@ -605,6 +648,28 @@ export default function PricingPage() {
               }}>
                 Three premium full league analyses from The Rat. The ultimate competitive edge.
               </p>
+              <ul style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                paddingLeft: '20px',
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Best move + up to 2 backup options per analysis</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Reasoning to help pitch and close the deal</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Includes 2 free Accept/Decline credits</span>
+                </li>
+              </ul>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '1.5rem',
@@ -641,6 +706,28 @@ export default function PricingPage() {
               }}>
                 Five full league analyses. Maximum value for active traders managing multiple leagues.
               </p>
+              <ul style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                paddingLeft: '20px',
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Best move + up to 2 backup options per analysis</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Reasoning to help pitch and close the deal</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Includes 3 free Accept/Decline credits</span>
+                </li>
+              </ul>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '1.5rem',
@@ -648,7 +735,7 @@ export default function PricingPage() {
                 color: '#C9A84C',
                 marginBottom: '20px',
               }}>
-                $64.99
+                $74.99
               </div>
               <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_5PACK_STANDARD} variant="landing" />
             </div>
@@ -677,6 +764,28 @@ export default function PricingPage() {
               }}>
                 Five premium full league analyses from The Rat. Ultimate package for serious competitors.
               </p>
+              <ul style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: 1.7,
+                marginBottom: '20px',
+                paddingLeft: '20px',
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Best move + up to 2 backup options per analysis</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Reasoning to help pitch and close the deal</span>
+                </li>
+                <li style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start' }}>
+                  <span style={{ color: '#C9A84C', marginRight: '8px', flexShrink: 0 }}>•</span>
+                  <span>Includes 3 free Accept/Decline credits</span>
+                </li>
+              </ul>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '1.5rem',

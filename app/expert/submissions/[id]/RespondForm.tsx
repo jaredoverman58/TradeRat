@@ -30,6 +30,11 @@ export default function RespondForm({
   const [bonusContent, setBonusContent] = useState('')
   const isBundleService = serviceType === 'bundle'
 
+  // Trade Finder service fields
+  const [hasBackupOptions, setHasBackupOptions] = useState(false)
+  const [hasPitchableReasoning, setHasPitchableReasoning] = useState(false)
+  const isTradeFinderService = serviceType === 'trade_finder'
+
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const draftKey = `draft_${submissionId}_${expertId}`
 
@@ -84,6 +89,11 @@ export default function RespondForm({
     // If bundle service, must also have verdict and valid bonus content
     if (isBundleService) {
       return hasContent && verdict && bonusContent.trim().length >= 30
+    }
+
+    // If trade finder service, must also confirm backup options and pitchable reasoning
+    if (isTradeFinderService) {
+      return hasContent && hasBackupOptions && hasPitchableReasoning
     }
 
     // For non-bundle services, just needs content
@@ -365,6 +375,86 @@ export default function RespondForm({
             disabled={submitting}
           />
         </div>
+
+        {/* Trade Finder Service: Required Checkboxes */}
+        {isTradeFinderService && (
+          <div style={{
+            marginBottom: '24px',
+            padding: '20px',
+            backgroundColor: '#1a1710',
+            border: '1px solid #2a261e',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              Trade Finder Requirements
+            </div>
+
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginBottom: '16px',
+              cursor: 'pointer',
+            }}>
+              <input
+                type="checkbox"
+                checked={hasBackupOptions}
+                onChange={(e) => setHasBackupOptions(e.target.checked)}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  marginRight: '12px',
+                  marginTop: '2px',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  accentColor: '#C9A84C',
+                }}
+              />
+              <span style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: '1.6',
+              }}>
+                I&apos;ve included up to 2 backup trade options in my response
+              </span>
+            </label>
+
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              cursor: 'pointer',
+            }}>
+              <input
+                type="checkbox"
+                checked={hasPitchableReasoning}
+                onChange={(e) => setHasPitchableReasoning(e.target.checked)}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  marginRight: '12px',
+                  marginTop: '2px',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  accentColor: '#C9A84C',
+                }}
+              />
+              <span style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#F2EDE4',
+                lineHeight: '1.6',
+              }}>
+                My reasoning explains why this deal works — enough that the customer could use it to help pitch or close the trade
+              </span>
+            </label>
+          </div>
+        )}
 
         <button
           type="submit"

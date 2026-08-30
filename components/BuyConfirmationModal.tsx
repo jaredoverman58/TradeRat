@@ -78,8 +78,10 @@ export default function BuyConfirmationModal({
         return [
           tierBullet,
           'Every roster in your league analyzed, not just the trade in front of you',
-          'Your single best available move identified — who to target, what to offer, and why',
-          'Guaranteed response within 48 hours (most within 8)',
+          'Your single best available move identified',
+          'Up to 2 backup trade options, in case your first target says no',
+          'Reasoning behind your top target, so you have what you need to help pitch and close the deal',
+          'Most responses within 8 hours — guaranteed within 48',
         ]
 
       default:
@@ -90,9 +92,9 @@ export default function BuyConfirmationModal({
   // Trade Finder extra paragraph (landing variant only) - tier-aware
   const getTradeFinderParagraph = () => {
     if (tier === 'rat') {
-      return "Upload all rosters → The Rat analyzes everything → who to target, what to offer, and why → guaranteed within 48 hours (most within 8)"
+      return "Upload all rosters → The Rat analyzes everything → your best move plus up to 2 backup options → reasoning you can use to pitch and close → most responses within 8 hours, guaranteed within 48"
     }
-    return "Upload all rosters → Your assigned expert analyzes everything → who to target, what to offer, and why → guaranteed within 48 hours (most within 8)"
+    return "Upload all rosters → Your assigned expert analyzes everything → your best move plus up to 2 backup options → reasoning you can use to pitch and close → most responses within 8 hours, guaranteed within 48"
   }
 
   const tradeFinderParagraph = getTradeFinderParagraph()
@@ -196,8 +198,8 @@ export default function BuyConfirmationModal({
                 listStyleType: 'disc',
               }}
             >
-              {/* Trade Finder: show only first 3 bullets (4th is covered by extra paragraph) */}
-              {(serviceType === 'trade_finder' ? bullets.slice(0, 3) : bullets).map((bullet, index) => (
+              {/* Trade Finder: show only first 5 bullets (6th is covered by extra paragraph) */}
+              {(serviceType === 'trade_finder' ? bullets.slice(0, 5) : bullets).map((bullet, index) => (
                 <li key={index} style={{ marginBottom: '8px' }}>
                   {bullet}
                 </li>
@@ -235,7 +237,7 @@ export default function BuyConfirmationModal({
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '8px' }}>
               <span style={{ color: '#C9A84C', marginRight: '12px', flexShrink: 0 }}>•</span>
-              <span>{bullets[3]}</span>
+              <span>{bullets[5]}</span>
             </div>
           </div>
         )}

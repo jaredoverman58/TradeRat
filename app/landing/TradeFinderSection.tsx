@@ -82,6 +82,48 @@ export default function TradeFinderSection() {
             </div>
           </div>
 
+          {/* Trade Finder Value Proposition */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '1rem',
+            color: '#F2EDE4',
+            lineHeight: 1.7,
+            marginBottom: '32px',
+          }}>
+            Every Trade Finder analysis comes with more than one answer. You&apos;ll get your expert&apos;s top recommendation — plus up to 2 backup options in case your first target says no — along with the reasoning behind it, so you have what you need to help pitch and close the deal.
+          </p>
+
+          {/* Free Credit Banner */}
+          <div style={{
+            border: '2px solid #C9A84C',
+            padding: '16px 24px',
+            backgroundColor: '#1a1710',
+            marginBottom: '24px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: '#C9A84C',
+              textAlign: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '1.5px',
+              marginBottom: '8px',
+            }}>
+              BONUS
+            </div>
+            <p style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: '#C9A84C',
+              textAlign: 'center',
+              margin: 0,
+            }}>
+              Free Accept/Decline credit included with every Trade Finder purchase — save it for whenever you need it.
+            </p>
+          </div>
+
           {/* Buy Buttons */}
           <div style={{
             display: 'flex',
@@ -93,10 +135,10 @@ export default function TradeFinderSection() {
               bundleType="standard_3_pack"
               serviceType="trade_finder"
               credits={1}
-              price={14.99}
+              price={16.99}
               name="Trade Finder Standard"
               description="Full league analysis by standard analyst"
-              buttonText="Buy Standard — $14.99"
+              buttonText="Buy Standard — $16.99"
             />
             <BundlePurchaseButton
               bundleType="rat_rate_3_pack"
