@@ -1963,8 +1963,11 @@ export default function SubmitPage() {
                 ))}
 
                 {/* Progress indicator for Trade Finder */}
-                {serviceType === 'trade_finder' && selectedProfileId && (() => {
-                  const actualNumTeams = leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
+                {serviceType === 'trade_finder' && (() => {
+                  // Use live form state if creating new profile, otherwise use selected saved profile's num_teams
+                  const actualNumTeams = showNewProfileForm
+                    ? numTeams
+                    : (leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12)
                   return (
                     <div style={{
                       marginTop: '16px',
@@ -2148,9 +2151,9 @@ export default function SubmitPage() {
           {/* Submit Button */}
           {(() => {
             // Calculate actual team count for Trade Finder validation
-            const actualNumTeams = selectedProfileId
-              ? leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12
-              : numTeams
+            const actualNumTeams = showNewProfileForm
+              ? numTeams
+              : (leagueProfiles.find(p => p.id === selectedProfileId)?.num_teams || 12)
 
             // File upload validation
             const hasUploadingFiles = submissionFiles.some(f => f.uploading)

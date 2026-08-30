@@ -65,27 +65,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create test league profile' }, { status: 500 })
     }
 
-    // Create test submission
+    // Create test submission with conditional fields based on service type
+    const submissionData: any = {
+      user_id: user.id,
+      league_profile_id: leagueProfile.id,
+      service_type: selectedServiceType,
+      offer_direction: selectedServiceType === 'trade_finder' ? null : 'received',
+      rate_tier: rateTier,
+      status: 'claimed',
+      expert_id: expertId,
+      claimed_at: new Date().toISOString(),
+      deadline_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 hours from now
+    }
+
+    // Add service-type-specific fields
+    if (selectedServiceType === 'trade_finder') {
+      // Trade Finder: no specific offer, just context
+      submissionData.additional_context = `TEST SUBMISSION (TRADE FINDER) - Created via admin dev tools. Looking to upgrade at RB and willing to move WR depth. Currently 5-3, competing for playoffs. No untouchables except my QB1.`
+    } else {
+      // Trade Evaluation: specific offer with players/picks
+      submissionData.receive_players = 'Justin Jefferson, WR\nAlvin Kamara, RB'
+      submissionData.give_players = 'Ja&apos;Marr Chase, WR\nJosh Jacobs, RB'
+      submissionData.receive_picks = '2026 2nd Round'
+      submissionData.give_picks = null
+      submissionData.fab_receive = null
+      submissionData.fab_give = null
+      submissionData.additional_context = `TEST SUBMISSION (${selectedServiceType.toUpperCase()}) - Created via admin dev tools for testing purposes. I&apos;m currently 5-3 and looking to make a playoff push. My WR depth is strong but RB is thin. Should I make this trade?`
+    }
+
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
-      .insert({
-        user_id: user.id,
-        league_profile_id: leagueProfile.id,
-        service_type: selectedServiceType,
-        offer_direction: 'received',
-        rate_tier: rateTier,
-        status: 'claimed',
-        expert_id: expertId,
-        claimed_at: new Date().toISOString(),
-        deadline_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 hours from now
-        receive_players: 'Justin Jefferson, WR\nAlvin Kamara, RB',
-        give_players: 'Ja&apos;Marr Chase, WR\nJosh Jacobs, RB',
-        receive_picks: '2026 2nd Round',
-        give_picks: null,
-        fab_receive: null,
-        fab_give: null,
-        additional_context: `TEST SUBMISSION (${selectedServiceType.toUpperCase()}) - Created via admin dev tools for testing purposes. I&apos;m currently 5-3 and looking to make a playoff push. My WR depth is strong but RB is thin. Should I make this trade?`,
-      })
+      .insert(submissionData)
       .select()
       .single()
 
