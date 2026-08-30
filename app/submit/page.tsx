@@ -429,7 +429,17 @@ export default function SubmitPage() {
   }
 
   const updateFileIsOwnRoster = (id: string, isOwnRoster: boolean) => {
-    setSubmissionFiles(prev => prev.map(f => f.id === id ? { ...f, isOwnRoster } : f))
+    setSubmissionFiles(prev => prev.map(f => {
+      if (f.id === id) {
+        return { ...f, isOwnRoster }
+      } else if (isOwnRoster) {
+        // If checking this file, uncheck all others (radio button behavior)
+        return { ...f, isOwnRoster: false }
+      } else {
+        // If unchecking, don't affect other files
+        return f
+      }
+    }))
   }
 
   const handleCreateProfile = async (e: React.FormEvent) => {
