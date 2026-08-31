@@ -161,6 +161,28 @@ export default function FreeEvaluationConfirmationModal({
           We&apos;ll get to your free evaluation as quickly as we can. Response times may vary — but we won&apos;t leave you hanging.
         </p>
 
+        {/* Payment Method Callout */}
+        <div
+          style={{
+            border: '1px solid #C9A84C',
+            backgroundColor: 'rgba(201, 168, 76, 0.05)',
+            padding: '16px',
+            marginBottom: '32px',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#F2EDE4',
+              lineHeight: 1.6,
+              margin: 0,
+            }}
+          >
+            A payment method is required to prevent abuse of our free evaluations — you won&apos;t be charged.
+          </p>
+        </div>
+
         {/* Error Message */}
         {error && (
           <div

@@ -287,7 +287,7 @@ export default function OnboardingPage() {
               color: '#6b6457',
               marginBottom: '48px',
             }}>
-              Submit your first trade and get expert analysis absolutely free. No credit card required.
+              Submit your first trade and get expert analysis absolutely free.
             </p>
 
             <div style={{
@@ -296,12 +296,6 @@ export default function OnboardingPage() {
               backgroundColor: '#1a1710',
               marginBottom: '32px',
             }}>
-              <div style={{
-                fontSize: '4rem',
-                marginBottom: '24px',
-              }}>
-                🎁
-              </div>
               <h3 style={{
                 fontFamily: 'var(--font-playfair)',
                 fontSize: '1.5rem',
