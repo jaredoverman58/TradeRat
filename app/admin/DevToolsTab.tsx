@@ -49,6 +49,8 @@ export default function DevToolsTab() {
   const [selectedLoginAsUserId, setSelectedLoginAsUserId] = useState<string>('')
   const [loginAsLoading, setLoginAsLoading] = useState(false)
   const [loginAsError, setLoginAsError] = useState<string | null>(null)
+  const [creatingTestUser, setCreatingTestUser] = useState(false)
+  const [createTestUserSuccess, setCreateTestUserSuccess] = useState<string | null>(null)
 
   // Fetch experts on mount
   useEffect(() => {
@@ -302,8 +304,10 @@ export default function DevToolsTab() {
     }
   }
 
-  const handleLoginAs = async () => {
-    if (!selectedLoginAsUserId) {
+  const handleLoginAs = async (targetUserId?: string) => {
+    const userIdToUse = targetUserId || selectedLoginAsUserId
+
+    if (!userIdToUse) {
       setLoginAsError('Please select a user')
       return
     }
@@ -315,7 +319,7 @@ export default function DevToolsTab() {
       const res = await fetch('/api/admin/login-as', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetUserId: selectedLoginAsUserId }),
+        body: JSON.stringify({ targetUserId: userIdToUse }),
       })
 
       const data = await res.json()
@@ -324,6 +328,10 @@ export default function DevToolsTab() {
         throw new Error(data.error || 'Failed to generate login link')
       }
 
+      console.log('Login As - Target User ID:', userIdToUse)
+      console.log('Login As - Response:', data)
+      console.log('Login As - Action Link:', data.action_link)
+
       // Redirect to the magic link - this will log us in as the target user
       window.location.href = data.action_link
     } catch (err) {
@@ -331,6 +339,68 @@ export default function DevToolsTab() {
       setLoginAsLoading(false)
     }
   }
+
+  const handleCreateNewTestUser = async () => {
+    setCreatingTestUser(true)
+    setLoginAsError(null)
+    setCreateTestUserSuccess(null)
+
+    try {
+      // Backend calculates next testuser{N} number to avoid pagination issues
+      const res = await fetch('/api/admin/create-test-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create test user')
+      }
+
+      console.log('=== CREATE-TEST-USER RESPONSE ===')
+      console.log('Received from API:', data)
+      console.log('  userId:', data.userId)
+      console.log('  email:', data.email)
+      console.log('=================================')
+
+      // Add new user to the list
+      const newUser: User = {
+        id: data.userId,
+        email: data.email,
+        created_at: new Date().toISOString(),
+      }
+      setUsers(prev => [newUser, ...prev])
+
+      // Select the new user
+      setSelectedLoginAsUserId(data.userId)
+
+      console.log('=== SET SELECTED USER ===')
+      console.log('selectedLoginAsUserId set to:', data.userId)
+      console.log('=========================')
+
+      // Show success message
+      setCreateTestUserSuccess(`Created ${data.email} - logging in...`)
+
+      // Wait a moment for user to see the message, then auto-login
+      setTimeout(() => {
+        console.log('=== BEFORE handleLoginAs() ===')
+        console.log('Passing userId directly:', data.userId)
+        console.log('==============================')
+        handleLoginAs(data.userId)
+      }, 800)
+    } catch (err) {
+      setLoginAsError(err instanceof Error ? err.message : 'Failed to create test user')
+      setCreatingTestUser(false)
+    }
+  }
+
+  // handleLoginAs is called by handleCreateNewTestUser, so we need to handle state cleanup
+  useEffect(() => {
+    if (loginAsLoading) {
+      setCreatingTestUser(false)
+    }
+  }, [loginAsLoading])
 
   return (
     <div>
@@ -760,6 +830,20 @@ export default function DevToolsTab() {
           </div>
         )}
 
+        {createTestUserSuccess && (
+          <div style={{
+            backgroundColor: '#0a2a0a',
+            border: '1px solid #44ff44',
+            color: '#66ff66',
+            padding: '16px',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            ✓ {createTestUserSuccess}
+          </div>
+        )}
+
         <div style={{ marginBottom: '24px' }}>
           <label style={{
             fontFamily: 'var(--font-dm-sans)',
@@ -798,24 +882,51 @@ export default function DevToolsTab() {
           </select>
         </div>
 
-        <button
-          onClick={handleLoginAs}
-          disabled={loginAsLoading || !selectedLoginAsUserId}
-          style={{
-            fontFamily: 'var(--font-dm-sans)',
-            padding: '16px 32px',
-            backgroundColor: loginAsLoading || !selectedLoginAsUserId ? '#2a261e' : '#C9A84C',
-            color: loginAsLoading || !selectedLoginAsUserId ? '#6b6457' : '#0C0A07',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontSize: '0.875rem',
-            border: 'none',
-            cursor: loginAsLoading || !selectedLoginAsUserId ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loginAsLoading ? 'Logging In...' : 'Login As This User'}
-        </button>
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          marginBottom: '24px',
+        }}>
+          <button
+            onClick={() => handleLoginAs()}
+            disabled={loginAsLoading || creatingTestUser || !selectedLoginAsUserId}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '16px 32px',
+              backgroundColor: loginAsLoading || creatingTestUser || !selectedLoginAsUserId ? '#2a261e' : '#C9A84C',
+              color: loginAsLoading || creatingTestUser || !selectedLoginAsUserId ? '#6b6457' : '#0C0A07',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+              border: 'none',
+              cursor: loginAsLoading || creatingTestUser || !selectedLoginAsUserId ? 'not-allowed' : 'pointer',
+              flex: 1,
+            }}
+          >
+            {loginAsLoading ? 'Logging In...' : 'Login As This User'}
+          </button>
+
+          <button
+            onClick={handleCreateNewTestUser}
+            disabled={loginAsLoading || creatingTestUser}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '16px 32px',
+              backgroundColor: loginAsLoading || creatingTestUser ? '#2a261e' : '#6b6457',
+              color: loginAsLoading || creatingTestUser ? '#4a4337' : '#F2EDE4',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+              border: '1px solid #2a261e',
+              cursor: loginAsLoading || creatingTestUser ? 'not-allowed' : 'pointer',
+              flex: 1,
+            }}
+          >
+            {creatingTestUser ? 'Creating...' : '+ Create New Test User'}
+          </button>
+        </div>
 
         <div style={{
           border: '1px solid #2a261e',
