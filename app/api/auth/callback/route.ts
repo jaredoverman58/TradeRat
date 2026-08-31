@@ -6,12 +6,20 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   let next = searchParams.get('next') ?? '/dashboard'
 
+  console.log('=== AUTH CALLBACK DEBUG ===')
+  console.log('Full URL:', request.url)
+  console.log('Code param:', code)
+  console.log('All search params:', Object.fromEntries(searchParams.entries()))
+  console.log('==========================')
+
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    console.log('Exchange code result - Error:', error)
     if (!error) {
       // Check if user is an expert (but not admin) and redirect to /expert
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('Logged in as user:', user?.id, user?.email)
 
       if (user) {
         // Check if user has admin role

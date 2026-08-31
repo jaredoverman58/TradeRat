@@ -37,10 +37,24 @@ export default function OnboardingPage() {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (user) {
-      await supabase
+      const { data, error } = await supabase
         .from('user_roles')
         .update({ onboarding_completed: true })
         .eq('user_id', user.id)
+
+      console.log('=== ONBOARDING UPDATE RESULT ===')
+      console.log('User ID:', user.id)
+      console.log('Update succeeded:', !error)
+      console.log('Error:', error)
+      console.log('Data returned:', data)
+      console.log('================================')
+
+      if (error) {
+        console.error('Failed to complete onboarding:', error)
+        alert('Failed to complete onboarding. Please try again.')
+        setLoading(false)
+        return
+      }
     }
 
     router.push('/dashboard')

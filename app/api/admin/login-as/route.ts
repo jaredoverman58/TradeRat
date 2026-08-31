@@ -33,7 +33,18 @@ export async function POST(request: Request) {
 
     // Get target user details
     const adminClient = createAdminClient()
+    console.log('=== BEFORE getUserById ===')
+    console.log('Requested targetUserId:', targetUserId)
+    console.log('========================')
+
     const { data: targetUserData, error: userError } = await adminClient.auth.admin.getUserById(targetUserId)
+
+    console.log('=== AFTER getUserById ===')
+    console.log('Error:', userError)
+    console.log('Full targetUserData:', JSON.stringify(targetUserData, null, 2))
+    console.log('targetUserData.user.id:', targetUserData?.user?.id)
+    console.log('targetUserData.user.email:', targetUserData?.user?.email)
+    console.log('========================')
 
     if (userError || !targetUserData.user || !targetUserData.user.email) {
       return NextResponse.json({ error: 'Target user not found' }, { status: 404 })
@@ -51,7 +62,7 @@ export async function POST(request: Request) {
     // Determine appropriate landing page based on role
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL
     const redirectPath = expert ? '/expert' : '/dashboard'
-    const redirectTo = `${baseUrl}${redirectPath}`
+    const redirectTo = `${baseUrl}/auth/confirm?next=${redirectPath}`
 
     // Generate magic link for target user
     const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
@@ -61,6 +72,14 @@ export async function POST(request: Request) {
         redirectTo,
       },
     })
+
+    console.log('=== LOGIN-AS API DEBUG ===')
+    console.log('Target User ID:', targetUserId)
+    console.log('Target User Email:', targetUser.email)
+    console.log('Redirect To:', redirectTo)
+    console.log('Generated Link Data:', linkData)
+    console.log('Action Link:', linkData.properties?.action_link)
+    console.log('=========================')
 
     if (linkError || !linkData.properties?.action_link) {
       return NextResponse.json(
@@ -81,6 +100,10 @@ export async function POST(request: Request) {
         redirect_path: redirectPath,
       },
     })
+
+    console.log('=== RETURNING TO CLIENT ===')
+    console.log('Full action_link being returned:', linkData.properties.action_link)
+    console.log('===========================')
 
     return NextResponse.json({
       success: true,
