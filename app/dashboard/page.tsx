@@ -168,22 +168,24 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <Link
-              href="/admin"
-              style={{
-                fontFamily: 'var(--font-dm-sans)',
-                padding: '12px 24px',
-                backgroundColor: 'transparent',
-                color: '#6b6457',
-                border: '1px solid #2a261e',
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-              }}
-            >
-              Admin
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  padding: '12px 24px',
+                  backgroundColor: 'transparent',
+                  color: '#6b6457',
+                  border: '1px solid #2a261e',
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                Admin
+              </Link>
+            )}
             <ProfileDropdown userEmail={user.email || ''} />
           </div>
         </div>
