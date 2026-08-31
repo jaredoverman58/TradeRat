@@ -310,7 +310,30 @@ export default function SubmitPage() {
 
       // Check if coming from checkout or login redirect
       const urlParams = new URLSearchParams(window.location.search)
-      if (urlParams.get('purchase') === 'success') {
+
+      // Handle setup completion (card saved for free eval)
+      if (urlParams.get('setup') === 'success' && urlParams.get('free_eval') === 'true') {
+        // Mark as handled to prevent re-runs
+        hasAutoSubmittedRef.current = true
+
+        // Set initial success message
+        setSuccessMessage('Card saved successfully! Processing your free evaluation...')
+        setError(null)
+        setSubmitting(true)
+
+        // Proceed with free eval submission (no credit check needed)
+        proceedWithSubmission()
+          .then(() => {
+            // Clear sessionStorage on successful submission
+            sessionStorage.removeItem('pendingSubmission')
+          })
+          .catch((err) => {
+            console.error('Error submitting after setup:', err)
+            setError(err instanceof Error ? err.message : 'Failed to submit. Please try again.')
+            setSubmitting(false)
+          })
+
+      } else if (urlParams.get('purchase') === 'success') {
         // Mark as handled to prevent re-runs
         hasAutoSubmittedRef.current = true
 
@@ -696,6 +719,32 @@ export default function SubmitPage() {
 
     // FREE EVALUATION CHECK - handle before paid credit check
     if (usingFreeEval) {
+      // Save form state before showing modal (in case user needs to redirect for card setup)
+      sessionStorage.setItem('pendingSubmission', JSON.stringify({
+        selectedProfileId,
+        serviceType,
+        offerDirection,
+        rateTier,
+        receivePlayers,
+        givePlayers,
+        receivePicks,
+        givePicks,
+        fabReceive,
+        fabGive,
+        tradeFinderContext,
+        additionalContext,
+        smsOptIn,
+        phoneNumber,
+        files: submissionFiles.map(f => ({
+          id: f.id,
+          filePath: f.filePath || '',
+          fileName: f.file.name,
+          fileType: f.file.type,
+          label: f.label,
+          isOwnRoster: f.isOwnRoster
+        }))
+      }))
+
       setShowFreeEvalModal(true)
       return
     }

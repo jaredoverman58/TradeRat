@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 interface FreeEvaluationConfirmationModalProps {
   onConfirm: () => void
   onCancel: () => void
@@ -9,6 +11,46 @@ export default function FreeEvaluationConfirmationModal({
   onConfirm,
   onCancel,
 }: FreeEvaluationConfirmationModalProps) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleConfirm = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Check if user has a payment method on file
+      const response = await fetch('/api/stripe/setup-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to check payment method status')
+      }
+
+      const data = await response.json()
+
+      if (data.hasPaymentMethod) {
+        // User already has a card on file - proceed with submission
+        onConfirm()
+      } else {
+        // User needs to add a card - redirect to Stripe Checkout setup mode
+        if (data.url) {
+          window.location.href = data.url
+        } else {
+          throw new Error('No checkout URL returned')
+        }
+      }
+    } catch (err) {
+      console.error('Error during free eval setup:', err)
+      setError('Failed to start free evaluation. Please try again.')
+      setLoading(false)
+    }
+  }
+
   return (
     <div
       style={{
@@ -119,6 +161,23 @@ export default function FreeEvaluationConfirmationModal({
           We&apos;ll get to your free evaluation as quickly as we can. Response times may vary — but we won&apos;t leave you hanging.
         </p>
 
+        {/* Error Message */}
+        {error && (
+          <div
+            style={{
+              backgroundColor: '#2a0a0a',
+              border: '1px solid #ff4444',
+              color: '#ff6666',
+              padding: '16px',
+              marginBottom: '24px',
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* Buttons */}
         <div
           style={{
@@ -128,25 +187,28 @@ export default function FreeEvaluationConfirmationModal({
           }}
         >
           <button
-            onClick={onConfirm}
+            onClick={handleConfirm}
+            disabled={loading}
             style={{
               fontFamily: 'var(--font-dm-sans)',
               padding: '16px 40px',
-              backgroundColor: '#C9A84C',
+              backgroundColor: loading ? '#6b6457' : '#C9A84C',
               color: '#0C0A07',
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               fontSize: '0.875rem',
               border: 'none',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
             }}
           >
-            Start My Free Evaluation
+            {loading ? 'Processing...' : 'Start My Free Evaluation'}
           </button>
 
           <button
             onClick={onCancel}
+            disabled={loading}
             style={{
               fontFamily: 'var(--font-dm-sans)',
               padding: '16px 40px',
@@ -157,7 +219,8 @@ export default function FreeEvaluationConfirmationModal({
               letterSpacing: '0.1em',
               fontSize: '0.875rem',
               border: '1px solid #2a261e',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
             }}
           >
             Cancel
