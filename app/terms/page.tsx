@@ -33,7 +33,7 @@ export default function TermsPage() {
             color: '#6b6457',
             fontSize: '0.875rem',
           }}>
-            Last Updated: August 10, 2026
+            Last Updated: September 5, 2026
           </p>
         </div>
 
@@ -56,7 +56,9 @@ export default function TermsPage() {
             </h2>
             <p style={{ marginBottom: '16px' }}>
               By accessing and using Trade Rat, you accept and agree to be bound by these Terms of Service.
-              If you do not agree to these terms, please do not use our service.
+              By creating an account, clicking &quot;I Agree,&quot; purchasing a package, or using the Services,
+              you acknowledge that you have read and agree to these Terms and the Privacy Policy. If you do not
+              agree, you may not use the Services.
             </p>
           </section>
 
@@ -69,7 +71,24 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              2. Service Description
+              2. Age and Eligibility
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              You must be at least 18 years old and legally capable of entering into a binding contract to
+              create an account, purchase a package, or use the Services.
+            </p>
+          </section>
+
+          {/* Section 3 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              3. Service Description
             </h2>
             <p style={{ marginBottom: '16px' }}>
               Trade Rat provides fantasy football trade analysis and recommendations through our expert analyst system.
@@ -87,7 +106,7 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 3 */}
+          {/* Section 4 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -96,7 +115,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              3. The Expert System
+              4. The Expert System
             </h2>
             <p style={{ marginBottom: '16px' }}>
               Our analysis is provided by a team of fantasy football experts operating under three tiers:
@@ -117,9 +136,14 @@ export default function TermsPage() {
               Standard packages will be assigned to any available expert based on capacity and queue status.
               Premium packages guarantee assignment to The Trade Rat.
             </p>
+            <p style={{ marginBottom: '16px' }}>
+              Analyst tiers reflect Trade Rat&apos;s internal service levels and assignment process only. They do
+              not represent professional certifications or guarantee any particular accuracy, result, or
+              fantasy-sports outcome.
+            </p>
           </section>
 
-          {/* Section 4 */}
+          {/* Section 5 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -128,7 +152,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              4. Payment Terms
+              5. Payment Terms
             </h2>
             <p style={{ marginBottom: '16px' }}>
               All payments are processed securely through Stripe. By purchasing a package, you agree to the following:
@@ -141,7 +165,9 @@ export default function TermsPage() {
                 Credits can be used at any time during the fantasy football season
               </li>
               <li style={{ marginBottom: '8px' }}>
-                All paid packages expire at the end of the current fantasy season (typically late December)
+                Paid credits expire on the specific expiration date displayed at checkout and in the purchase
+                confirmation. Promotional or complimentary credits may be subject to different expiration terms
+                disclosed when issued.
               </li>
               <li style={{ marginBottom: '8px' }}>
                 Credits are non-transferable and non-refundable except as specified in our refund policy
@@ -150,9 +176,15 @@ export default function TermsPage() {
                 Prices are subject to change, but purchases are honored at the price paid at time of transaction
               </li>
             </ul>
+            <p style={{ marginBottom: '16px' }}>
+              Payments are processed by Stripe, a third-party payment processor, and may be subject to
+              Stripe&apos;s applicable terms and privacy policy. Trade Rat does not directly store complete
+              payment-card numbers or security codes. By submitting payment information, you authorize Trade Rat
+              and Stripe to charge the displayed purchase price and applicable taxes to your selected payment method.
+            </p>
           </section>
 
-          {/* Section 5 */}
+          {/* Section 6 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -161,7 +193,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              5. Turnaround Time and Refund Policy
+              6. Turnaround Time and Refund Policy
             </h2>
             <p style={{ marginBottom: '16px' }}>
               We strive to deliver all trade analysis within 24-48 hours of submission. Our refund policy:
@@ -184,9 +216,15 @@ export default function TermsPage() {
                 Free evaluations are not subject to the guaranteed turnaround times or refund policy above — we aim to respond as quickly as possible, but no specific timeframe or refund applies to free evaluations.
               </li>
             </ul>
+            <p style={{ marginBottom: '16px' }}>
+              The 48-hour period begins when Trade Rat receives a complete submission containing all information
+              reasonably necessary to conduct the analysis. Analysis is considered delivered when it is made
+              available through the user&apos;s account or sent to the user&apos;s registered email address. All
+              deadlines are calculated using Eastern Time.
+            </p>
           </section>
 
-          {/* Section 6 */}
+          {/* Section 7 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -195,7 +233,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              6. Disclaimers and Limitations
+              7. Disclaimers and Limitations
             </h2>
             <div style={{
               border: '2px solid #C9A84C',
@@ -207,7 +245,7 @@ export default function TermsPage() {
                 IMPORTANT: Trade advice provided by Trade Rat experts is not guaranteed to result in successful
                 fantasy outcomes.
               </p>
-              <ul style={{ marginLeft: '24px' }}>
+              <ul style={{ marginLeft: '24px', marginBottom: '16px' }}>
                 <li style={{ marginBottom: '8px' }}>
                   All analysis is based on expert opinion and available information at the time of review
                 </li>
@@ -223,10 +261,17 @@ export default function TermsPage() {
                   Final trade decisions rest solely with you, the fantasy manager
                 </li>
               </ul>
+              <p style={{ fontWeight: 700 }}>
+                TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SERVICES AND ANALYSIS ARE PROVIDED &quot;AS IS&quot;
+                AND &quot;AS AVAILABLE,&quot; WITHOUT WARRANTIES OF ANY KIND. TRADE RAT DOES NOT WARRANT THAT ANY
+                ANALYSIS WILL BE ACCURATE, COMPLETE, ERROR-FREE, OR SUCCESSFUL. TRADE RAT WILL NOT BE LIABLE FOR
+                INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES. TRADE RAT&apos;S TOTAL LIABILITY
+                WILL NOT EXCEED THE AMOUNT PAID FOR THE PACKAGE GIVING RISE TO THE CLAIM.
+              </p>
             </div>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 8 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -235,7 +280,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              7. User Responsibilities
+              8. User Responsibilities
             </h2>
             <p style={{ marginBottom: '16px' }}>
               When using Trade Rat, you agree to:
@@ -259,24 +304,6 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 8 */}
-          <section style={{ marginBottom: '40px' }}>
-            <h2 style={{
-              fontFamily: 'var(--font-playfair)',
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: '#C9A84C',
-              marginBottom: '16px',
-            }}>
-              8. Intellectual Property
-            </h2>
-            <p style={{ marginBottom: '16px' }}>
-              All trade analysis, expert commentary, audio content, and written recommendations provided through
-              Trade Rat remain our intellectual property. You may use this advice for your personal fantasy leagues
-              but may not reproduce, distribute, or commercially exploit our content.
-            </p>
-          </section>
-
           {/* Section 9 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
@@ -286,11 +313,12 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              9. Termination
+              9. Intellectual Property
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We reserve the right to suspend or terminate accounts that violate these terms, abuse the service,
-              or engage in fraudulent activity. Unused credits from terminated accounts will not be refunded.
+              All trade analysis, expert commentary, audio content, and written recommendations provided through
+              Trade Rat remain our intellectual property. You may use this advice for your personal fantasy leagues
+              but may not reproduce, distribute, or commercially exploit our content.
             </p>
           </section>
 
@@ -303,11 +331,88 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              10. Changes to Terms
+              10. User Submissions
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              You retain ownership of materials you submit. You grant Trade Rat a limited, nonexclusive license
+              to host, copy, process, and use those materials solely to provide, secure, support, and improve
+              the Services. You represent that you have the right to submit the materials and that they do not
+              violate another person&apos;s privacy, confidentiality, or intellectual-property rights.
+            </p>
+          </section>
+
+          {/* Section 11 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              11. Termination
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              We reserve the right to suspend or terminate accounts that violate these terms, abuse the service,
+              or engage in fraudulent activity. If an account is terminated for fraud, unlawful activity, payment
+              disputes, or a material breach of these Terms, unused credits may be forfeited to the extent
+              permitted by law. If Trade Rat terminates an account for convenience or discontinues the Services,
+              Trade Rat will refund the prorated value of unused paid credits.
+            </p>
+          </section>
+
+          {/* Section 12 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              12. Changes to Terms
             </h2>
             <p style={{ marginBottom: '16px' }}>
               We may update these Terms of Service from time to time. Continued use of Trade Rat after changes
               are posted constitutes acceptance of the updated terms.
+            </p>
+          </section>
+
+          {/* Section 13 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              13. Governing Law and Disputes
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              These Terms are governed by the laws of the State of Wyoming. Any legal proceeding relating to
+              these Terms or the Services must be brought in the state or federal courts located in Campbell
+              County, Wyoming, and each party consents to their jurisdiction and venue.
+            </p>
+          </section>
+
+          {/* Section 14 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              14. General Terms
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              These Terms and the Privacy Policy constitute the entire agreement concerning the Services. If any
+              provision is found unenforceable, the remaining provisions remain effective. Failure to enforce a
+              provision is not a waiver. Users may not assign these Terms without Trade Rat&apos;s written consent.
+              Trade Rat may assign these Terms in connection with a merger, reorganization, financing, or sale of
+              its business.
             </p>
           </section>
 

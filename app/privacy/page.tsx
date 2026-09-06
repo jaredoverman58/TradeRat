@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             color: '#6b6457',
             fontSize: '0.875rem',
           }}>
-            Last Updated: August 10, 2026
+            Last Updated: September 5, 2026
           </p>
         </div>
 
@@ -46,8 +46,10 @@ export default function PrivacyPage() {
           {/* Introduction */}
           <section style={{ marginBottom: '40px' }}>
             <p style={{ marginBottom: '16px' }}>
-              Trade Rat is committed to protecting your privacy. This Privacy Policy explains how we collect,
-              use, and safeguard your personal information when you use our fantasy football trade analysis service.
+              This Privacy Policy explains how Jared Overman, a sole proprietor doing business as Trade Rat
+              (&quot;Trade Rat,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), collects, uses, discloses,
+              and retains personal information when you use trade-rat.vercel.app and our fantasy football trade
+              advisory service.
             </p>
           </section>
 
@@ -63,7 +65,9 @@ export default function PrivacyPage() {
               1. Information We Collect
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We collect the following types of information to provide and improve our service:
+              We collect information: (a) directly from you when you create an account, purchase credits, contact
+              us, or submit a request; (b) automatically through cookies and similar technologies; and (c) from
+              service providers such as Stripe when they confirm a transaction or refund.
             </p>
 
             <h3 style={{
@@ -129,8 +133,10 @@ export default function PrivacyPage() {
               Payment Information
             </h3>
             <p style={{ marginBottom: '16px' }}>
-              Payment details are processed securely through Stripe. We do not store your credit card information
-              on our servers. We receive only transaction confirmation and payment identifiers from Stripe.
+              Stripe collects and processes payment-card information on our behalf. Trade Rat does not directly
+              receive or store complete card numbers or card security codes. We receive limited transaction
+              information from Stripe, which may include payment status, transaction identifiers, billing contact
+              information, card type, expiration information, and the last four digits of the card.
             </p>
 
             <h3 style={{
@@ -195,6 +201,18 @@ export default function PrivacyPage() {
                 <strong style={{ color: '#C9A84C' }}>Service Improvement:</strong> Usage data helps us understand
                 how users interact with Trade Rat and identify areas for improvement
               </li>
+              <li style={{ marginBottom: '8px' }}>
+                <strong style={{ color: '#C9A84C' }}>Security and Fraud Prevention:</strong> Authenticate users,
+                detect suspicious activity, protect accounts, and investigate payment disputes
+              </li>
+              <li style={{ marginBottom: '8px' }}>
+                <strong style={{ color: '#C9A84C' }}>Legal and Contractual Purposes:</strong> Enforce our Terms,
+                maintain required records, comply with legal obligations, and establish or defend legal claims
+              </li>
+              <li style={{ marginBottom: '8px' }}>
+                <strong style={{ color: '#C9A84C' }}>Communications:</strong> Send service-related notices, security
+                alerts, purchase confirmations, and responses to customer requests
+              </li>
             </ul>
           </section>
 
@@ -234,6 +252,10 @@ export default function PrivacyPage() {
             <p style={{ marginBottom: '16px' }}>
               Your mobile phone number is never shared, sold, or rented to third parties for marketing or advertising purposes. We only share your phone number with our SMS delivery provider (Twilio) solely to send you the text messages you have opted in to receive.
             </p>
+            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#6b6457' }}>
+              Note: the SMS notification feature described above is built into Trade Rat but is not active at
+              initial launch. It will be enabled at a later date.
+            </p>
           </section>
 
           {/* Section 4 */}
@@ -270,17 +292,31 @@ export default function PrivacyPage() {
                 and screenshots are shared with our internal expert team solely for providing trade analysis
               </li>
               <li style={{ marginBottom: '8px' }}>
-                <strong style={{ color: '#C9A84C' }}>Service Providers:</strong> We use trusted third-party services:
-                <ul style={{ marginLeft: '24px', marginTop: '8px' }}>
-                  <li style={{ marginBottom: '4px' }}>Stripe for payment processing</li>
-                  <li style={{ marginBottom: '4px' }}>Supabase for secure data storage and authentication</li>
-                  <li style={{ marginBottom: '4px' }}>Vercel for hosting</li>
-                  <li style={{ marginBottom: '4px' }}>SMS gateway providers (if you opt-in to text notifications)</li>
-                </ul>
+                <strong style={{ color: '#C9A84C' }}>Service Providers:</strong> We disclose personal information
+                to service providers that process it on our behalf, including Stripe for payment processing,
+                Supabase for authentication and data storage, Vercel for hosting and infrastructure, and other
+                vendors used for security, communications, analytics, and customer support. These providers may
+                use the information only to provide contracted services or as otherwise permitted by law.
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#C9A84C' }}>Legal Compliance:</strong> We may disclose information if
                 required by law, court order, or government regulation
+              </li>
+            </ul>
+            <p style={{ marginBottom: '16px' }}>
+              We may also disclose information:
+            </p>
+            <ul style={{ marginLeft: '24px', marginBottom: '16px' }}>
+              <li style={{ marginBottom: '8px' }}>
+                In connection with a merger, financing, acquisition, reorganization, bankruptcy, or sale of all
+                or part of our business or assets
+              </li>
+              <li style={{ marginBottom: '8px' }}>
+                When reasonably necessary to investigate fraud, security incidents, violations of our Terms, or
+                threats to users or the Service
+              </li>
+              <li style={{ marginBottom: '8px' }}>
+                With your direction or consent
               </li>
             </ul>
           </section>
@@ -297,25 +333,11 @@ export default function PrivacyPage() {
               5. Data Security
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We implement industry-standard security measures to protect your data:
-            </p>
-            <ul style={{ marginLeft: '24px', marginBottom: '16px' }}>
-              <li style={{ marginBottom: '8px' }}>
-                All data is encrypted in transit using HTTPS/TLS
-              </li>
-              <li style={{ marginBottom: '8px' }}>
-                Passwords are hashed and securely stored
-              </li>
-              <li style={{ marginBottom: '8px' }}>
-                Database access is restricted to authorized personnel only
-              </li>
-              <li style={{ marginBottom: '8px' }}>
-                Regular security audits and updates
-              </li>
-            </ul>
-            <p style={{ marginBottom: '16px' }}>
-              While we take reasonable precautions, no online service can guarantee 100% security. You are
-              responsible for maintaining the confidentiality of your account credentials.
+              We use reasonable administrative, technical, and organizational safeguards designed to protect
+              personal information, including encrypted transmission, access controls, and secure authentication
+              practices where appropriate. No transmission or storage system is completely secure, and we cannot
+              guarantee that unauthorized access, loss, or misuse will never occur. You are responsible for
+              protecting your account credentials and notifying us promptly of suspected unauthorized access.
             </p>
           </section>
 
@@ -331,7 +353,15 @@ export default function PrivacyPage() {
               6. Data Retention
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We retain your information for the following periods:
+              We retain personal information only for as long as reasonably necessary for the purposes described
+              in this Policy, including providing accounts and purchased services, maintaining transaction and tax
+              records, resolving disputes, enforcing agreements, and complying with law.
+            </p>
+            <p style={{ marginBottom: '16px' }}>
+              When an account is deleted, we will delete or de-identify associated personal information within a
+              commercially reasonable period unless retention is required or permitted for legal, security,
+              fraud-prevention, accounting, backup, or dispute-resolution purposes. Information in routine backups
+              will be deleted or overwritten according to our normal backup cycle.
             </p>
             <ul style={{ marginLeft: '24px', marginBottom: '16px' }}>
               <li style={{ marginBottom: '8px' }}>
@@ -361,7 +391,10 @@ export default function PrivacyPage() {
               7. Your Privacy Rights
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              You have the following rights regarding your personal data:
+              Depending on where you reside, applicable law may provide rights to access, correct, delete, or
+              obtain a portable copy of personal information and to appeal our response to a request. We may
+              verify your identity before processing a request and may deny or limit a request where permitted
+              by law. We will not unlawfully discriminate against you for exercising a privacy right.
             </p>
             <ul style={{ marginLeft: '24px', marginBottom: '16px' }}>
               <li style={{ marginBottom: '8px' }}>
@@ -381,13 +414,21 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p style={{ marginBottom: '16px' }}>
-              To exercise these rights, contact us at{' '}
+              Trade Rat does not sell personal information or share it for cross-context behavioral advertising.
+              Accordingly, we do not presently offer a sale or targeted-advertising opt-out. If our practices
+              change, we will update this Policy and provide any legally required opt-out method.
+            </p>
+            <p style={{ marginBottom: '16px' }}>
+              To submit a request, email{' '}
               <a
                 href="mailto:privacy@traderat.com"
                 style={{ color: '#C9A84C', textDecoration: 'underline' }}
               >
                 privacy@traderat.com
               </a>
+              {' '}and provide sufficient information to identify your account and describe the request. We will
+              use personal information submitted with the request only to verify identity and process the request.
+              Where required by law, an authorized agent may submit a request after providing proof of authorization.
             </p>
           </section>
 
