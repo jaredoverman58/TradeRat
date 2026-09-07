@@ -282,6 +282,23 @@ export default async function ExpertQueuePage() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
+            <Link
+              href="/expert/history"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                padding: '12px 24px',
+                backgroundColor: 'transparent',
+                color: '#C9A84C',
+                border: '1px solid #2a261e',
+                fontSize: '0.875rem',
+                textDecoration: 'none',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                display: 'inline-block',
+              }}
+            >
+              History
+            </Link>
             <form action="/api/auth/signout" method="post">
               <button
                 type="submit"
