@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import styles from './page.module.css'
 
 function SuccessContent() {
   const router = useRouter()
@@ -246,7 +247,7 @@ function SuccessContent() {
           marginBottom: '48px',
           textAlign: 'left',
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className={styles.gridTwoCol}>
             <div>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',

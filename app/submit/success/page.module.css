@@ -1,0 +1,11 @@
+.gridTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .gridTwoCol {
+    grid-template-columns: 1fr;
+  }
+}

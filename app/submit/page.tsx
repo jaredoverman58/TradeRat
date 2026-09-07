@@ -10,6 +10,7 @@ import CreditSummary from './CreditSummary'
 import BuyConfirmationModal from '@/components/BuyConfirmationModal'
 import FreeEvaluationConfirmationModal from '@/components/FreeEvaluationConfirmationModal'
 import { BUNDLES } from '@/lib/bundles'
+import styles from './page.module.css'
 
 type LeagueProfile = {
   id: string
@@ -1047,7 +1048,7 @@ export default function SubmitPage() {
               </>
             ) : (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div className={styles.gridTwoCol} style={{ marginBottom: '16px' }}>
                   <div>
                     <label style={{
                       fontFamily: 'var(--font-dm-sans)',
@@ -1115,7 +1116,7 @@ export default function SubmitPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div className={styles.gridThreeCol}>
                   <div>
                     <label style={{
                       fontFamily: 'var(--font-dm-sans)',
@@ -1289,7 +1290,7 @@ export default function SubmitPage() {
                 }}>
                   Who Proposed This Trade? *
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className={styles.gridTwoCol}>
                   <div
                     onClick={() => setOfferDirection('received')}
                     style={{
@@ -1360,7 +1361,7 @@ export default function SubmitPage() {
               }}>
                 Expert Tier *
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className={styles.gridTwoCol}>
                 <div
                   onClick={() => setRateTier('standard')}
                   style={{
@@ -1502,7 +1503,7 @@ export default function SubmitPage() {
             {/* Players - hidden for Trade Finder */}
             {serviceType !== 'trade_finder' && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div className={styles.gridTwoCol} style={{ marginBottom: '16px' }}>
                   <div>
                     <label style={{
                       fontFamily: 'var(--font-dm-sans)',
@@ -1655,7 +1656,7 @@ export default function SubmitPage() {
 
             {/* Picks - conditional on showPicks, hidden for Trade Finder */}
             {serviceType !== 'trade_finder' && showPicks && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className={styles.gridTwoCol} style={{ marginBottom: '16px' }}>
                 <div>
                   <label style={{
                     fontFamily: 'var(--font-dm-sans)',
@@ -1724,7 +1725,7 @@ export default function SubmitPage() {
 
             {/* FAAB - conditional on showFaab, hidden for Trade Finder */}
             {serviceType !== 'trade_finder' && showFaab && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className={styles.gridTwoCol}>
                 <div>
                   <label style={{
                     fontFamily: 'var(--font-dm-sans)',

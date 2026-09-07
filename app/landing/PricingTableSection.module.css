@@ -1,0 +1,54 @@
+/* Desktop: 55% service name, 22.5% each pricing column */
+.pricingGrid {
+  display: grid;
+  grid-template-columns: 55% 22.5% 22.5%;
+}
+
+/* Mobile: Stack vertically, show service name then prices below */
+@media (max-width: 640px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile, hide column headers for Standard/Rat (keep service header visible) */
+  .mobileHideHeader {
+    display: none;
+  }
+
+  /* Show inline labels on mobile for price cells */
+  .mobilePriceCell {
+    text-align: left !important;
+    border-left: none !important;
+    padding: 12px 24px !important;
+  }
+
+  .mobilePriceCell::before {
+    content: attr(data-label);
+    font-family: var(--font-dm-sans);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #6b6457;
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: 600;
+  }
+}
+
+/* Row borders */
+.pricingGridHeader {
+  border-bottom: 1px solid #2a261e;
+  background-color: #1a1710;
+}
+
+.pricingGridRow {
+  border-bottom: 1px solid #2a261e;
+}
+
+.pricingGridRowLast {
+  border-bottom: none;
+}
+
+.pricingGridRowPopular {
+  background-color: #1a1710;
+}

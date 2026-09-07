@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
+import styles from './page.module.css'
 
 export default function SubmitTradePage() {
   const router = useRouter()
@@ -203,7 +204,7 @@ export default function SubmitTradePage() {
               What do you need? *
             </label>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className={styles.gridTwoCol}>
               {/* Trade Evaluation Option */}
               <div
                 onClick={() => setRequestType('trade_evaluation')}

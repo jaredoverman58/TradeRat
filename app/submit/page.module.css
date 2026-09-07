@@ -1,0 +1,26 @@
+/* Two-column grids that stack on mobile */
+.gridTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .gridTwoCol {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Three-column grid that stacks on mobile */
+.gridThreeCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .gridThreeCol {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,3 +1,5 @@
+import styles from './PricingTableSection.module.css'
+
 type PricingService = {
   name: string
   standard_price: string
@@ -39,12 +41,7 @@ export default function PricingTableSection({ content }: { content: PricingTable
           overflow: 'hidden',
         }}>
           {/* Header */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '55% 22.5% 22.5%',
-            borderBottom: '1px solid #2a261e',
-            backgroundColor: '#1a1710',
-          }}>
+          <div className={`${styles.pricingGrid} ${styles.pricingGridHeader}`}>
             <div style={{
               padding: '16px 24px',
               fontFamily: 'var(--font-dm-sans)',
@@ -56,7 +53,7 @@ export default function PricingTableSection({ content }: { content: PricingTable
             }}>
               Service
             </div>
-            <div style={{
+            <div className={styles.mobileHideHeader} style={{
               padding: '16px 24px',
               fontFamily: 'var(--font-dm-sans)',
               fontSize: '0.75rem',
@@ -69,7 +66,7 @@ export default function PricingTableSection({ content }: { content: PricingTable
             }}>
               Standard
             </div>
-            <div style={{
+            <div className={styles.mobileHideHeader} style={{
               padding: '16px 24px',
               fontFamily: 'var(--font-dm-sans)',
               fontSize: '0.75rem',
@@ -86,59 +83,68 @@ export default function PricingTableSection({ content }: { content: PricingTable
           </div>
 
           {/* Rows */}
-          {content.services.map((service, index) => (
-            <div
-              key={index}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '55% 22.5% 22.5%',
-                borderBottom: index < content.services.length - 1 ? '1px solid #2a261e' : 'none',
-                backgroundColor: service.is_popular ? '#1a1710' : 'transparent',
-              }}
-            >
-              <div style={{
-                padding: '20px 24px',
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-              }}>
-                <div>{service.name}</div>
-                {service.is_popular && (
-                  <div style={{
-                    marginTop: '4px',
-                    fontFamily: 'var(--font-dm-sans)',
-                    fontSize: '0.75rem',
+          {content.services.map((service, index) => {
+            const isLast = index === content.services.length - 1
+            const rowClasses = [
+              styles.pricingGrid,
+              isLast ? styles.pricingGridRowLast : styles.pricingGridRow,
+              service.is_popular ? styles.pricingGridRowPopular : ''
+            ].filter(Boolean).join(' ')
+
+            return (
+              <div key={index} className={rowClasses}>
+                <div style={{
+                  padding: '20px 24px',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  color: '#F2EDE4',
+                }}>
+                  <div>{service.name}</div>
+                  {service.is_popular && (
+                    <div style={{
+                      marginTop: '4px',
+                      fontFamily: 'var(--font-dm-sans)',
+                      fontSize: '0.75rem',
+                      color: '#C9A84C',
+                      fontStyle: 'italic',
+                    }}>
+                      Decline gets a counter. Accept gets an edge.
+                    </div>
+                  )}
+                </div>
+                <div
+                  className={styles.mobilePriceCell}
+                  data-label="Standard:"
+                  style={{
+                    padding: '20px 24px',
+                    fontFamily: 'var(--font-dm-mono)',
+                    fontSize: '0.875rem',
+                    color: '#F2EDE4',
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    borderLeft: '1px solid #2a261e',
+                  }}
+                >
+                  {service.standard_price}
+                </div>
+                <div
+                  className={styles.mobilePriceCell}
+                  data-label="Rat Rate:"
+                  style={{
+                    padding: '20px 24px',
+                    fontFamily: 'var(--font-dm-mono)',
+                    fontSize: '0.875rem',
                     color: '#C9A84C',
-                    fontStyle: 'italic',
-                  }}>
-                    Decline gets a counter. Accept gets an edge.
-                  </div>
-                )}
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    borderLeft: '1px solid #2a261e',
+                  }}
+                >
+                  {service.rat_rate_price}
+                </div>
               </div>
-              <div style={{
-                padding: '20px 24px',
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '0.875rem',
-                color: '#F2EDE4',
-                fontWeight: 600,
-                textAlign: 'center',
-                borderLeft: '1px solid #2a261e',
-              }}>
-                {service.standard_price}
-              </div>
-              <div style={{
-                padding: '20px 24px',
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '0.875rem',
-                color: '#C9A84C',
-                fontWeight: 600,
-                textAlign: 'center',
-                borderLeft: '1px solid #2a261e',
-              }}>
-                {service.rat_rate_price}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Note */}
