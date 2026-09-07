@@ -434,6 +434,66 @@ export default async function ExpertQueuePage() {
           </div>
         </div>
 
+        {/* Expert Resources */}
+        <div style={{ marginBottom: '48px' }}>
+          <h2 style={{
+            fontFamily: 'var(--font-playfair)',
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#F2EDE4',
+            marginBottom: '24px',
+          }}>
+            Expert Resources
+          </h2>
+          <div style={{
+            border: '1px solid #2a261e',
+            padding: '32px 24px',
+            backgroundColor: 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '1rem',
+                color: '#F2EDE4',
+                marginBottom: '8px',
+                fontWeight: 600,
+              }}>
+                FantasyCalc Trade Database
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.875rem',
+                color: '#6b6457',
+              }}>
+                Player values, trade calculator, and dynasty rankings
+              </div>
+            </div>
+            <a
+              href="https://fantasycalc.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontFamily: 'var(--font-dm-sans)',
+                padding: '12px 24px',
+                backgroundColor: '#C9A84C',
+                color: '#0C0A07',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.875rem',
+                textDecoration: 'none',
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Open Tool →
+            </a>
+          </div>
+        </div>
+
         {/* My Active Submissions */}
         {mySubmissions && mySubmissions.length > 0 && (
           <div style={{ marginBottom: '48px' }}>
