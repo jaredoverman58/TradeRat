@@ -88,7 +88,26 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              3. Service Description
+              3. Geographic Scope
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              TradeRat is intended for use by residents of the United States. We make no representation that the
+              Service is appropriate or available for use in other jurisdictions. If you access the Service from
+              outside the United States, you do so on your own initiative and are responsible for compliance with
+              applicable local laws. Individuals located outside the United States are not authorized to use the Service.
+            </p>
+          </section>
+
+          {/* Section 4 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              4. Service Description
             </h2>
             <p style={{ marginBottom: '16px' }}>
               Trade Rat provides fantasy football trade analysis and recommendations through our expert analyst system.
@@ -106,7 +125,7 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 4 */}
+          {/* Section 5 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -115,7 +134,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              4. The Expert System
+              5. The Expert System
             </h2>
             <p style={{ marginBottom: '16px' }}>
               Our analysis is provided by a team of fantasy football experts operating under three tiers:
@@ -143,7 +162,7 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 5 */}
+          {/* Section 6 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -152,7 +171,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              5. Payment Terms
+              6. Payment Terms
             </h2>
             <p style={{ marginBottom: '16px' }}>
               All payments are processed securely through Stripe. By purchasing a package, you agree to the following:
@@ -184,7 +203,7 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 6 */}
+          {/* Section 7 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -193,7 +212,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              6. Turnaround Time and Refund Policy
+              7. Turnaround Time and Refund Policy
             </h2>
             <p style={{ marginBottom: '16px' }}>
               We strive to deliver all trade analysis within 24-48 hours of submission. Our refund policy:
@@ -224,7 +243,7 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 8 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -233,7 +252,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              7. Disclaimers and Limitations
+              8. Disclaimers and Limitations
             </h2>
             <div style={{
               border: '2px solid #C9A84C',
@@ -271,7 +290,7 @@ export default function TermsPage() {
             </div>
           </section>
 
-          {/* Section 8 */}
+          {/* Section 9 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
               fontFamily: 'var(--font-playfair)',
@@ -280,7 +299,7 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              8. User Responsibilities
+              9. User Responsibilities
             </h2>
             <p style={{ marginBottom: '16px' }}>
               When using Trade Rat, you agree to:
@@ -304,24 +323,6 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 9 */}
-          <section style={{ marginBottom: '40px' }}>
-            <h2 style={{
-              fontFamily: 'var(--font-playfair)',
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: '#C9A84C',
-              marginBottom: '16px',
-            }}>
-              9. Intellectual Property
-            </h2>
-            <p style={{ marginBottom: '16px' }}>
-              All trade analysis, expert commentary, audio content, and written recommendations provided through
-              Trade Rat remain our intellectual property. You may use this advice for your personal fantasy leagues
-              but may not reproduce, distribute, or commercially exploit our content.
-            </p>
-          </section>
-
           {/* Section 10 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
@@ -331,13 +332,12 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              10. User Submissions
+              10. Intellectual Property
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              You retain ownership of materials you submit. You grant Trade Rat a limited, nonexclusive license
-              to host, copy, process, and use those materials solely to provide, secure, support, and improve
-              the Services. You represent that you have the right to submit the materials and that they do not
-              violate another person&apos;s privacy, confidentiality, or intellectual-property rights.
+              All trade analysis, expert commentary, audio content, and written recommendations provided through
+              Trade Rat remain our intellectual property. You may use this advice for your personal fantasy leagues
+              but may not reproduce, distribute, or commercially exploit our content.
             </p>
           </section>
 
@@ -350,14 +350,13 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              11. Termination
+              11. User Submissions
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We reserve the right to suspend or terminate accounts that violate these terms, abuse the service,
-              or engage in fraudulent activity. If an account is terminated for fraud, unlawful activity, payment
-              disputes, or a material breach of these Terms, unused credits may be forfeited to the extent
-              permitted by law. If Trade Rat terminates an account for convenience or discontinues the Services,
-              Trade Rat will refund the prorated value of unused paid credits.
+              You retain ownership of materials you submit. You grant Trade Rat a limited, nonexclusive license
+              to host, copy, process, and use those materials solely to provide, secure, support, and improve
+              the Services. You represent that you have the right to submit the materials and that they do not
+              violate another person&apos;s privacy, confidentiality, or intellectual-property rights.
             </p>
           </section>
 
@@ -370,11 +369,14 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              12. Changes to Terms
+              12. Termination
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              We may update these Terms of Service from time to time. Continued use of Trade Rat after changes
-              are posted constitutes acceptance of the updated terms.
+              We reserve the right to suspend or terminate accounts that violate these terms, abuse the service,
+              or engage in fraudulent activity. If an account is terminated for fraud, unlawful activity, payment
+              disputes, or a material breach of these Terms, unused credits may be forfeited to the extent
+              permitted by law. If Trade Rat terminates an account for convenience or discontinues the Services,
+              Trade Rat will refund the prorated value of unused paid credits.
             </p>
           </section>
 
@@ -387,12 +389,11 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              13. Governing Law and Disputes
+              13. Changes to Terms
             </h2>
             <p style={{ marginBottom: '16px' }}>
-              These Terms are governed by the laws of the State of Wyoming. Any legal proceeding relating to
-              these Terms or the Services must be brought in the state or federal courts located in Campbell
-              County, Wyoming, and each party consents to their jurisdiction and venue.
+              We may update these Terms of Service from time to time. Continued use of Trade Rat after changes
+              are posted constitutes acceptance of the updated terms.
             </p>
           </section>
 
@@ -405,7 +406,25 @@ export default function TermsPage() {
               color: '#C9A84C',
               marginBottom: '16px',
             }}>
-              14. General Terms
+              14. Governing Law and Disputes
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              These Terms are governed by the laws of the State of Wyoming. Any legal proceeding relating to
+              these Terms or the Services must be brought in the state or federal courts located in Campbell
+              County, Wyoming, and each party consents to their jurisdiction and venue.
+            </p>
+          </section>
+
+          {/* Section 15 */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              15. General Terms
             </h2>
             <p style={{ marginBottom: '16px' }}>
               These Terms and the Privacy Policy constitute the entire agreement concerning the Services. If any

@@ -53,6 +53,25 @@ export default function PrivacyPage() {
             </p>
           </section>
 
+          {/* Geographic Scope */}
+          <section style={{ marginBottom: '40px' }}>
+            <h2 style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#C9A84C',
+              marginBottom: '16px',
+            }}>
+              Geographic Scope
+            </h2>
+            <p style={{ marginBottom: '16px' }}>
+              This Privacy Policy and our data practices are designed for users located in the United States.
+              TradeRat does not intend to target or actively collect personal information from individuals located
+              outside the United States, and this Policy is not designed to satisfy the legal requirements of any
+              jurisdiction other than the United States, including the EU or UK GDPR.
+            </p>
+          </section>
+
           {/* Section 1 */}
           <section style={{ marginBottom: '40px' }}>
             <h2 style={{
@@ -90,7 +109,9 @@ export default function PrivacyPage() {
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#C9A84C' }}>Phone Number:</strong> Optional, collected only if you opt-in
-                to SMS notifications for trade analysis updates
+                to SMS notifications for trade analysis updates. SMS notifications are not currently active as part
+                of the Service. This section will apply once SMS-based communications are enabled, at which point
+                separate consent will be obtained.
               </li>
             </ul>
 
@@ -187,7 +208,9 @@ export default function PrivacyPage() {
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#C9A84C' }}>Notifications:</strong> We send email notifications when your
-                trade analysis is complete. If you opt-in, we also send SMS notifications to your phone number
+                trade analysis is complete. If you opt-in, we also send SMS notifications to your phone number. SMS
+                notifications are not currently active as part of the Service. This section will apply once SMS-based
+                communications are enabled, at which point separate consent will be obtained.
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#C9A84C' }}>Customer Support:</strong> Your contact information helps us
@@ -227,6 +250,10 @@ export default function PrivacyPage() {
             }}>
               3. SMS Notifications
             </h2>
+            <p style={{ marginBottom: '16px', fontWeight: 600, color: '#C9A84C' }}>
+              SMS notifications are not currently active as part of the Service. This section will apply once
+              SMS-based communications are enabled, at which point separate consent will be obtained.
+            </p>
             <p style={{ marginBottom: '16px' }}>
               If you provide your phone number and opt-in to SMS notifications:
             </p>
@@ -251,10 +278,6 @@ export default function PrivacyPage() {
             </p>
             <p style={{ marginBottom: '16px' }}>
               Your mobile phone number is never shared, sold, or rented to third parties for marketing or advertising purposes. We only share your phone number with our SMS delivery provider (Twilio) solely to send you the text messages you have opted in to receive.
-            </p>
-            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#6b6457' }}>
-              Note: the SMS notification feature described above is built into Trade Rat but is not active at
-              initial launch. It will be enabled at a later date.
             </p>
           </section>
 
@@ -410,7 +433,8 @@ export default function PrivacyPage() {
               </li>
               <li style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#C9A84C' }}>Opt-Out:</strong> Unsubscribe from email or SMS notifications
-                at any time
+                at any time. SMS notifications are not currently active as part of the Service. This section will
+                apply once SMS-based communications are enabled, at which point separate consent will be obtained.
               </li>
             </ul>
             <p style={{ marginBottom: '16px' }}>
