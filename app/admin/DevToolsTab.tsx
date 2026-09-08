@@ -45,6 +45,13 @@ export default function DevToolsTab() {
   const [bulkResult, setBulkResult] = useState<{ count: number } | null>(null)
   const [bulkError, setBulkError] = useState<string | null>(null)
 
+  // Submission Clearer state
+  const [clearerPreviewCount, setClearerPreviewCount] = useState<number | null>(null)
+  const [clearerLoading, setClearerLoading] = useState(false)
+  const [clearerResult, setClearerResult] = useState<{ deletedCount: number } | null>(null)
+  const [clearerError, setClearerError] = useState<string | null>(null)
+  const [clearerConfirmMode, setClearerConfirmMode] = useState(false)
+
   // Login As state
   const [selectedLoginAsUserId, setSelectedLoginAsUserId] = useState<string>('')
   const [loginAsLoading, setLoginAsLoading] = useState(false)
@@ -302,6 +309,68 @@ export default function DevToolsTab() {
     } finally {
       setBulkLoading(false)
     }
+  }
+
+  const handlePreviewClear = async () => {
+    setClearerLoading(true)
+    setClearerError(null)
+    setClearerResult(null)
+    setClearerConfirmMode(false)
+
+    try {
+      const res = await fetch('/api/admin/delete-test-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmDelete: false }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to preview test submissions')
+      }
+
+      setClearerPreviewCount(data.count)
+      setClearerConfirmMode(true)
+    } catch (err) {
+      setClearerError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setClearerLoading(false)
+    }
+  }
+
+  const handleConfirmClear = async () => {
+    setClearerLoading(true)
+    setClearerError(null)
+    setClearerResult(null)
+
+    try {
+      const res = await fetch('/api/admin/delete-test-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmDelete: true }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete test submissions')
+      }
+
+      setClearerResult({ deletedCount: data.deletedCount })
+      setClearerPreviewCount(null)
+      setClearerConfirmMode(false)
+    } catch (err) {
+      setClearerError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setClearerLoading(false)
+    }
+  }
+
+  const handleCancelClear = () => {
+    setClearerConfirmMode(false)
+    setClearerPreviewCount(null)
+    setClearerError(null)
   }
 
   const handleLoginAs = async (targetUserId?: string) => {
@@ -788,6 +857,169 @@ export default function DevToolsTab() {
           • Sample roster images attached (2 images for most types, 4 for trade_finder)<br />
           • Status set to &quot;submitted&quot; (open queue) so experts can practice claiming<br />
           • Realistic league profiles and dummy trade data
+        </div>
+      </div>
+
+      {/* Submission Clearer */}
+      <div style={{
+        border: '1px solid #2a261e',
+        padding: '32px',
+        backgroundColor: '#1a1710',
+        marginTop: '32px',
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--font-playfair)',
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          color: '#F2EDE4',
+          marginBottom: '8px',
+        }}>
+          Submission Clearer
+        </h3>
+        <p style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          color: '#6b6457',
+          marginBottom: '24px',
+        }}>
+          Delete all test submissions from the queue. This ONLY removes submissions created via dev tools or bulk seeder (identifiable by additional_context markers). Real user submissions are never touched.
+        </p>
+
+        {clearerError && (
+          <div style={{
+            backgroundColor: '#2a0a0a',
+            border: '1px solid #ff4444',
+            color: '#ff6666',
+            padding: '16px',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            {clearerError}
+          </div>
+        )}
+
+        {clearerResult && (
+          <div style={{
+            backgroundColor: '#0a2a0a',
+            border: '1px solid #44ff44',
+            color: '#66ff66',
+            padding: '16px',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+          }}>
+            ✓ Successfully deleted {clearerResult.deletedCount} test submission{clearerResult.deletedCount !== 1 ? 's' : ''}!
+          </div>
+        )}
+
+        {clearerConfirmMode && clearerPreviewCount !== null && (
+          <div style={{
+            backgroundColor: '#2a1a0a',
+            border: '2px solid #C9A84C',
+            padding: '24px',
+            marginBottom: '24px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '1rem',
+              color: '#F2EDE4',
+              marginBottom: '16px',
+              fontWeight: 600,
+            }}>
+              ⚠️ Confirm Deletion
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#C9A84C',
+              marginBottom: '24px',
+              lineHeight: '1.6',
+            }}>
+              Found <strong>{clearerPreviewCount}</strong> test submission{clearerPreviewCount !== 1 ? 's' : ''} to delete.
+              <br />
+              This action cannot be undone. Are you sure?
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={handleConfirmClear}
+                disabled={clearerLoading}
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  padding: '16px 32px',
+                  backgroundColor: clearerLoading ? '#2a261e' : '#ff4444',
+                  color: clearerLoading ? '#6b6457' : '#F2EDE4',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '0.875rem',
+                  border: 'none',
+                  cursor: clearerLoading ? 'not-allowed' : 'pointer',
+                  flex: 1,
+                }}
+              >
+                {clearerLoading ? 'Deleting...' : 'Yes, Delete Them'}
+              </button>
+              <button
+                onClick={handleCancelClear}
+                disabled={clearerLoading}
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  padding: '16px 32px',
+                  backgroundColor: 'transparent',
+                  color: '#6b6457',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontSize: '0.875rem',
+                  border: '1px solid #2a261e',
+                  cursor: clearerLoading ? 'not-allowed' : 'pointer',
+                  flex: 1,
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!clearerConfirmMode && (
+          <button
+            onClick={handlePreviewClear}
+            disabled={clearerLoading}
+            style={{
+              fontFamily: 'var(--font-dm-sans)',
+              padding: '16px 32px',
+              backgroundColor: clearerLoading ? '#2a261e' : '#C9A84C',
+              color: clearerLoading ? '#6b6457' : '#0C0A07',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
+              border: 'none',
+              cursor: clearerLoading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {clearerLoading ? 'Loading...' : 'Preview & Clear Test Submissions'}
+          </button>
+        )}
+
+        <div style={{
+          border: '1px solid #2a261e',
+          padding: '16px',
+          backgroundColor: '#0C0A07',
+          fontSize: '0.75rem',
+          fontFamily: 'var(--font-dm-sans)',
+          color: '#6b6457',
+          lineHeight: '1.6',
+          marginTop: '24px',
+        }}>
+          <strong style={{ color: '#C9A84C' }}>Safety Checks:</strong><br />
+          • Only deletes submissions with &quot;Created via bulk seeder&quot; or &quot;Created via admin dev tools&quot; in additional_context<br />
+          • Shows preview count before deletion<br />
+          • Requires explicit confirmation<br />
+          • Logs all deletions to audit_log table<br />
+          • Real user submissions are never affected
         </div>
       </div>
 
