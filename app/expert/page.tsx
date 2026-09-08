@@ -263,7 +263,7 @@ export default async function ExpertQueuePage() {
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className={styles.header}>
           <div>
             <h1 style={{
               fontFamily: 'var(--font-playfair)',
@@ -282,7 +282,7 @@ export default async function ExpertQueuePage() {
               Logged in as: {expert.name} • {user.email}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
+          <div className={styles.headerButtons}>
             <Link
               href="/expert/history"
               style={{
@@ -368,7 +368,7 @@ export default async function ExpertQueuePage() {
           }}>
             Your Performance
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div className={styles.statsGrid}>
             {/* Total Completions */}
             <div style={{
               border: '1px solid #2a261e',

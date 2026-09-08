@@ -12,3 +12,46 @@
     gap: 16px;
   }
 }
+
+/* Responsive header with login info and buttons */
+.header {
+  margin-bottom: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
+
+/* Button group in header */
+.headerButtons {
+  display: flex;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .headerButtons {
+    width: 100%;
+    flex-direction: column;
+  }
+}
+
+/* Responsive stats grid (3 columns -> 1 on mobile) */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
