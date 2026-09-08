@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import styles from './ExpertQueue.module.css'
 
 export default async function ExpertQueuePage() {
   const supabase = await createClient()
@@ -536,7 +537,7 @@ export default async function ExpertQueuePage() {
                     backgroundColor: '#1a1710',
                   }}
                 >
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '24px', alignItems: 'center' }}>
+                  <div className={styles.submissionGrid}>
                     <div>
                       <div style={{
                         fontFamily: 'var(--font-dm-sans)',
@@ -671,7 +672,7 @@ export default async function ExpertQueuePage() {
                     backgroundColor: urgencyStyle.backgroundColor,
                   }}
                 >
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '24px', alignItems: 'center' }}>
+                  <div className={styles.submissionGrid}>
                     <div>
                       <div style={{
                         fontFamily: 'var(--font-dm-sans)',

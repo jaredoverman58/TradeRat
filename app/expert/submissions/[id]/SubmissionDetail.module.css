@@ -1,0 +1,43 @@
+/* Responsive grid for submission info card (3 columns) */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 640px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Responsive grid for league info (4 columns) */
+.leagueGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .leagueGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Responsive grid for trade details (2 columns) */
+.tradeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 640px) {
+  .tradeGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

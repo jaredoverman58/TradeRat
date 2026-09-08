@@ -5,6 +5,7 @@ import RespondForm from './RespondForm'
 import SignedImage from '@/components/SignedImage'
 import SafeHtmlRenderer from '@/app/dashboard/advice/[id]/SafeHtmlRenderer'
 import DeadlineCountdown from './DeadlineCountdown'
+import styles from './SubmissionDetail.module.css'
 
 export default async function SubmissionDetailPage({
   params,
@@ -144,7 +145,7 @@ export default async function SubmissionDetailPage({
           padding: '32px',
           marginBottom: '40px',
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+          <div className={styles.infoGrid}>
             <div>
               <div style={{
                 fontFamily: 'var(--font-dm-sans)',
@@ -246,7 +247,7 @@ export default async function SubmissionDetailPage({
               border: '1px solid #2a261e',
               padding: '24px',
             }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '24px' }}>
+              <div className={styles.leagueGrid}>
                 <div>
                   <div style={{
                     fontFamily: 'var(--font-dm-sans)',
@@ -366,7 +367,7 @@ export default async function SubmissionDetailPage({
             border: '1px solid #2a261e',
             padding: '24px',
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '24px' }}>
+            <div className={styles.tradeGrid}>
               {/* User Receives */}
               <div>
                 <h3 style={{

@@ -1,0 +1,14 @@
+/* Responsive grid for submission rows (My Active Submissions and Open Queue) */
+.submissionGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .submissionGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
