@@ -50,13 +50,24 @@ export default function BuyConfirmationModal({
       : 'Reviewed personally by one of our trade experts'
 
     switch (serviceType) {
-      case 'accept_decline':
-        return [
+      case 'accept_decline': {
+        const bullets = [
           tierBullet,
           'Clear Accept/Decline verdict on your trade offer',
           'Reasoning behind the analysis',
           'Written and/or audio response you can reference anytime',
         ]
+
+        // Add evaluation count bullet for multi-credit packs only
+        if (credits && credits > 1) {
+          return [
+            `${credits} Accept/Decline evaluations included`,
+            ...bullets
+          ]
+        }
+
+        return bullets
+      }
 
       case 'counter_offer':
         return [
@@ -74,15 +85,26 @@ export default function BuyConfirmationModal({
           'Full written and/or audio analysis',
         ]
 
-      case 'trade_finder':
+      case 'trade_finder': {
+        // Map Trade Finder credits to free Accept/Decline credits
+        const freeCredits = credits === 1 ? 1 : credits === 3 ? 2 : credits === 5 ? 3 : 1
+        const evaluationsText = credits === 1
+          ? '1 Trade Finder evaluation included'
+          : `${credits} Trade Finder evaluations included`
+        const freeCreditsText = freeCredits === 1
+          ? '1 free Standard Accept/Decline credit included — use it anytime'
+          : `${freeCredits} free Standard Accept/Decline credits included — use them anytime`
+
         return [
+          evaluationsText,
           tierBullet,
+          freeCreditsText,
           'Every roster in your league analyzed, not just the trade in front of you',
           'Your single best available move identified',
           'Up to 2 backup trade options, in case your first target says no',
           'Reasoning behind your top target, so you have what you need to help pitch and close the deal',
-          'Most responses within 8 hours — guaranteed within 48',
         ]
+      }
 
       default:
         return []
@@ -92,9 +114,9 @@ export default function BuyConfirmationModal({
   // Trade Finder extra paragraph (landing variant only) - tier-aware
   const getTradeFinderParagraph = () => {
     if (tier === 'rat') {
-      return "Upload all rosters → The Rat analyzes everything → your best move plus up to 2 backup options → reasoning you can use to pitch and close → most responses within 8 hours, guaranteed within 48"
+      return "Upload all rosters → The Rat analyzes everything → get your response, most within 8 hours, guaranteed within 48"
     }
-    return "Upload all rosters → Your assigned expert analyzes everything → your best move plus up to 2 backup options → reasoning you can use to pitch and close → most responses within 8 hours, guaranteed within 48"
+    return "Upload all rosters → your assigned expert analyzes everything → get your response, most within 8 hours, guaranteed within 48"
   }
 
   const tradeFinderParagraph = getTradeFinderParagraph()
@@ -198,8 +220,7 @@ export default function BuyConfirmationModal({
                 listStyleType: 'disc',
               }}
             >
-              {/* Trade Finder: show only first 5 bullets (6th is covered by extra paragraph) */}
-              {(serviceType === 'trade_finder' ? bullets.slice(0, 5) : bullets).map((bullet, index) => (
+              {bullets.map((bullet, index) => (
                 <li key={index} style={{ marginBottom: '8px' }}>
                   {bullet}
                 </li>
@@ -223,24 +244,6 @@ export default function BuyConfirmationModal({
           </>
         )}
 
-        {/* Pricing variant: Trade Finder gets 4th bullet only */}
-        {variant === 'pricing' && serviceType === 'trade_finder' && (
-          <div
-            style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '0.875rem',
-              color: '#F2EDE4',
-              lineHeight: 1.7,
-              marginBottom: '24px',
-              paddingLeft: '20px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '8px' }}>
-              <span style={{ color: '#C9A84C', marginRight: '12px', flexShrink: 0 }}>•</span>
-              <span>{bullets[5]}</span>
-            </div>
-          </div>
-        )}
 
         {/* Turnaround language (shared in both variants) */}
         <p
