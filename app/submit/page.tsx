@@ -2052,107 +2052,109 @@ export default function SubmitPage() {
             )}
           </div>
 
-          {/* Step 4: SMS Notifications (Optional) */}
-          <div style={{ marginBottom: '48px', paddingBottom: '48px', borderBottom: '1px solid #2a261e' }}>
-            <h2 style={{
-              fontFamily: 'var(--font-playfair)',
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: '#F2EDE4',
-              marginBottom: '24px',
-            }}>
-              4. SMS Notifications (Optional)
-            </h2>
-
-            <p style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '0.875rem',
-              color: '#6b6457',
-              marginBottom: '24px',
-              lineHeight: '1.6',
-            }}>
-              Get text message notifications when your trade analysis is ready. This is completely optional - you&apos;ll always receive email notifications.
-            </p>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.875rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
+          {/* Step 4: SMS Notifications (Optional) - Only show if SMS_ENABLED */}
+          {process.env.NEXT_PUBLIC_SMS_ENABLED === 'true' && (
+            <div style={{ marginBottom: '48px', paddingBottom: '48px', borderBottom: '1px solid #2a261e' }}>
+              <h2 style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '1.5rem',
+                fontWeight: 700,
                 color: '#F2EDE4',
-                marginBottom: '8px',
-                display: 'block',
+                marginBottom: '24px',
               }}>
-                Phone Number {smsOptIn ? '*' : '(Optional)'}
-              </label>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+1234567890 (include country code)"
-                required={smsOptIn}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  backgroundColor: '#0C0A07',
-                  border: smsOptIn && !phoneNumber ? '1px solid #C9A84C' : '1px solid #2a261e',
-                  color: '#F2EDE4',
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '1rem',
-                }}
-              />
+                4. SMS Notifications (Optional)
+              </h2>
+
               <p style={{
                 fontFamily: 'var(--font-dm-sans)',
-                fontSize: '0.75rem',
-                color: '#6b6457',
-                marginTop: '8px',
-              }}>
-                Must include country code (e.g., +1 for US/Canada)
-              </p>
-            </div>
-
-            <div style={{
-              backgroundColor: '#1a1710',
-              border: '1px solid #2a261e',
-              padding: '20px',
-              marginBottom: '24px',
-            }}>
-              <label style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
-                color: '#F2EDE4',
+                color: '#6b6457',
+                marginBottom: '24px',
+                lineHeight: '1.6',
               }}>
+                Get text message notifications when your trade analysis is ready. This is completely optional - you&apos;ll always receive email notifications.
+              </p>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#F2EDE4',
+                  marginBottom: '8px',
+                  display: 'block',
+                }}>
+                  Phone Number {smsOptIn ? '*' : '(Optional)'}
+                </label>
                 <input
-                  type="checkbox"
-                  checked={smsOptIn || false}
-                  onChange={(e) => setSmsOptIn(e.target.checked)}
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+1234567890 (include country code)"
+                  required={smsOptIn}
                   style={{
-                    marginRight: '12px',
-                    marginTop: '2px',
-                    width: '18px',
-                    height: '18px',
-                    flexShrink: 0,
-                    cursor: 'pointer',
+                    width: '100%',
+                    padding: '16px',
+                    backgroundColor: '#0C0A07',
+                    border: smsOptIn && !phoneNumber ? '1px solid #C9A84C' : '1px solid #2a261e',
+                    color: '#F2EDE4',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '1rem',
                   }}
                 />
-                <span style={{ lineHeight: '1.6' }}>
-                  I agree to receive SMS notifications from Trade Rat about my trade analysis status. Message frequency varies. Message and data rates may apply. Reply STOP to opt out. See our{' '}
-                  <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
-                    Privacy Policy
-                  </Link>
-                  {' '}and{' '}
-                  <Link href="/terms" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
-                    Terms of Service
-                  </Link>
-                  .
-                </span>
-              </label>
+                <p style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  color: '#6b6457',
+                  marginTop: '8px',
+                }}>
+                  Must include country code (e.g., +1 for US/Canada)
+                </p>
+              </div>
+
+              <div style={{
+                backgroundColor: '#1a1710',
+                border: '1px solid #2a261e',
+                padding: '20px',
+                marginBottom: '24px',
+              }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  color: '#F2EDE4',
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={smsOptIn || false}
+                    onChange={(e) => setSmsOptIn(e.target.checked)}
+                    style={{
+                      marginRight: '12px',
+                      marginTop: '2px',
+                      width: '18px',
+                      height: '18px',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                    }}
+                  />
+                  <span style={{ lineHeight: '1.6' }}>
+                    I agree to receive SMS notifications from Trade Rat about my trade analysis status. Message frequency varies. Message and data rates may apply. Reply STOP to opt out. See our{' '}
+                    <Link href="/privacy" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                      Privacy Policy
+                    </Link>
+                    {' '}and{' '}
+                    <Link href="/terms" target="_blank" style={{ color: '#C9A84C', textDecoration: 'underline' }}>
+                      Terms of Service
+                    </Link>
+                    .
+                  </span>
+                </label>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Step 5: Additional Context - hidden for Trade Finder */}
           {serviceType !== 'trade_finder' && (

@@ -37,6 +37,17 @@ export interface SendSmsResult {
  * @returns Result object with success status
  */
 export async function sendSms({ to, message }: SendSmsParams): Promise<SendSmsResult> {
+  // Check if SMS is enabled
+  const smsEnabled = process.env.SMS_ENABLED === 'true'
+
+  if (!smsEnabled) {
+    console.log('SMS disabled via SMS_ENABLED flag - skipping send')
+    return {
+      success: false,
+      error: 'SMS notifications are currently disabled',
+    }
+  }
+
   const client = getTwilioClient()
 
   if (!client) {
