@@ -1825,6 +1825,17 @@ export default function SubmitPage() {
                 : "Upload screenshots of your roster and your opponent's roster. This helps the expert understand your team needs and provide better advice."}
             </p>
 
+            <p style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#6b6457',
+              marginBottom: '16px',
+              lineHeight: '1.6',
+              fontStyle: 'italic',
+            }}>
+              Tip: Upload your own roster first, then check &apos;This is my roster&apos; below it — it&apos;ll be easier to track as you add the rest.
+            </p>
+
             <div
               {...getRootProps()}
               style={{
