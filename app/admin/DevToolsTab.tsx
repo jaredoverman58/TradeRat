@@ -29,6 +29,8 @@ export default function DevToolsTab() {
   // Credit Adjuster state
   const [users, setUsers] = useState<User[]>([])
   const [selectedUserId, setSelectedUserId] = useState<string>('')
+  const [userSearchQuery, setUserSearchQuery] = useState<string>('')
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [creditServiceType, setCreditServiceType] = useState<string>('accept_decline')
   const [creditTier, setCreditTier] = useState<string>('standard')
   const [creditsRemaining, setCreditsRemaining] = useState<string>('0')
@@ -1231,7 +1233,7 @@ export default function DevToolsTab() {
           </div>
         )}
 
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '24px', position: 'relative' }}>
           <label style={{
             fontFamily: 'var(--font-dm-sans)',
             fontSize: '0.875rem',
@@ -1241,11 +1243,17 @@ export default function DevToolsTab() {
             display: 'block',
             marginBottom: '8px',
           }}>
-            Select User
+            Select User (type to search)
           </label>
-          <select
-            value={selectedUserId}
-            onChange={(e) => setSelectedUserId(e.target.value)}
+          <input
+            type="text"
+            value={userSearchQuery}
+            onChange={(e) => {
+              setUserSearchQuery(e.target.value)
+              setUserDropdownOpen(true)
+            }}
+            onFocus={() => setUserDropdownOpen(true)}
+            placeholder={selectedUserId ? users.find(u => u.id === selectedUserId)?.email || 'Search by email...' : 'Search by email...'}
             disabled={creditLoading || zeroingCredits}
             style={{
               fontFamily: 'var(--font-dm-sans)',
@@ -1256,17 +1264,89 @@ export default function DevToolsTab() {
               color: '#F2EDE4',
               fontSize: '1rem',
             }}
-          >
-            {users.length === 0 ? (
-              <option>Loading users...</option>
-            ) : (
-              users.map(user => (
-                <option key={user.id} value={user.id}>
-                  {user.email}
-                </option>
-              ))
-            )}
-          </select>
+          />
+          {userDropdownOpen && users.length > 0 && (
+            <>
+              <div
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 999,
+                }}
+                onClick={() => setUserDropdownOpen(false)}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '300px',
+                overflowY: 'auto',
+                backgroundColor: '#0C0A07',
+                border: '1px solid #C9A84C',
+                zIndex: 1000,
+                marginTop: '4px',
+              }}>
+                {users
+                  .filter(user => user.email.toLowerCase().includes(userSearchQuery.toLowerCase()))
+                  .slice(0, 50)
+                  .map(user => (
+                    <div
+                      key={user.id}
+                      onClick={() => {
+                        setSelectedUserId(user.id)
+                        setUserSearchQuery('')
+                        setUserDropdownOpen(false)
+                      }}
+                      style={{
+                        padding: '12px',
+                        cursor: 'pointer',
+                        backgroundColor: selectedUserId === user.id ? '#2a261e' : 'transparent',
+                        color: '#F2EDE4',
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        borderBottom: '1px solid #2a261e',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedUserId !== user.id) {
+                          e.currentTarget.style.backgroundColor = '#1a1710'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedUserId !== user.id) {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }
+                      }}
+                    >
+                      {user.email}
+                    </div>
+                  ))}
+                {users.filter(user => user.email.toLowerCase().includes(userSearchQuery.toLowerCase())).length === 0 && (
+                  <div style={{
+                    padding: '12px',
+                    color: '#6b6457',
+                    fontFamily: 'var(--font-dm-sans)',
+                    fontSize: '0.875rem',
+                  }}>
+                    No users found
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+          {selectedUserId && !userDropdownOpen && (
+            <div style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              color: '#C9A84C',
+              marginTop: '8px',
+            }}>
+              Selected: {users.find(u => u.id === selectedUserId)?.email || 'Unknown user'}
+            </div>
+          )}
         </div>
 
         <div style={{ marginBottom: '24px' }}>

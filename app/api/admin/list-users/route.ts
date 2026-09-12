@@ -27,8 +27,10 @@ export async function GET() {
   try {
     const adminClient = createAdminClient()
 
-    // Fetch all users using admin client
-    const { data, error } = await adminClient.auth.admin.listUsers()
+    // Fetch all users using admin client (up to 1000)
+    const { data, error } = await adminClient.auth.admin.listUsers({
+      perPage: 1000,
+    })
 
     if (error) {
       return NextResponse.json(
