@@ -2233,6 +2233,17 @@ export default function SubmitPage() {
             We know your trade window won&apos;t wait — we always aim to respond as quickly as possible.
           </p>
 
+          {/* Email Notification Notice */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)',
+            fontSize: '0.875rem',
+            color: '#6b6457',
+            textAlign: 'center',
+            marginBottom: '32px',
+          }}>
+            You&apos;ll receive email confirmations along the way
+          </p>
+
           {/* Submit Button */}
           {(() => {
             // Calculate actual team count for Trade Finder validation

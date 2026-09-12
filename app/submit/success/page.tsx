@@ -231,12 +231,27 @@ function SuccessContent() {
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '1.125rem',
           color: '#6b6457',
+          marginBottom: '16px',
+          lineHeight: '1.6',
+          maxWidth: '600px',
+          margin: '0 auto 16px',
+        }}>
+          Your trade evaluation request is now in the queue. {submission?.service_type === 'trade_finder'
+            ? 'Most responses under 8 hours, guaranteed within 48 hours.'
+            : 'Most responses in a few hours, guaranteed within 24 hours.'}
+        </p>
+
+        {/* Email Notice */}
+        <p style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          color: '#6b6457',
           marginBottom: '48px',
           lineHeight: '1.6',
           maxWidth: '600px',
           margin: '0 auto 48px',
         }}>
-          Your trade evaluation request is now in the queue. An expert will review your submission and provide detailed advice within 24-48 hours.
+          Check your inbox — and your spam folder — for a confirmation now, and another when your analysis is ready
         </p>
 
         {/* Status Box */}
@@ -363,7 +378,7 @@ function SuccessContent() {
               They&apos;ll review your rosters and trade details
             </li>
             <li style={{ marginBottom: '12px', color: '#F2EDE4' }}>
-              You&apos;ll receive a notification when the analysis is ready (within 24-48 hours)
+              You&apos;ll get an email the moment it&apos;s ready
             </li>
             <li style={{ color: '#F2EDE4' }}>
               Check your dashboard to view the expert&apos;s recommendation
