@@ -48,7 +48,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams): Promise
 
   try {
     const result = await client.emails.send({
-      from: 'Trade Rat <onboarding@resend.dev>',
+      from: 'Trade Rat <notifications@traderat.co>',
       to: to,
       subject: subject,
       html: html,
