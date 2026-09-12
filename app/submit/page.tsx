@@ -661,6 +661,18 @@ export default function SubmitPage() {
         throw updateError
       }
 
+      // Step 4: Send confirmation email (non-blocking - don't fail if this errors)
+      try {
+        await fetch('/api/submissions/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submission_id: submission.id })
+        })
+      } catch (emailError) {
+        // Email is non-critical, just log the error
+        console.error('Failed to send confirmation email:', emailError)
+      }
+
       // Success - clear any saved form data and redirect to confirmation
       sessionStorage.removeItem('pendingSubmission')
       router.push(`/submit/success?id=${submission.id}`)

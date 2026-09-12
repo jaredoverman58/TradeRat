@@ -1,6 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sendResponseReadyNotification } from '@/lib/twilio'
+import { sendResponseReadyNotification as sendEmailNotification } from '@/lib/email'
 import { notifyNextInQueue } from '@/lib/waitlist-notify'
 import OpenAI from 'openai'
 
@@ -209,7 +210,7 @@ export async function POST(request: Request) {
 
   // Send SMS notification if user has a phone number
   try {
-    // Fetch user's phone number
+    // Fetch user's phone number and email
     const { data: submissionData } = await supabase
       .from('submissions')
       .select('user_id')
@@ -241,6 +242,44 @@ export async function POST(request: Request) {
   } catch (smsError) {
     // SMS sending is non-critical, log but don't fail the request
     console.error('Error in SMS notification flow:', smsError)
+  }
+
+  // Send email notification (always - email is required for account)
+  try {
+    // Fetch user email from auth
+    const { data: submissionData } = await supabase
+      .from('submissions')
+      .select('user_id')
+      .eq('id', submission_id)
+      .single()
+
+    if (submissionData?.user_id) {
+      // Get user email from auth.users using admin client
+      const adminClient = createAdminClient()
+      const { data: authUser, error: userError } = await adminClient.auth.admin.getUserById(
+        submissionData.user_id
+      )
+
+      if (userError) {
+        console.error('Error fetching user for email notification:', userError)
+      } else if (authUser?.user?.email) {
+        const emailResult = await sendEmailNotification(
+          authUser.user.email,
+          submission_id
+        )
+
+        if (emailResult.success) {
+          console.log('Email notification sent successfully to', authUser.user.email, ':', emailResult.emailId)
+        } else {
+          console.error('Failed to send email notification:', emailResult.error)
+        }
+      } else {
+        console.error('User email not found')
+      }
+    }
+  } catch (emailError) {
+    // Email sending is non-critical, log but don't fail the request
+    console.error('Error in email notification flow:', emailError)
   }
 
   return NextResponse.json({ success: true })
