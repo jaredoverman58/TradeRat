@@ -175,3 +175,74 @@ export async function sendResponseReadyNotification(
 
   return sendEmail({ to: email, subject, html })
 }
+
+/**
+ * Send admin notification when a new submission is created
+ * @param submissionId - Submission ID
+ * @param serviceType - Type of service (accept_decline, counter_offer, etc.)
+ * @param userEmail - Email of the user who submitted
+ * @param rateTier - Rate tier (standard or rat_rate)
+ * @returns Result object with success status
+ */
+export async function sendAdminSubmissionNotification(
+  submissionId: string,
+  serviceType: string,
+  userEmail: string,
+  rateTier: string
+): Promise<SendEmailResult> {
+  const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const adminUrl = `${appUrl}/admin`
+
+  const serviceNames: Record<string, string> = {
+    accept_decline: 'Accept/Decline Evaluation',
+    counter_offer: 'Counter Offer',
+    bundle: 'Accept/Decline + Bonus Evaluation',
+    trade_finder: 'Trade Finder',
+  }
+
+  const serviceName = serviceNames[serviceType] || 'Trade Evaluation'
+  const tierLabel = rateTier === 'rat_rate' ? 'Rat Rate (Premium)' : 'Standard'
+
+  const subject = `New Submission: ${serviceName} from ${userEmail}`
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h1 style="color: #C9A84C; font-size: 24px; margin-bottom: 16px;">New Submission Received</h1>
+
+      <div style="background-color: #f5f5f5; border-left: 4px solid #C9A84C; padding: 16px; margin: 24px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #666; font-size: 14px; font-weight: 600;">Submission ID:</td>
+            <td style="padding: 8px 0; color: #333; font-size: 14px;">${submissionId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666; font-size: 14px; font-weight: 600;">Service Type:</td>
+            <td style="padding: 8px 0; color: #333; font-size: 14px;">${serviceName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666; font-size: 14px; font-weight: 600;">Tier:</td>
+            <td style="padding: 8px 0; color: #333; font-size: 14px;">${tierLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666; font-size: 14px; font-weight: 600;">User Email:</td>
+            <td style="padding: 8px 0; color: #333; font-size: 14px;">${userEmail}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${adminUrl}" style="display: inline-block; background-color: #C9A84C; color: #0C0A07; font-weight: 600; text-decoration: none; padding: 14px 32px; border-radius: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+          View Admin Dashboard
+        </a>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 32px 0;">
+
+      <p style="color: #999; font-size: 12px; line-height: 1.6;">
+        Automated notification from Trade Rat
+      </p>
+    </div>
+  `
+
+  return sendEmail({ to: 'jaredoverman58@gmail.com', subject, html })
+}

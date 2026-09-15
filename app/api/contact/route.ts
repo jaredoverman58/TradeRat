@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -53,6 +54,30 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Send email notification to admin
+    const emailHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #C9A84C; font-size: 24px; margin-bottom: 16px;">New Contact Form Message</h1>
+
+        <div style="background-color: #f5f5f5; padding: 16px; border-radius: 4px; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #333;"><strong>From:</strong> ${name}</p>
+          <p style="margin: 0 0 8px 0; color: #333;"><strong>Email:</strong> ${email}</p>
+          ${user?.id ? `<p style="margin: 0; color: #666; font-size: 14px;">User ID: ${user.id}</p>` : '<p style="margin: 0; color: #666; font-size: 14px;">Not logged in</p>'}
+        </div>
+
+        <div style="background-color: #fff; border: 1px solid #e0e0e0; padding: 16px; border-radius: 4px;">
+          <h2 style="color: #333; font-size: 16px; margin: 0 0 12px 0;">Message:</h2>
+          <p style="color: #333; font-size: 14px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${message}</p>
+        </div>
+      </div>
+    `
+
+    await sendEmail({
+      to: 'jaredoverman58@gmail.com',
+      subject: `New Contact Form Message from ${name}`,
+      html: emailHtml,
+    })
 
     return NextResponse.json(
       { success: true, message: 'Message sent successfully' },

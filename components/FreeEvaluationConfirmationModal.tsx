@@ -19,8 +19,8 @@ export default function FreeEvaluationConfirmationModal({
     setError(null)
 
     try {
-      // Check if user has a payment method on file
-      const response = await fetch('/api/stripe/setup-intent', {
+      // Check rate limit before proceeding
+      const response = await fetch('/api/free-eval/check-rate-limit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,24 +28,22 @@ export default function FreeEvaluationConfirmationModal({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to check payment method status')
+        throw new Error('Failed to verify eligibility')
       }
 
       const data = await response.json()
 
-      if (data.hasPaymentMethod) {
-        // User already has a card on file - proceed with submission
-        onConfirm()
-      } else {
-        // User needs to add a card - redirect to Stripe Checkout setup mode
-        if (data.url) {
-          window.location.href = data.url
-        } else {
-          throw new Error('No checkout URL returned')
-        }
+      if (!data.allowed) {
+        // Rate limit exceeded
+        setError('It looks like a free evaluation has already been used from this account or network. If this seems wrong, contact us at jaredoverman58@gmail.com.')
+        setLoading(false)
+        return
       }
+
+      // Rate limit passed - proceed with submission
+      onConfirm()
     } catch (err) {
-      console.error('Error during free eval setup:', err)
+      console.error('Error during free eval check:', err)
       setError('Failed to start free evaluation. Please try again.')
       setLoading(false)
     }
@@ -161,28 +159,6 @@ export default function FreeEvaluationConfirmationModal({
           We&apos;ll get to your free evaluation as quickly as we can. Response times may vary — but we won&apos;t leave you hanging.
         </p>
 
-        {/* Payment Method Callout */}
-        <div
-          style={{
-            border: '1px solid #C9A84C',
-            backgroundColor: 'rgba(201, 168, 76, 0.05)',
-            padding: '16px',
-            marginBottom: '32px',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '0.875rem',
-              color: '#F2EDE4',
-              lineHeight: 1.6,
-              margin: 0,
-            }}
-          >
-            A payment method is required to prevent abuse of our free evaluations — you won&apos;t be charged.
-          </p>
-        </div>
-
         {/* Error Message */}
         {error && (
           <div
@@ -194,6 +170,7 @@ export default function FreeEvaluationConfirmationModal({
               marginBottom: '24px',
               fontFamily: 'var(--font-dm-sans)',
               fontSize: '0.875rem',
+              lineHeight: 1.6,
             }}
           >
             {error}

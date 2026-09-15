@@ -312,29 +312,8 @@ export default function SubmitPage() {
       // Check if coming from checkout or login redirect
       const urlParams = new URLSearchParams(window.location.search)
 
-      // Handle setup completion (card saved for free eval)
-      if (urlParams.get('setup') === 'success' && urlParams.get('free_eval') === 'true') {
-        // Mark as handled to prevent re-runs
-        hasAutoSubmittedRef.current = true
-
-        // Set initial success message
-        setSuccessMessage('Card saved successfully! Processing your free evaluation...')
-        setError(null)
-        setSubmitting(true)
-
-        // Proceed with free eval submission (no credit check needed)
-        proceedWithSubmission()
-          .then(() => {
-            // Clear sessionStorage on successful submission
-            sessionStorage.removeItem('pendingSubmission')
-          })
-          .catch((err) => {
-            console.error('Error submitting after setup:', err)
-            setError(err instanceof Error ? err.message : 'Failed to submit. Please try again.')
-            setSubmitting(false)
-          })
-
-      } else if (urlParams.get('purchase') === 'success') {
+      // Handle purchase completion (paid bundle checkout)
+      if (urlParams.get('purchase') === 'success') {
         // Mark as handled to prevent re-runs
         hasAutoSubmittedRef.current = true
 
@@ -586,7 +565,22 @@ export default function SubmitPage() {
 
   const proceedWithSubmission = async () => {
     try {
-      // Step 0: Update user's phone number if SMS opt-in is enabled
+      // Step 0: Capture IP address for free eval rate limiting
+      let ipAddress: string | null = null
+      if (usingFreeEval) {
+        try {
+          const ipResponse = await fetch('/api/free-eval/get-ip')
+          if (ipResponse.ok) {
+            const ipData = await ipResponse.json()
+            ipAddress = ipData.ipAddress
+          }
+        } catch (ipError) {
+          console.warn('Failed to capture IP address:', ipError)
+          // Don't fail submission if IP capture fails
+        }
+      }
+
+      // Step 1: Update user's phone number if SMS opt-in is enabled
       if (phoneNumber && smsOptIn) {
         const { error: phoneUpdateError } = await supabase
           .from('user_roles')
@@ -598,7 +592,19 @@ export default function SubmitPage() {
         }
       }
 
-      // Step 1: Create submission in draft status
+      // Step 2: If using free eval, update the free_evaluations record with IP address
+      if (usingFreeEval && ipAddress) {
+        const { error: ipUpdateError } = await supabase
+          .from('free_evaluations')
+          .update({ ip_address: ipAddress })
+          .eq('user_id', userId)
+
+        if (ipUpdateError) {
+          console.warn('Failed to store IP address for rate limiting:', ipUpdateError)
+        }
+      }
+
+      // Step 3: Create submission in draft status
       // For trade_finder, use tradeFinderContext; for all other service types, use additionalContext
       const contextValue = serviceType === 'trade_finder'
         ? (tradeFinderContext || null)
@@ -626,7 +632,7 @@ export default function SubmitPage() {
 
       if (submissionError) throw submissionError
 
-      // Step 2: Create submission_files records (files already uploaded on drop)
+      // Step 4: Create submission_files records (files already uploaded on drop)
       for (const fileEntry of submissionFiles) {
         // Verify file was uploaded successfully
         if (!fileEntry.filePath) {
@@ -648,7 +654,7 @@ export default function SubmitPage() {
         }
       }
 
-      // Step 3: Update submission status to 'submitted' - this triggers credit consumption
+      // Step 5: Update submission status to 'submitted' - this triggers credit consumption
       const { error: updateError } = await supabase
         .from('submissions')
         .update({ status: 'submitted' })
@@ -661,7 +667,7 @@ export default function SubmitPage() {
         throw updateError
       }
 
-      // Step 4: Send confirmation email (non-blocking - don't fail if this errors)
+      // Step 6: Send confirmation email (non-blocking - don't fail if this errors)
       try {
         await fetch('/api/submissions/send-confirmation', {
           method: 'POST',
@@ -671,6 +677,18 @@ export default function SubmitPage() {
       } catch (emailError) {
         // Email is non-critical, just log the error
         console.error('Failed to send confirmation email:', emailError)
+      }
+
+      // Step 7: Send admin notification email (non-blocking - don't fail if this errors)
+      try {
+        await fetch('/api/submissions/notify-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submission_id: submission.id })
+        })
+      } catch (emailError) {
+        // Email is non-critical, just log the error
+        console.error('Failed to send admin notification email:', emailError)
       }
 
       // Success - clear any saved form data and redirect to confirmation

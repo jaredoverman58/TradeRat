@@ -445,10 +445,10 @@ export default function PrivacyPage() {
             <p style={{ marginBottom: '16px' }}>
               To submit a request, email{' '}
               <a
-                href="mailto:privacy@traderat.com"
+                href="mailto:jaredoverman58@gmail.com"
                 style={{ color: '#C9A84C', textDecoration: 'underline' }}
               >
-                privacy@traderat.com
+                jaredoverman58@gmail.com
               </a>
               {' '}and provide sufficient information to identify your account and describe the request. We will
               use personal information submitted with the request only to verify identity and process the request.
@@ -539,19 +539,19 @@ export default function PrivacyPage() {
             <p style={{ marginBottom: '4px' }}>
               Email:{' '}
               <a
-                href="mailto:privacy@traderat.com"
+                href="mailto:jaredoverman58@gmail.com"
                 style={{ color: '#C9A84C', textDecoration: 'underline' }}
               >
-                privacy@traderat.com
+                jaredoverman58@gmail.com
               </a>
             </p>
             <p>
               General Support:{' '}
               <a
-                href="mailto:support@traderat.com"
+                href="mailto:jaredoverman58@gmail.com"
                 style={{ color: '#C9A84C', textDecoration: 'underline' }}
               >
-                support@traderat.com
+                jaredoverman58@gmail.com
               </a>
             </p>
           </section>

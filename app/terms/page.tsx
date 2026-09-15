@@ -449,10 +449,10 @@ export default function TermsPage() {
             <p>
               Questions about these terms? Contact us at{' '}
               <a
-                href="mailto:support@traderat.com"
+                href="mailto:jaredoverman58@gmail.com"
                 style={{ color: '#C9A84C', textDecoration: 'underline' }}
               >
-                support@traderat.com
+                jaredoverman58@gmail.com
               </a>
             </p>
           </section>
