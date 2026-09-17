@@ -51,7 +51,7 @@ export default function WhyTheRatSeesWhatAlgorithmsMissPage() {
           </p>
 
           <p style={{ marginBottom: '24px' }}>
-            I&apos;ve seen him take a roster that looked cooked by Week 4 — the kind of draft-day disaster that sends most managers into rebuild mode — and turn it into a legitimate title contender by November. More than once. Not by luck. Not by waiver wire fortune. By identifying the exact moment another manager&apos;s confidence cracked, and making the trade that nobody else saw coming.
+            I&apos;ve seen him take a roster that looked cooked by Week 4 — the kind of draft-day disaster that sends most managers into rebuild mode — and turn it into a legitimate title contender by November. More than once. Not by luck. Not by waiver wire fortune. By identifying soft spots in the league that nobody else saw, and making trade after trade. Not every trade turns out to be a winner, but if you can hit on most, like The Rat, you don&apos;t just win a trade here and there. You win the league.
           </p>
 
           <p style={{ marginBottom: '24px' }}>
@@ -67,7 +67,7 @@ export default function WhyTheRatSeesWhatAlgorithmsMissPage() {
           </p>
 
           <p style={{ marginBottom: '24px' }}>
-            Where most analysts see a fair exchange, The Rat finds the soft spot. The offer that looks balanced on paper but tilts heavily in your favor once you understand the psychology behind it.
+            Where most analysts see a fair exchange, The Rat finds the soft spot. The offer that looks balanced on paper but tilts heavily (or sometimes slightly) in your favor once you understand the psychology behind it.
           </p>
 
           <p style={{ marginBottom: '24px' }}>

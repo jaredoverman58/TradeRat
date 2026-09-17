@@ -42,6 +42,7 @@ export async function updateSession(request: NextRequest) {
     '/faq',      // FAQ should be public
     '/contact',  // Contact page should be public
     '/pricing',  // Pricing page should be public
+    '/article',  // Article pages should be public
   ]
 
   const isPublicRoute = publicRoutes.some(route =>
