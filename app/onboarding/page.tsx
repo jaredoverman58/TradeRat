@@ -1,15 +1,16 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 
-export default function OnboardingPage() {
+function OnboardingFlow() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   // Check if video is enabled (from admin settings)
@@ -57,7 +58,30 @@ export default function OnboardingPage() {
       }
     }
 
-    router.push('/dashboard')
+    // Check if there's a purchase intent from signup
+    const intent = searchParams.get('intent')
+    if (intent === 'purchase') {
+      // Pass all purchase params through to dashboard
+      const params = new URLSearchParams()
+      params.set('complete_purchase', 'true')
+      const bundle = searchParams.get('bundle')
+      const service = searchParams.get('service')
+      const credits = searchParams.get('credits')
+      const price = searchParams.get('price')
+      const name = searchParams.get('name')
+      const desc = searchParams.get('desc')
+
+      if (bundle) params.set('bundle', bundle)
+      if (service) params.set('service', service)
+      if (credits) params.set('credits', credits)
+      if (price) params.set('price', price)
+      if (name) params.set('name', name)
+      if (desc) params.set('desc', desc)
+
+      router.push(`/dashboard?${params.toString()}`)
+    } else {
+      router.push('/dashboard')
+    }
     router.refresh()
   }
 
@@ -356,5 +380,13 @@ export default function OnboardingPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#0C0A07' }} />}>
+      <OnboardingFlow />
+    </Suspense>
   )
 }

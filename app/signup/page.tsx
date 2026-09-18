@@ -1,10 +1,10 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, Suspense } from 'react'
 
-export default function SignupPage() {
+function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -31,7 +32,30 @@ export default function SignupPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.push('/onboarding')
+        // Check if there's a purchase intent in URL params
+        const intent = searchParams.get('intent')
+        if (intent === 'purchase') {
+          // Pass all purchase params through to onboarding
+          const params = new URLSearchParams()
+          params.set('intent', 'purchase')
+          const bundle = searchParams.get('bundle')
+          const service = searchParams.get('service')
+          const credits = searchParams.get('credits')
+          const price = searchParams.get('price')
+          const name = searchParams.get('name')
+          const desc = searchParams.get('desc')
+
+          if (bundle) params.set('bundle', bundle)
+          if (service) params.set('service', service)
+          if (credits) params.set('credits', credits)
+          if (price) params.set('price', price)
+          if (name) params.set('name', name)
+          if (desc) params.set('desc', desc)
+
+          router.push(`/onboarding?${params.toString()}`)
+        } else {
+          router.push('/onboarding')
+        }
         router.refresh()
       }
     } catch (err) {
@@ -61,7 +85,30 @@ export default function SignupPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.push('/dashboard')
+        // Check if there's a purchase intent
+        const intent = searchParams.get('intent')
+        if (intent === 'purchase') {
+          // Pass all purchase params through to dashboard
+          const params = new URLSearchParams()
+          params.set('complete_purchase', 'true')
+          const bundle = searchParams.get('bundle')
+          const service = searchParams.get('service')
+          const credits = searchParams.get('credits')
+          const price = searchParams.get('price')
+          const name = searchParams.get('name')
+          const desc = searchParams.get('desc')
+
+          if (bundle) params.set('bundle', bundle)
+          if (service) params.set('service', service)
+          if (credits) params.set('credits', credits)
+          if (price) params.set('price', price)
+          if (name) params.set('name', name)
+          if (desc) params.set('desc', desc)
+
+          router.push(`/dashboard?${params.toString()}`)
+        } else {
+          router.push('/dashboard')
+        }
         router.refresh()
       }
     } catch (err) {
@@ -262,5 +309,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#0C0A07' }} />}>
+      <SignupForm />
+    </Suspense>
   )
 }

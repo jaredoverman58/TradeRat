@@ -5,6 +5,7 @@ import PurchaseMessage from './PurchaseMessage'
 import ProfileDropdown from './ProfileDropdown'
 import CollapsiblePurchases from './CollapsiblePurchases'
 import SignedAudio from '@/components/SignedAudio'
+import PurchaseCompleter from './PurchaseCompleter'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -145,6 +146,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
+      <PurchaseCompleter />
       {/* Header */}
       <div style={{ maxWidth: '1200px', margin: '0 auto 60px' }}>
         <PurchaseMessage />
