@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import BuyConfirmationModal from '@/components/BuyConfirmationModal'
 
 interface BundlePurchaseButtonProps {
@@ -28,9 +30,37 @@ export default function BundlePurchaseButton({
 }: BundlePurchaseButtonProps) {
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+  const supabase = createClient()
+  const router = useRouter()
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsLoggedIn(!!user)
+    }
+    checkAuth()
+  }, [supabase])
 
   // Show the confirmation modal
   const handlePurchase = () => {
+    // If not logged in, redirect to signup with purchase intent in URL
+    if (isLoggedIn === false) {
+      const params = new URLSearchParams({
+        intent: 'purchase',
+        bundle: bundleType,
+        service: serviceType,
+        credits: credits.toString(),
+        price: price.toString(),
+        name: name,
+        desc: description,
+      })
+      router.push(`/signup?${params.toString()}`)
+      return
+    }
+
+    // Otherwise show confirmation modal
     setShowModal(true)
   }
 
@@ -82,19 +112,19 @@ export default function BundlePurchaseButton({
     <>
       <button
         onClick={handlePurchase}
-        disabled={loading || disabled}
+        disabled={loading || disabled || isLoggedIn === null}
         style={{
           fontFamily: 'var(--font-dm-sans)',
           padding: '16px 40px',
-          backgroundColor: loading || disabled ? '#6b6457' : '#C9A84C',
+          backgroundColor: loading || disabled || isLoggedIn === null ? '#6b6457' : '#C9A84C',
           color: '#0C0A07',
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           fontSize: '0.875rem',
           border: 'none',
-          cursor: loading || disabled ? 'not-allowed' : 'pointer',
-          opacity: loading || disabled ? 0.6 : 1,
+          cursor: loading || disabled || isLoggedIn === null ? 'not-allowed' : 'pointer',
+          opacity: loading || disabled || isLoggedIn === null ? 0.6 : 1,
         }}
       >
         {loading ? 'Processing...' : buttonText}
