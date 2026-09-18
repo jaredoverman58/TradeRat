@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
     '/contact',  // Contact page should be public
     '/pricing',  // Pricing page should be public
     '/article',  // Article pages should be public
+    '/trade-finder',  // Trade Finder landing page for Google Ads sitelink
   ]
 
   const isPublicRoute = publicRoutes.some(route =>
