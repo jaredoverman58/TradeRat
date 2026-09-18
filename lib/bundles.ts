@@ -179,3 +179,39 @@ export const BUNDLES = {
     buttonText: 'Buy 5-Pack — $84.99',
   } as BundleConfig,
 }
+
+// Helper function to find bundle config by type and service
+export function findBundleConfig(
+  bundleType: string,
+  serviceType: string,
+  credits: number
+): BundleConfig | null {
+  // Find matching bundle in BUNDLES object
+  for (const bundle of Object.values(BUNDLES)) {
+    if (
+      bundle.bundleType === bundleType &&
+      bundle.serviceType === serviceType &&
+      bundle.credits === credits
+    ) {
+      return bundle
+    }
+  }
+  return null
+}
+
+// Server-side price validation - returns true if price matches the expected price
+export function validateBundlePrice(
+  bundleType: string,
+  serviceType: string,
+  credits: number,
+  priceInCents: number
+): boolean {
+  const bundle = findBundleConfig(bundleType, serviceType, credits)
+  if (!bundle) {
+    return false // Bundle configuration not found
+  }
+
+  // Convert expected price to cents and compare
+  const expectedPriceInCents = Math.round(bundle.price * 100)
+  return priceInCents === expectedPriceInCents
+}

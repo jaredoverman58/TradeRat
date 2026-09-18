@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { validateBundlePrice } from '@/lib/bundles'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
@@ -30,6 +31,21 @@ export async function POST(request: Request) {
     if (!bundle_type || !service_type || !price || !name || !description || credits === undefined) {
       return NextResponse.json(
         { error: 'Missing required bundle configuration' },
+        { status: 400 }
+      )
+    }
+
+    // SECURITY: Validate price against server-side bundle configuration
+    const isValidPrice = validateBundlePrice(bundle_type, service_type, credits, price)
+    if (!isValidPrice) {
+      console.error('Price validation failed:', {
+        bundle_type,
+        service_type,
+        credits,
+        received_price: price,
+      })
+      return NextResponse.json(
+        { error: 'Invalid bundle configuration' },
         { status: 400 }
       )
     }
