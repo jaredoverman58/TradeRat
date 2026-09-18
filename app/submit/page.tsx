@@ -2079,12 +2079,22 @@ export default function SubmitPage() {
                       fontSize: '0.875rem',
                       color: '#F2EDE4',
                     }}>
-                      <strong>{submissionFiles.length} of {actualNumTeams} rosters uploaded</strong>
-                      {submissionFiles.length < actualNumTeams && (
-                        <span style={{ color: '#6b6457', marginLeft: '8px' }}>
-                          ({actualNumTeams - submissionFiles.length} remaining)
-                        </span>
-                      )}
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong>{submissionFiles.length} screenshots uploaded</strong>
+                        {submissionFiles.length < actualNumTeams && (
+                          <span style={{ color: '#ff6666', marginLeft: '8px', fontWeight: 600 }}>
+                            (minimum {actualNumTeams} required)
+                          </span>
+                        )}
+                        {submissionFiles.length >= actualNumTeams && (
+                          <span style={{ color: '#4CAF50', marginLeft: '8px' }}>
+                            ✓ Minimum met
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ color: '#6b6457', fontSize: '0.8125rem', lineHeight: '1.4' }}>
+                        Most fantasy platforms split a full roster across 2 screenshots (starters + bench). Upload as many as needed to show every team&apos;s complete roster — at least {actualNumTeams} total.
+                      </div>
                     </div>
                   )
                 })()}
@@ -2290,7 +2300,7 @@ export default function SubmitPage() {
               hasUploadErrors ||
               (userId && !selectedProfileId && !showNewProfileForm) ||
               (serviceType !== 'accept_decline' && submissionFiles.length === 0) ||
-              (serviceType === 'trade_finder' && submissionFiles.length !== actualNumTeams) ||
+              (serviceType === 'trade_finder' && submissionFiles.length < actualNumTeams) ||
               ((serviceType === 'trade_finder' || serviceType === 'counter_offer' || serviceType === 'bundle') && !hasOwnRosterMarked) ||
               (serviceType === 'trade_finder' && !tradeFinderContext.trim()) ||
               (smsOptIn && !phoneNumber) ||
