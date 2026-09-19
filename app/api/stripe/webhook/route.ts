@@ -104,8 +104,8 @@ export async function POST(request: Request) {
     const expiresAt = new Date(purchasedAt)
     expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
-    // Create bundle record
-    const { error: bundleError } = await supabase
+    // Create bundle record (guarantee_purchase_number initially null, stamped after if eligible)
+    const { data: insertedBundle, error: bundleError } = await supabase
       .from('bundles')
       .insert({
         user_id: userId,
@@ -115,13 +115,57 @@ export async function POST(request: Request) {
         purchased_at: purchasedAt.toISOString(),
         expires_at: expiresAt.toISOString(),
       })
+      .select('id')
+      .single()
 
-    if (bundleError) {
+    if (bundleError || !insertedBundle) {
       console.error('Error creating bundle:', bundleError)
       return NextResponse.json(
         { error: 'Failed to create bundle' },
         { status: 500 }
       )
+    }
+
+    const bundleId = insertedBundle.id
+
+    // GUARANTEE ELIGIBILITY: Now that bundle exists, try to stamp it
+    // Eligible only if: single purchase (credits === 1) AND one of the 4 service types
+    const eligibleServiceTypes = ['accept_decline', 'counter_offer', 'bundle', 'trade_finder']
+    const isGuaranteeEligible = creditsRemaining === 1 && eligibleServiceTypes.includes(serviceType)
+
+    let guaranteePurchaseNumber: number | null = null
+
+    if (isGuaranteeEligible) {
+      // Attempt to claim a guarantee slot (atomically increments counter if < 100)
+      try {
+        const { data: newCount, error: rpcError } = await supabase.rpc('increment_guarantee_counter')
+
+        if (rpcError) {
+          console.error(`Failed to increment guarantee counter for user ${userId} (bundle ${bundleId}):`, rpcError)
+          // Log but do not fail the webhook - user still gets their credits, just not guarantee-stamped
+        } else if (newCount !== null) {
+          // Successfully claimed a slot - update the bundle with the guarantee number
+          const { error: updateError } = await supabase
+            .from('bundles')
+            .update({ guarantee_purchase_number: newCount })
+            .eq('id', bundleId)
+
+          if (updateError) {
+            console.error(`ERROR: Guarantee slot ${newCount} claimed but failed to stamp bundle ${bundleId}:`, updateError)
+            console.error('Manual intervention required - counter incremented but bundle not stamped')
+          } else {
+            guaranteePurchaseNumber = newCount
+            console.log(`Guarantee stamped: purchase #${newCount} for user ${userId} (bundle ${bundleId})`)
+          }
+        } else {
+          // Counter already at 100 - this purchase is not guarantee-eligible
+          console.log(`Guarantee cap reached - user ${userId} purchase not stamped (bundle ${bundleId})`)
+        }
+      } catch (err) {
+        // Unexpected error calling RPC
+        console.error(`Exception calling increment_guarantee_counter for user ${userId}:`, err)
+        // Continue without stamping - do not fail the webhook
+      }
     }
 
     // Grant bonus Accept/Decline credits for Trade Finder purchases
@@ -141,6 +185,7 @@ export async function POST(request: Request) {
 
       if (bonusCredits !== null) {
         // Insert second bundle for bonus Accept/Decline credits
+        // Note: Bonus credits do NOT get guarantee stamping (only primary purchase does)
         const { error: bonusError } = await supabase
           .from('bundles')
           .insert({
@@ -162,8 +207,9 @@ export async function POST(request: Request) {
       }
     }
 
+    const guaranteeMessage = guaranteePurchaseNumber ? ` [GUARANTEE #${guaranteePurchaseNumber}]` : ''
     const bonusMessage = bonusGranted ? ` + ${bonusCredits} bonus accept_decline credits` : ''
-    console.log(`Bundle created successfully for user ${userId}: ${bundleType} (${serviceType}) - ${creditsRemaining} credits${bonusMessage}`)
+    console.log(`Bundle created successfully for user ${userId}: ${bundleType} (${serviceType}) - ${creditsRemaining} credits${bonusMessage}${guaranteeMessage}`)
   }
 
   return NextResponse.json({ received: true })
