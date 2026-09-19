@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RatingPrompt from './RatingPrompt'
+import GuaranteeRequestForm from './GuaranteeRequestForm'
 import SafeHtmlRenderer from './SafeHtmlRenderer'
 import SignedAudio from '@/components/SignedAudio'
 
@@ -258,31 +259,11 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
               />
             )}
 
-            {/* TEMPORARY: Guarantee Eligibility Check Placeholder */}
-            {isGuaranteeEligible && (
-              <div style={{
-                border: '2px solid #C9A84C',
-                padding: '24px',
-                marginBottom: '40px',
-                backgroundColor: '#1a1710',
-              }}>
-                <div style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.875rem',
-                  color: '#C9A84C',
-                }}>
-                  ✓ GUARANTEE ELIGIBLE - Refund button will appear here
-                </div>
-                <div style={{
-                  fontFamily: 'var(--font-dm-sans)',
-                  fontSize: '0.75rem',
-                  color: '#6b6457',
-                  marginTop: '8px',
-                }}>
-                  Purchase #{bundle?.guarantee_purchase_number} | Delivered {deliveredAt?.toLocaleDateString()}
-                </div>
-              </div>
-            )}
+            {/* Money-Back Guarantee Request Form */}
+            <GuaranteeRequestForm
+              submissionId={submission.id}
+              isEligible={isGuaranteeEligible}
+            />
 
             {/* Request Details */}
             <div style={{
