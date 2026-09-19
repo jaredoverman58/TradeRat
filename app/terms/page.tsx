@@ -241,6 +241,29 @@ export default function TermsPage() {
               available through the user&apos;s account or sent to the user&apos;s registered email address. All
               deadlines are calculated using Eastern Time.
             </p>
+            <h3 style={{
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: '#F2EDE4',
+              marginTop: '24px',
+              marginBottom: '12px',
+            }}>
+              Money-Back Guarantee (Limited Time)
+            </h3>
+            <p style={{ marginBottom: '16px' }}>
+              Separately from the late-delivery refund policy above, Trade Rat offers a money-back guarantee for
+              the first 100 qualifying purchases: single-purchase Accept/Decline, Counter Offer, Bundle, and Trade
+              Finder (single evaluation) services. This guarantee does not apply to free evaluations or multi-evaluation
+              packs (3-Pack or 5-Pack).
+            </p>
+            <p style={{ marginBottom: '16px' }}>
+              If you are not satisfied with the analysis you receive, you may request a full refund or a free
+              replacement evaluation within 7 days of delivery, along with a brief explanation of your dissatisfaction.
+              This guarantee is limited to one redemption per customer and does not require the late-delivery or
+              trade-deadline conditions described above. This is a limited-time offer tied to Trade Rat&apos;s first
+              100 qualifying purchases and may end without further notice once that limit is reached.
+            </p>
           </section>
 
           {/* Section 8 */}
