@@ -18,7 +18,7 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
 
   const { id } = await params
 
-  // Fetch submission with response and expert info
+  // Fetch submission with response, expert info, bundle (for guarantee check), and user guarantee status
   const { data: submission } = await supabase
     .from('submissions')
     .select(`
@@ -33,6 +33,9 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
         league_name,
         platform,
         scoring_format
+      ),
+      bundles!submissions_bundle_id_fkey (
+        guarantee_purchase_number
       )
     `)
     .eq('id', id)
@@ -42,6 +45,13 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
   if (!submission) {
     notFound()
   }
+
+  // Fetch user's guarantee redemption status
+  const { data: userData } = await supabase
+    .from('users')
+    .select('guarantee_redeemed_at')
+    .eq('id', user.id)
+    .single()
 
   // Get the active (non-recalled) response
   const response = Array.isArray(submission.responses) && submission.responses.length > 0
@@ -54,6 +64,20 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
                             submission.service_type === 'counter_offer' ||
                             submission.service_type === 'bundle'
   const isTradeFinder = submission.service_type === 'trade_finder'
+
+  // GUARANTEE ELIGIBILITY CHECK
+  const bundle = submission.bundles
+  const hasGuaranteePurchaseNumber = bundle?.guarantee_purchase_number !== null && bundle?.guarantee_purchase_number !== undefined
+  const hasNotRedeemedGuarantee = userData?.guarantee_redeemed_at === null || userData?.guarantee_redeemed_at === undefined
+  const isCompleted = submission.status === 'completed'
+
+  // Check if delivered within last 7 days
+  const deliveredAt = submission.delivered_at ? new Date(submission.delivered_at) : null
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const isWithin7Days = deliveredAt ? deliveredAt >= sevenDaysAgo : false
+
+  const isGuaranteeEligible = hasGuaranteePurchaseNumber && hasNotRedeemedGuarantee && isCompleted && isWithin7Days
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C0A07', padding: '40px 24px' }}>
@@ -232,6 +256,32 @@ export default async function AdvicePage({ params }: { params: Promise<{ id: str
                 submissionId={submission.id}
                 deliveredAt={submission.delivered_at}
               />
+            )}
+
+            {/* TEMPORARY: Guarantee Eligibility Check Placeholder */}
+            {isGuaranteeEligible && (
+              <div style={{
+                border: '2px solid #C9A84C',
+                padding: '24px',
+                marginBottom: '40px',
+                backgroundColor: '#1a1710',
+              }}>
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.875rem',
+                  color: '#C9A84C',
+                }}>
+                  ✓ GUARANTEE ELIGIBLE - Refund button will appear here
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  color: '#6b6457',
+                  marginTop: '8px',
+                }}>
+                  Purchase #{bundle?.guarantee_purchase_number} | Delivered {deliveredAt?.toLocaleDateString()}
+                </div>
+              </div>
             )}
 
             {/* Request Details */}
