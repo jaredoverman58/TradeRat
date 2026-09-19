@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-02-24.acacia',
+});
 
 export async function POST(request: Request) {
   try {
@@ -56,7 +61,7 @@ export async function POST(request: Request) {
 
     const { data: bundle, error: bundleError } = await supabase
       .from('bundles')
-      .select('guarantee_purchase_number')
+      .select('guarantee_purchase_number, stripe_payment_intent_id')
       .eq('id', submission.bundle_id)
       .single();
 
@@ -123,6 +128,33 @@ export async function POST(request: Request) {
       );
     }
 
+    // If remedy is 'refund', process Stripe refund BEFORE database write
+    let stripeRefundId: string | null = null;
+    
+    if (remedy === 'refund') {
+      if (!bundle.stripe_payment_intent_id) {
+        return NextResponse.json(
+          { error: 'Cannot process refund: payment information not found' },
+          { status: 500 }
+        );
+      }
+
+      try {
+        const refund = await stripe.refunds.create({
+          payment_intent: bundle.stripe_payment_intent_id,
+        });
+        stripeRefundId = refund.id;
+        console.log(`Stripe refund created: ${refund.id} for payment_intent ${bundle.stripe_payment_intent_id}`);
+      } catch (stripeError: any) {
+        console.error('Stripe refund failed:', stripeError);
+        return NextResponse.json(
+          { error: `Failed to process refund: ${stripeError.message || 'Unknown Stripe error'}` },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Stripe refund succeeded (or remedy is 'credit') - proceed with database write
     const serviceSupabase = createServiceClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -137,6 +169,15 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('redeem_guarantee RPC error:', error);
+      
+      // CRITICAL: If Stripe refund succeeded but database write failed, manual reconciliation needed
+      if (stripeRefundId) {
+        console.error('MANUAL RECONCILIATION NEEDED: Stripe refund succeeded but database write failed');
+        console.error(`Stripe refund ID: ${stripeRefundId}`);
+        console.error(`Payment intent: ${bundle.stripe_payment_intent_id}`);
+        console.error(`User: ${user.id}, Submission: ${submissionId}`);
+      }
+      
       throw error;
     }
 
