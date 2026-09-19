@@ -114,6 +114,7 @@ export async function POST(request: Request) {
         credits_remaining: creditsRemaining,
         purchased_at: purchasedAt.toISOString(),
         expires_at: expiresAt.toISOString(),
+        stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null,
       })
       .select('id')
       .single()
