@@ -125,6 +125,15 @@ export default function SubmitPage() {
     supabaseRef.current = supabase
   }, [userId, draftId, supabase])
 
+  // TEMPORARY: Capture-phase dragover diagnostic
+  useEffect(() => {
+    const logTarget = (e: DragEvent) => {
+      console.log('CAPTURE dragover target:', e.target, (e.target as HTMLElement)?.outerHTML?.slice(0, 200))
+    }
+    window.addEventListener('dragover', logTarget, true) // true = capture phase, fires FIRST before any other handler
+    return () => window.removeEventListener('dragover', logTarget, true)
+  }, [])
+
   // Load user and league profiles
   useEffect(() => {
     async function loadData() {
