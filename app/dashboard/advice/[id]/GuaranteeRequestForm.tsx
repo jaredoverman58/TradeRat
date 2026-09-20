@@ -12,8 +12,8 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [reason, setReason] = useState('')
+  const [remedy, setRemedy] = useState<'refund' | 'credit' | null>(null)
 
-  // Safety fallback - parent decides visibility, but this protects against misuse
   if (!isEligible) {
     return null
   }
@@ -21,7 +21,7 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!reason.trim()) return
+    if (!reason.trim() || !remedy) return
 
     setSubmitting(true)
     setError(null)
@@ -33,7 +33,7 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
         body: JSON.stringify({
           submissionId,
           reason: reason.trim(),
-          remedy: 'refund', // Fixed to refund-only for now
+          remedy,
         }),
       })
 
@@ -43,7 +43,6 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
         throw new Error(result.error || 'Failed to submit guarantee request')
       }
 
-      // Success - show confirmation
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit guarantee request')
@@ -51,7 +50,6 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
     }
   }
 
-  // If already submitted successfully, show confirmation
   if (success) {
     return (
       <div style={{
@@ -67,7 +65,7 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
           color: '#4ade80',
           marginBottom: '16px',
         }}>
-          ✓ Refund Processed
+          {remedy === 'refund' ? 'Refund Processed' : 'Replacement Credit Added'}
         </h3>
         <p style={{
           fontFamily: 'var(--font-dm-sans)',
@@ -75,7 +73,9 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
           color: '#F2EDE4',
           marginBottom: '12px',
         }}>
-          Your full refund has been processed and will appear in your original payment method within 5-10 business days.
+          {remedy === 'refund'
+            ? 'Your full refund has been processed and will appear in your original payment method within 5-10 business days.'
+            : 'A free replacement credit has been added to your account. You can submit a new request anytime.'}
         </p>
         <p style={{
           fontFamily: 'var(--font-dm-sans)',
@@ -88,7 +88,6 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
     )
   }
 
-  // Show guarantee request form
   return (
     <form onSubmit={handleSubmit} style={{
       border: '2px solid #C9A84C',
@@ -111,10 +110,71 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
         color: '#6b6457',
         marginBottom: '24px',
       }}>
-        Not satisfied with this analysis? Request a full refund.
+        Request a full refund or free replacement evaluation.
       </p>
 
-      {/* Reason textarea */}
+      <div style={{ marginBottom: '24px' }}>
+        <label style={{
+          fontFamily: 'var(--font-dm-sans)',
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          color: '#F2EDE4',
+          display: 'block',
+          marginBottom: '12px',
+        }}>
+          Choose your remedy <span style={{ color: '#ff6b6b' }}>*</span>
+        </label>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setRemedy('refund')}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: '16px',
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              textAlign: 'left',
+              backgroundColor: remedy === 'refund' ? 'rgba(201, 168, 76, 0.1)' : 'transparent',
+              border: `2px solid ${remedy === 'refund' ? '#C9A84C' : '#2a261e'}`,
+              color: '#F2EDE4',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              opacity: submitting ? 0.5 : 1,
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: '4px' }}>Full Refund</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b6457' }}>
+              Money back in 5-10 business days
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRemedy('credit')}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: '16px',
+              fontFamily: 'var(--font-dm-sans)',
+              fontSize: '0.875rem',
+              textAlign: 'left',
+              backgroundColor: remedy === 'credit' ? 'rgba(201, 168, 76, 0.1)' : 'transparent',
+              border: `2px solid ${remedy === 'credit' ? '#C9A84C' : '#2a261e'}`,
+              color: '#F2EDE4',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              opacity: submitting ? 0.5 : 1,
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: '4px' }}>Free Replacement</div>
+            <div style={{ fontSize: '0.75rem', color: '#6b6457' }}>
+              Get a free do-over analysis
+            </div>
+          </button>
+        </div>
+      </div>
+
       <div style={{ marginBottom: '24px' }}>
         <label style={{
           fontFamily: 'var(--font-dm-sans)',
@@ -147,7 +207,6 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
         />
       </div>
 
-      {/* One-time guarantee disclosure */}
       <div style={{
         padding: '16px',
         marginBottom: '24px',
@@ -160,32 +219,30 @@ export default function GuaranteeRequestForm({ submissionId, isEligible }: Guara
           color: '#6b6457',
           lineHeight: 1.6,
         }}>
-          ⚠️ This uses your one-time guarantee for this account. You won&apos;t be able to request this again on a future purchase.
+          Either option uses your one-time guarantee for this account. You won&apos;t be able to request this again on a future purchase.
         </p>
       </div>
 
-      {/* Submit button */}
       <button
         type="submit"
-        disabled={!reason.trim() || submitting}
+        disabled={!reason.trim() || !remedy || submitting}
         style={{
           padding: '12px 24px',
           fontFamily: 'var(--font-dm-sans)',
           fontSize: '0.875rem',
           fontWeight: 600,
-          color: !reason.trim() ? '#6b6457' : '#0C0A07',
-          backgroundColor: !reason.trim() ? '#2a261e' : '#C9A84C',
+          color: (!reason.trim() || !remedy) ? '#6b6457' : '#0C0A07',
+          backgroundColor: (!reason.trim() || !remedy) ? '#2a261e' : '#C9A84C',
           border: 'none',
-          cursor: (!reason.trim() || submitting) ? 'not-allowed' : 'pointer',
+          cursor: (!reason.trim() || !remedy || submitting) ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
         }}
       >
-        {submitting ? 'Processing...' : 'Request Refund'}
+        {submitting ? 'Processing...' : 'Submit Request'}
       </button>
 
-      {/* Error display */}
       {error && (
         <div style={{
           marginTop: '16px',
