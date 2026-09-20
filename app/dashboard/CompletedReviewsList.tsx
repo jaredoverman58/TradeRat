@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import SignedAudio from '@/components/SignedAudio'
+import SafeHtmlRenderer from '@/components/SafeHtmlRenderer'
 
 type CompletedSubmission = {
   id: string
@@ -117,7 +118,15 @@ export default function CompletedReviewsList({ completedSubmissions }: Completed
                     maxHeight: '200px',
                     overflow: 'auto',
                   }}>
-                    {submission.response[0].written_content}
+                    <SafeHtmlRenderer
+                      html={submission.response[0].written_content}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)',
+                        fontSize: '0.875rem',
+                        color: '#F2EDE4',
+                        lineHeight: '1.6',
+                      }}
+                    />
                   </div>
                 </div>
 

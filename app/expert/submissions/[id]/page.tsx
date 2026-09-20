@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RespondForm from './RespondForm'
 import SignedImage from '@/components/SignedImage'
-import SafeHtmlRenderer from '@/app/dashboard/advice/[id]/SafeHtmlRenderer'
+import SafeHtmlRenderer from '@/components/SafeHtmlRenderer'
 import DeadlineCountdown from './DeadlineCountdown'
 import styles from './SubmissionDetail.module.css'
 

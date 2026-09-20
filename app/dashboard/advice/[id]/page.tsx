@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RatingPrompt from './RatingPrompt'
 import GuaranteeRequestForm from './GuaranteeRequestForm'
-import SafeHtmlRenderer from './SafeHtmlRenderer'
+import SafeHtmlRenderer from '@/components/SafeHtmlRenderer'
 import SignedAudio from '@/components/SignedAudio'
 
 export default async function AdvicePage({ params }: { params: Promise<{ id: string }> }) {
