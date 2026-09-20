@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
 interface BuyConfirmationModalProps {
   variant: 'landing' | 'pricing'
   serviceType: 'accept_decline' | 'counter_offer' | 'bundle' | 'trade_finder'
@@ -21,6 +23,27 @@ export default function BuyConfirmationModal({
   onConfirm,
   onCancel,
 }: BuyConfirmationModalProps) {
+  const [slotsText, setSlotsText] = useState<string | null>(null)
+
+  // Fetch guarantee slots counter on mount if eligible
+  useEffect(() => {
+    const isEligible = !credits || credits === 1
+
+    if (isEligible) {
+      fetch('/api/guarantee/slots')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.isAvailable && data.bucketedSlots) {
+            setSlotsText(data.bucketedSlots)
+          }
+        })
+        .catch((err) => {
+          // Fail silently - this is a nice-to-have feature
+          console.error('Failed to fetch guarantee slots:', err)
+        })
+    }
+  }, [credits])
+
   // Service name mapping (fallback if no name prop provided)
   const serviceNames = {
     accept_decline: 'Accept/Decline',
@@ -190,6 +213,41 @@ export default function BuyConfirmationModal({
               </span>
             )}
           </div>
+
+          {/* Guarantee slots counter (only for single purchases) */}
+          {slotsText && (
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '10px 16px',
+                border: '1px solid #C9A84C',
+                backgroundColor: 'rgba(201, 168, 76, 0.1)',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: '#C9A84C',
+                }}
+              >
+                {slotsText} money-back guarantee slots remaining
+              </div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-dm-sans)',
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  color: '#6b6457',
+                  marginTop: '4px',
+                }}
+              >
+                We&apos;re a new service — this is how we&apos;re proving ourselves to you.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Landing variant: Full bullets */}
