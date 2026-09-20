@@ -171,6 +171,16 @@ export default function PricingPage() {
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_STANDARD} variant="landing" />
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_RAT_RATE} variant="landing" />
               </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginTop: '12px',
+                textAlign: 'center',
+              }}>
+                💰 Money-back guarantee (first 100 purchases)
+              </div>
             </div>
 
             {/* Counter Offer */}
@@ -200,6 +210,16 @@ export default function PricingPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_STANDARD} variant="landing" />
                 <BundlePurchaseButton {...BUNDLES.COUNTER_OFFER_RAT_RATE} variant="landing" />
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginTop: '12px',
+                textAlign: 'center',
+              }}>
+                💰 Money-back guarantee (first 100 purchases)
               </div>
             </div>
 
@@ -247,6 +267,16 @@ export default function PricingPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_STANDARD} variant="landing" />
                 <BundlePurchaseButton {...BUNDLES.ACCEPT_DECLINE_BONUS_RAT_RATE} variant="landing" />
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginTop: '12px',
+                textAlign: 'center',
+              }}>
+                💰 Money-back guarantee (first 100 purchases)
               </div>
             </div>
 
@@ -299,6 +329,16 @@ export default function PricingPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_STANDARD} variant="landing" />
                 <BundlePurchaseButton {...BUNDLES.TRADE_FINDER_RAT_RATE} variant="landing" />
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-dm-sans)',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#C9A84C',
+                marginTop: '12px',
+                textAlign: 'center',
+              }}>
+                💰 Money-back guarantee (first 100 purchases)
               </div>
             </div>
           </div>
