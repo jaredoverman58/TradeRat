@@ -113,6 +113,18 @@ export default function SubmitPage() {
   // Guard against double auto-submit
   const hasAutoSubmittedRef = useRef(false)
 
+  // Refs for stable onDrop callback
+  const userIdRef = useRef(userId)
+  const draftIdRef = useRef(draftId)
+  const supabaseRef = useRef(supabase)
+
+  // Update refs when values change
+  useEffect(() => {
+    userIdRef.current = userId
+    draftIdRef.current = draftId
+    supabaseRef.current = supabase
+  }, [userId, draftId, supabase])
+
   // Load user and league profiles
   useEffect(() => {
     async function loadData() {
@@ -370,7 +382,12 @@ export default function SubmitPage() {
   }, [creditsLoading, hasFreeEval, credits])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (!userId) {
+    // Read current values from refs
+    const currentUserId = userIdRef.current
+    const currentDraftId = draftIdRef.current
+    const currentSupabase = supabaseRef.current
+
+    if (!currentUserId) {
       setError('Please sign in before uploading files')
       return
     }
@@ -390,9 +407,9 @@ export default function SubmitPage() {
     newFiles.forEach(async (fileEntry, i) => {
       try {
         const fileExt = fileEntry.file.name.split('.').pop()
-        const fileName = `${userId}/${draftId}/${Date.now()}-${i}.${fileExt}`
+        const fileName = `${currentUserId}/${currentDraftId}/${Date.now()}-${i}.${fileExt}`
 
-        const { error } = await supabase.storage
+        const { error } = await currentSupabase.storage
           .from('trade-screenshots')
           .upload(fileName, fileEntry.file)
 
@@ -413,10 +430,13 @@ export default function SubmitPage() {
         ))
       }
     })
-  }, [userId, draftId, supabase])
+  }, []) // Empty dependencies - callback never recreates
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected: (fileRejections) => {
+      console.log('FILE REJECTIONS:', fileRejections)
+    },
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.webp']
     },
@@ -1884,6 +1904,7 @@ export default function SubmitPage() {
                 color: '#C9A84C',
                 marginBottom: '8px',
                 fontSize: '1.125rem',
+                pointerEvents: 'none',
               }}>
                 {isDragActive ? 'Drop files here' : 'Drag & drop screenshots here'}
               </div>
@@ -1891,6 +1912,7 @@ export default function SubmitPage() {
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '0.875rem',
                 color: '#6b6457',
+                pointerEvents: 'none',
               }}>
                 or click to browse (PNG, JPG, WEBP - Max 10MB each)
               </div>
