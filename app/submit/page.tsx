@@ -382,6 +382,8 @@ export default function SubmitPage() {
   }, [creditsLoading, hasFreeEval, credits])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    console.log('onDrop fired', acceptedFiles)
+
     // Read current values from refs
     const currentUserId = userIdRef.current
     const currentDraftId = draftIdRef.current
@@ -435,7 +437,7 @@ export default function SubmitPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     onDropRejected: (fileRejections) => {
-      console.log('FILE REJECTIONS:', fileRejections)
+      console.log('onDropRejected fired', fileRejections)
     },
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.webp']
