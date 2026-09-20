@@ -39,7 +39,7 @@ export default async function SubmissionDetailPage({
     .from('submissions')
     .select(`
       *,
-      league_profile:league_profiles(*),
+      league_profile:league_profiles!league_profile_id(*),
       submission_files(*)
     `)
     .eq('id', submissionId)

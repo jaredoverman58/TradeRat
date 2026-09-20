@@ -641,11 +641,37 @@ export default function SubmitPage() {
         ? (tradeFinderContext || null)
         : (additionalContext || null)
 
+      // Auto-create league profile if user filled in league details but didn't explicitly create profile
+      let finalProfileId = selectedProfileId
+      if (!selectedProfileId && leagueName.trim() && platform && scoringFormat && leagueType) {
+        const { data: autoProfile, error: autoProfileError } = await supabase
+          .from('league_profiles')
+          .insert({
+            user_id: userId,
+            league_name: leagueName,
+            platform: platform as any,
+            scoring_format: scoringFormat as any,
+            num_teams: numTeams,
+            league_type: leagueType as any
+          })
+          .select()
+          .single()
+
+        if (autoProfileError) {
+          throw new Error('Failed to save league information. Please try again.')
+        }
+
+        finalProfileId = autoProfile.id
+        // Update state for future submissions
+        setLeagueProfiles([autoProfile, ...leagueProfiles])
+        setSelectedProfileId(autoProfile.id)
+      }
+
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
         .insert({
           user_id: userId,
-          league_profile_id: selectedProfileId || null,
+          league_profile_id: finalProfileId || null,
           service_type: serviceType,
           offer_direction: serviceType === 'trade_finder' ? null : offerDirection,
           rate_tier: rateTier,
